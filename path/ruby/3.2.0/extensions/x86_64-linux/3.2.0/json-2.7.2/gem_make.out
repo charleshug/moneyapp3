@@ -1,0 +1,16 @@
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/json-2.7.2/ext/json
+/home/charles/.rbenv/versions/3.2.3/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240907-10937-uzyodk sitelibdir\=./.gem.20240907-10937-uzyodk clean
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240907-10937-uzyodk sitelibdir\=./.gem.20240907-10937-uzyodk
+make: Nothing to be done for 'all'.
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240907-10937-uzyodk sitelibdir\=./.gem.20240907-10937-uzyodk install
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/json-2.7.2/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20240907-10937-uzyodk sitelibdir\=./.gem.20240907-10937-uzyodk clean

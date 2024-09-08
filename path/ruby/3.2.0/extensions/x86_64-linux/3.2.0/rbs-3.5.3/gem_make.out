@@ -1,0 +1,28 @@
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/rbs-3.5.3/ext/rbs_extension
+/home/charles/.rbenv/versions/3.2.3/bin/ruby extconf.rb
+/home/charles/.rbenv/versions/3.2.3/bin/ruby: warning: Ruby was built without YJIT support. You may need to install rustc to build Ruby with YJIT.
+checking for whether -std=gnu99 is accepted as CFLAGS... yes
+creating Makefile
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/rbs-3.5.3/ext/rbs_extension
+make DESTDIR\= sitearchdir\=./.gem.20240907-12427-9eoh1t sitelibdir\=./.gem.20240907-12427-9eoh1t clean
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/rbs-3.5.3/ext/rbs_extension
+make DESTDIR\= sitearchdir\=./.gem.20240907-12427-9eoh1t sitelibdir\=./.gem.20240907-12427-9eoh1t
+compiling constants.c
+compiling lexer.c
+compiling lexstate.c
+compiling location.c
+compiling main.c
+compiling parser.c
+compiling parserstate.c
+compiling ruby_objs.c
+compiling unescape.c
+linking shared-object rbs_extension.so
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/rbs-3.5.3/ext/rbs_extension
+make DESTDIR\= sitearchdir\=./.gem.20240907-12427-9eoh1t sitelibdir\=./.gem.20240907-12427-9eoh1t install
+/usr/bin/install -c -m 0755 rbs_extension.so ./.gem.20240907-12427-9eoh1t
+
+current directory: /home/charles/repos/moneyapp3/path/ruby/3.2.0/gems/rbs-3.5.3/ext/rbs_extension
+make DESTDIR\= sitearchdir\=./.gem.20240907-12427-9eoh1t sitelibdir\=./.gem.20240907-12427-9eoh1t clean
