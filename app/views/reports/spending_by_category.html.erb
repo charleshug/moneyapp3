@@ -1,0 +1,62 @@
+<% provide(:title, "Spending by Category") %>
+<h2>Spending By Category</h2>
+
+<%= search_form_for @q, url: category_reports_path do |f| %>
+  <%= f.label :account_id_in, 'Account' %>
+  <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+
+  <%= f.label :category_id_in, 'Category' %>
+  <%= f.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+  
+  <%= f.label :subcategory_id_in, 'SubCategory' %>
+  <%= f.grouped_collection_select(
+    :subcategory_id_in,
+    @current_budget.categories.expense.includes(:subcategories),
+    :subcategories,
+    :name,
+    :id,
+    :name,
+    {include_blank: true},
+    {multiple: true}
+  ) %>
+
+  <%= f.label :date_gteq, 'From Date' %>
+  <%= f.date_field :date_gteq %>
+
+  <%= f.label :date_lteq, 'To Date' %>
+  <%= f.date_field :date_lteq %>
+
+  <%= f.submit "Filter" %>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% total_amount = 0 %>
+    <% @output.each do |parent_id, data| %>
+      <% category = Category.find_by(id: parent_id) %>
+      <% total_amount += data[:total] %>
+      <tr>
+        <td><strong><%= category.name %></strong></td>
+        <%# TODO Link to doesn't take date params %>
+        <td style="text-align: right;"><strong><%= link_to number_to_currency((data[:total] / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(subcategory_id_eq: parent_id )) %></strong></td>
+      </tr>
+      <% data[:subcategories].each do |subcategory_id, sub_amount| %>
+        <% subcategory = Subcategory.find_by(id: subcategory_id) %>
+        <tr>
+          <td style="padding-left: 20px;"><%= sub_category.name %></td>
+          <td style="text-align: right;"><%= link_to number_to_currency((sub_amount / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(subcategory_id_in: subcategory )) %></td>
+        </tr>
+      <% end %>
+    <% end %>
+    <tr>
+      <td><strong>Total</strong></td>
+      <td style="text-align: right;"><strong><%= number_to_currency((total_amount / 100.0), precision: 2) %></strong></td>
+    </tr>
+  </tbody>
+</table>

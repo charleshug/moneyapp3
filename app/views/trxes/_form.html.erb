@@ -1,0 +1,63 @@
+<%= form_with(model: trx) do |f| %>
+  <% if trx.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(trx.errors.count, "error") %> prohibited this trx from being saved:</h2>
+
+      <ul>
+        <% trx.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div>
+  <%= f.label :vendor %>
+  <%= f.select :vendor_id, grouped_options_for_select({
+      "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
+      "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
+    }, f.object.vendor_id), prompt: "Select Vendor" %>
+</div>
+<div>
+  <%= f.label :account, "Account" %>
+  <%= f.select(
+    :account_id,
+    grouped_options_for_select(@current_budget.accounts.for_select, f.object.account_id),
+    {:prompt => 'Select Account'}
+    ) %>
+</div>
+<div>
+  <%= f.label :date %>
+  <%= f.date_field :date, :value => (f.object.date || Date.today ) %>
+</div>
+<div>
+  <%= f.label :subcategory %>
+  <%= f.grouped_collection_select(
+    :subcategory_id,
+    @current_budget.categories.includes(:subcategories),
+    :subcategories,
+    :name,
+    :id,
+    :name,
+    { prompt: 'Select Category'}
+  ) %>
+</div>
+<div>
+  <%= f.label :memo %>
+  <%= f.text_field :memo, placeholder:"Enter a memo..." %>
+</div>
+<div>
+  <%= f.label :amount %>
+  <%= f.number_field :amount, step: '0.01', placeholder: "Enter amount", value: formatted_amount_for_form(trx.amount) %>
+</div>
+<div>
+  <%= f.label :cleared %>
+  <%= f.check_box :cleared %>
+</div>
+  
+
+
+  <div>
+    <%= f.submit %>
+  </div>
+<% end %>

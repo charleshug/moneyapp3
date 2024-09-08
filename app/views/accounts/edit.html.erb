@@ -1,0 +1,21 @@
+<% provide(:title, "Accounts") %>
+<h1>Editing Account</h1>
+<% if flash[:alert] %>
+  <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%= render "form", account: @account %>
+
+<br>
+
+<div>
+  <%= link_to "Delete Account", account_path(@account), data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %>
+</div>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || accounts_path %>
+</div>

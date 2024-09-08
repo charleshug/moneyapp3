@@ -1,4 +1,4 @@
-<%= form_with(model: budget) do |form| %>
+<%= form_with(model: budget) do |f| %>
   <% if budget.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(budget.errors.count, "error") %> prohibited this budget from being saved:</h2>
@@ -10,28 +10,24 @@
       </ul>
     </div>
   <% end %>
-
+  
   <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
+    <%= f.label :name %>
+    <%= f.text_field :name, placeholder: "Enter a name..." %>
+  </div>
+  <div>
+    <%= f.label :description %>
+    <%= f.text_field :description, placeholder: "Enter a description..." %>
   </div>
 
   <div>
-    <%= form.label :description, style: "display: block" %>
-    <%= form.text_field :description %>
+    <%= f.label :budget_type, style: "display: block" %>
+    <%= f.select :budget_type, Budget::BUDGET_TYPES %>
   </div>
 
-  <div>
-    <%= form.label :currency, style: "display: block" %>
-    <%= form.text_field :currency %>
-  </div>
+  <br>
 
   <div>
-    <%= form.label :user_id, style: "display: block" %>
-    <%= form.text_field :user_id %>
-  </div>
-
-  <div>
-    <%= form.submit %>
+    <%= f.submit %>
   </div>
 <% end %>

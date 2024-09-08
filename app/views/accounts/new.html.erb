@@ -1,0 +1,10 @@
+<% provide(:title, "Accounts") %>
+<h1>New Account</h1>
+
+<%= render "form", account: @account %>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || accounts_path %>
+</div>

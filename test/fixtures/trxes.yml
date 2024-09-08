@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date: 2024-09-07
+  amount: 1
+  memo: MyString
+  account: one
+  subcategory: one
+  vendor: one
+  ledger: one
+  cleared: false
+  transfer_id: 1
+
+two:
+  date: 2024-09-07
+  amount: 1
+  memo: MyString
+  account: two
+  subcategory: two
+  vendor: two
+  ledger: two
+  cleared: false
+  transfer_id: 1

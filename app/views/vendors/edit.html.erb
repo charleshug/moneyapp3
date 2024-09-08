@@ -1,0 +1,10 @@
+<% provide(:title, "Edit Vendor") %>
+<h1>Editing Vendor</h1>
+
+<%= render "form", vendor: @vendor %>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || root_path %>
+</div>

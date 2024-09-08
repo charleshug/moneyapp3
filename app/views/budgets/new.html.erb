@@ -1,11 +1,10 @@
-<% content_for :title, "New budget" %>
-
-<h1>New budget</h1>
+<% provide(:title, "Create Budget") %>
+<h1>New Budget</h1>
 
 <%= render "form", budget: @budget %>
 
 <br>
 
 <div>
-  <%= link_to "Back to budgets", budgets_path %>
+  <%= link_to "Back", request.referer || budgets_path %>
 </div>

@@ -1,0 +1,43 @@
+<%= form_with(model: account) do |f| %>
+  <% if account.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(account.errors.count, "error") %> prohibited this trx from being saved:</h2>
+
+      <ul>
+        <% account.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+<div>
+  <%= f.label :name %>
+  <%= f.text_field :name, placeholder: "Enter a name..." %>
+</div>
+<div>
+  <%= f.label :on_budget, "On Budget Account?" %>
+  <%= f.check_box :on_budget %>
+</div>
+<div>
+  <%= f.label :closed, "Closed?" %>
+  <%= f.check_box :closed %>
+</div>
+
+<% unless account.persisted? %>
+  <div>
+    <%= f.label :starting_date %>
+    <%= f.date_field :starting_date, :value => Date.today %>
+  </div>
+  <div>
+    <%= f.label :starting_balance %>
+    <%= f.number_field :starting_balance, step: '0.01', placeholder: "Enter starting balance" %>
+  </div>
+<% end %>
+  
+
+
+  <div>
+    <%= f.submit %>
+  </div>
+<% end %>

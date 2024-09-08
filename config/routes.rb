@@ -1,5 +1,29 @@
 Rails.application.routes.draw do
-  resources :budgets
+  get "home/index"
+
+  resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ] do
+    collection do
+      post :import
+      get "import_review", to: "trxes#import_review"
+      post "submit_import", to: "trxes#submit_import"
+      get :csv_export, format: :csv  # Add this line for CSV export
+    end
+  end
+
+  resources :accounts
+  resources :ledgers
+  resources :vendors
+  resources :categories
+  resources :subcategories
+
+  resources :budgets do
+    member do
+      post "set_current"
+    end
+  end
+
+  post "update_budget_values", to: "budgets#update_budgets"
+
   devise_for :users, controllers: {
     sessions: "users/sessions",
     registrations: "users/registrations"
@@ -17,4 +41,12 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  get "reports", to: "reports#net_worth", as: "reports"
+  get "reports/income_expense", to: "reports#income_expense", as: "income_expense_reports"
+  get "reports/net_worth", to: "reports#net_worth", as: "net_worth_reports"
+  get "reports/vendor", to: "reports#spending_by_vendor", as: "vendor_reports"
+  get "reports/category", to: "reports#spending_by_category", as: "category_reports"
+
+  root "accounts#index"
 end

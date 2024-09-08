@@ -1,0 +1,36 @@
+<% provide(:title, "Import Transactions") %>
+<h1>Review Transactions</h1>
+<%= form_with url: submit_import_trxes_path, method: :post do %>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Account</th>
+        <th>Vendor</th>
+        <th>Category</th>
+        <th>Subcategory</th>
+        <th>Memo</th>
+        <th>Amount</th>
+        <th>Include</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @trxes.each_with_index do |trx, index| %>
+        <tr>
+          <td><%= date_field_tag "trx[trxes][#{index}][date]", trx["Date"] %></td>
+          <td><%= select_tag "trx[trxes][#{index}][account_id]", options_from_collection_for_select(Account.all, :id, :name, selected: Account.find_by(name: trx["Account"]).id) %></td>
+          <td><%= select_tag "trx[trxes][#{index}][vendor_id]", options_from_collection_for_select(Vendor.all, :id, :name, selected: Vendor.find_or_create_by(name: trx["Vendor"]).id) %></td>
+          <td><%= select_tag "trx[trxes][#{index}][category_id]", options_from_collection_for_select(Category.all, :id, :name, selected: Category.find_by(name: trx["Category"])&.id || Category.find_or_create_by(name: "Other").id) %></td>
+          <td><%= select_tag "trx[trxes][#{index}][subcategory_id]", options_from_collection_for_select(Subcategory.all, :id, :name, selected: Subcategory.find_by(name: trx["Category"])&.id || Subcategory.find_or_create_by(name: "Uncategorized").id) %></td>
+          <td><%= text_field_tag "trx[trxes][#{index}][memo]", trx["Memo"] %></td>
+          <td><%= number_field_tag "trx[trxes][#{index}][amount]", trx["Amount"] %></td>
+          <td><%= check_box_tag "trx[trxes][#{index}][include]", '1', true %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= submit_tag "Submit Transactions" %>
+<% end %>
+
+<%= link_to 'Cancel', trxes_path %>

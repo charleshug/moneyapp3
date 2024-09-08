@@ -6,7 +6,12 @@
 
 <br>
 
+<%= form_with url: budget_path(@budget), method: :delete, local: true, data: { turbo_confirm: "Are you sure?" } do %>
+  <%= submit_tag 'Delete' %>
+<% end %>
+
+<br>
+
 <div>
-  <%= link_to "Show this budget", @budget %> |
   <%= link_to "Back to budgets", budgets_path %>
 </div>

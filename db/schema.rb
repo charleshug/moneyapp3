@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_08_012159) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_08_014742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "balance", default: 0, null: false
+    t.boolean "on_budget", default: true, null: false
+    t.boolean "closed", default: false, null: false
+    t.bigint "budget_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_id"], name: "index_accounts_on_budget_id"
+  end
 
   create_table "budgets", force: :cascade do |t|
     t.string "name", null: false
@@ -25,6 +36,61 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_012159) do
     t.index ["user_id"], name: "index_budgets_on_user_id"
   end
 
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "hidden", default: false, null: false
+    t.string "normal_balance", default: "EXPENSE", null: false
+    t.bigint "budget_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_id"], name: "index_categories_on_budget_id"
+  end
+
+  create_table "ledgers", force: :cascade do |t|
+    t.date "date", null: false
+    t.integer "budget", default: 0, null: false
+    t.integer "actual", default: 0, null: false
+    t.integer "balance", default: 0, null: false
+    t.boolean "carry_forward_negative_balance", default: false, null: false
+    t.boolean "user_changed", default: false, null: false
+    t.bigint "subcategory_id", null: false
+    t.bigint "next_id"
+    t.bigint "prev_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date", "subcategory_id"], name: "index_ledgers_on_date_and_subcategory_id", unique: true, comment: "One ledger per date/category"
+    t.index ["next_id"], name: "index_ledgers_on_next_id"
+    t.index ["prev_id"], name: "index_ledgers_on_prev_id"
+    t.index ["subcategory_id"], name: "index_ledgers_on_subcategory_id"
+  end
+
+  create_table "subcategories", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "hidden", default: false, null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_subcategories_on_category_id"
+  end
+
+  create_table "trxes", force: :cascade do |t|
+    t.date "date", null: false
+    t.integer "amount", default: 0, null: false
+    t.string "memo"
+    t.bigint "account_id", null: false
+    t.bigint "subcategory_id", null: false
+    t.bigint "vendor_id", null: false
+    t.bigint "ledger_id", null: false
+    t.boolean "cleared", default: false, null: false
+    t.integer "transfer_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_trxes_on_account_id"
+    t.index ["ledger_id"], name: "index_trxes_on_ledger_id"
+    t.index ["subcategory_id"], name: "index_trxes_on_subcategory_id"
+    t.index ["vendor_id"], name: "index_trxes_on_vendor_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -33,9 +99,31 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_012159) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "last_viewed_budget_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "vendors", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "budget_id", null: false
+    t.bigint "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_vendors_on_account_id"
+    t.index ["budget_id"], name: "index_vendors_on_budget_id"
+  end
+
+  add_foreign_key "accounts", "budgets"
   add_foreign_key "budgets", "users"
+  add_foreign_key "categories", "budgets"
+  add_foreign_key "ledgers", "ledgers", column: "next_id"
+  add_foreign_key "ledgers", "ledgers", column: "prev_id"
+  add_foreign_key "ledgers", "subcategories"
+  add_foreign_key "subcategories", "categories"
+  add_foreign_key "trxes", "accounts"
+  add_foreign_key "trxes", "subcategories"
+  add_foreign_key "trxes", "vendors"
+  add_foreign_key "vendors", "accounts"
+  add_foreign_key "vendors", "budgets"
 end

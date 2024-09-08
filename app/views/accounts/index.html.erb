@@ -1,0 +1,49 @@
+<% provide(:title, "Accounts") %>
+<h1>All Accounts</h1>
+
+<div id="accounts">
+  <% unless @on_budget_accounts.empty? %>
+    <div id="budget_accounts">
+      <div>
+        <strong>Budget Accounts</strong>
+        <strong><%= number_to_currency((@on_budget_balance/100.0), unit: "$", separator: ".", delimiter: ",") %></strong>
+      </div>
+      <% @on_budget_accounts.each do |account| %>
+        <p>
+          <%= render account %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+  <% unless @off_budget_accounts.empty? %>
+    <div id="off_budget_accounts">
+      <div>
+        <strong>Off-Budget Accounts</strong>
+        <strong><%= number_to_currency(@off_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></strong>
+      </div>
+      <% @off_budget_accounts.each do |account| %>
+        <p>
+          <%= render account %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+  <% unless @closed_accounts.empty? %>
+    <div id="closed_accounts">
+      <div>
+        <strong>Closed Accounts</strong>
+        <strong><%= number_to_currency(@closed_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></strong>
+      </div>
+      <% @closed_accounts.each do |account| %>
+        <p>
+          <%= render account %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div>
+  <%= link_to "New Account", new_account_path %>
+</div>
+

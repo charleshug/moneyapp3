@@ -1,0 +1,50 @@
+<%= form_with(model: ledger) do |f| %>
+  <% if ledger.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(ledger.errors.count, "error") %> prohibited this ledger from being saved:</h2>
+
+      <ul>
+        <% ledger.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Prev</th>
+      <th>Subcategory</th>
+      <th><%= f.label :date, "Date" %></th>
+      <th><%= f.label :budget, "Budget" %></th>
+      <th>Actual</th>
+      <th>Balance</th>
+      <th><%= f.label :carry_forward_negative_balance, "Carry Neg. Bal." %></th>
+      <th>User Changed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= ledger.id %></td>
+      <td><%= ledger.prev&.id %></td>
+      <td style="text-align: left;">
+        <%= f.text_field :subcategory_name, disabled: true, value: ledger.subcategory.name %>
+        <%= f.hidden_field :subcategory_id %>
+      </td>
+      <td><%= f.date_field :date, readonly: true %></td>
+      <td style="text-align: right;"><%= f.number_field :budget  %></td>
+      <td style="text-align: right;"><%= number_to_currency(ledger.actual / 100.0) %></td>
+      <td style="text-align: right;"><%= number_to_currency(ledger.balance / 100.0) %></td>
+      <td style="text-align: center;"><%= f.check_box :carry_forward_negative_balance %></td>
+      <td style="text-align: center;"><%= f.check_box :user_changed, disabled: true %></td>
+    </tr>
+  </tbody>
+</table>
+
+
+  <div>
+    <%= f.submit %>
+  </div>
+<% end %>

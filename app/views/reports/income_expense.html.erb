@@ -1,0 +1,72 @@
+<% provide(:title, "Income Expense") %>
+<h2>Income and Expense</h2>
+
+<%= form_with url: income_expense_reports_path, method: :get, local: true do %>
+  <div>
+    <%= label_tag :start_date %>
+    <%= date_field_tag :start_date, @start_date %>
+  </div>
+  <div>
+    <%= label_tag :end_date %>
+    <%= date_field_tag :end_date, @end_date %>
+  </div>
+  <%= submit_tag 'Filter' %>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <% @report_data[:months].each do |month| %>
+        <th><%= Date.parse("#{month}-01").strftime("%b'%y") %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Income</strong></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><strong>All Income Sources</strong></td>
+    </tr>
+    <% @report_data[:income].each do |vendor_name, transactions| %>
+      <tr>
+        <td></td>
+        <td><%= vendor_name %></td>
+        <% @report_data[:months].each do |month| %>
+          <td style="text-align: right;"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
+        <% end %>
+      </tr>
+    <% end %>
+    <tr>
+
+    </tr>
+    <tr>
+      <td><strong>Expenses</strong></td>
+    </tr>
+    <% @report_data[:expenses].each do |parent_name, subcategories| %>
+      <tr>
+        <td colspan="<%= @report_data[:months].length + 2 %>"><strong><%= parent_name %></strong></td>
+      </tr>
+      <% subcategories.each do |subcategory_name, transactions| %>
+        <tr>
+          <td></td>
+          <td><%= subcategory_name %></td>
+          <% @report_data[:months].each do |month| %>
+            <td style="text-align: right;"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
+          <% end %>
+        </tr>
+      <% end %>
+      <tr>
+        <td colspan="2"><strong>Total <%= parent_name %></strong></td>
+        <% @report_data[:months].each do |month| %>
+          <td style="text-align: right;">
+            <%= number_to_currency((subcategories.values.sum { |transactions| transactions[month] || 0 }) / 100.0) %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

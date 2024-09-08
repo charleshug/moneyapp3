@@ -1,0 +1,11 @@
+<% provide(:title, "Edit Categories") %>
+<h1>Edit Category</h1>
+
+<%= render 'form' %>
+
+<div>
+  <p>
+    <%= button_to "Destroy this category", @category, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
+  </p>
+  <%= link_to "Back", request.referer || categories_path %>
+</div>

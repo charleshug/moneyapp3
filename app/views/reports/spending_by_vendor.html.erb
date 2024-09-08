@@ -1,0 +1,58 @@
+<% provide(:title, "Spending by Vendor") %>
+<h2>Spending By Vendor</h2>
+
+<%= search_form_for @q, url: vendor_reports_path do |f| %>
+  <%= f.label :account_id_in, 'Account' %>
+  <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+
+  <%= f.label :category_id_in, 'Category' %>
+  <%= f.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+  
+  <%= f.label :category_id_in, 'Subcategory' %>
+  <%= f.grouped_collection_select(
+    :subcategory_id_in,
+    @current_budget.categories.expense.includes(:subcategories),
+    :subcategories,
+    :name,
+    :id,
+    :name,
+    {include_blank: true},
+    {multiple: true}
+  ) %>
+  
+  <%= f.label :vendor_id_in, 'Vendor' %>
+  <%= f.select :vendor_id_in, grouped_options_for_select({
+      "Vendors" => @current_budget.vendors.not_transfer.order('LOWER(name)').map { |v| [v.name, v.id] },
+      "Transfer" => @current_budget.vendors.transfer.order('LOWER(name)').map { |v| [v.name, v.id] }
+    }), { include_blank: true }, { multiple: true } %>
+
+  <%= f.label :date_gteq, 'From Date' %>
+  <%= f.date_field :date_gteq %>
+
+  <%= f.label :date_lteq, 'To Date' %>
+  <%= f.date_field :date_lteq %>
+
+  <%= f.submit "Filter" %>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Vendor</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @output.each do |(vendor_id, vendor_name), amount| %>
+      <tr>
+        <td><%= vendor_name.nil? ? "N/A" : vendor_name %></td>
+        <td style="text-align: right;">
+          <%= link_to number_to_currency((amount / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(vendor_id_eq: vendor_id)) %>
+        </td>
+    <% end %>
+    <tr>
+      <td>Total</td>
+      <td style="text-align: right;"><%= number_to_currency((@output.values.sum / 100.0), precision: 2)  %></td>
+    </tr>
+  </tbody>
+</table>

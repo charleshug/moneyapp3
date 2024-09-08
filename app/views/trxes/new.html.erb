@@ -1,0 +1,27 @@
+<% provide(:title, "New Trx") %>
+<h1>New trx</h1>
+
+<%= render "form", trx: @trx %>
+
+<br>
+
+<div>
+  <p><strong>Transaction Upload (CSV)</strong></p>
+  <div>
+    <%= form_tag import_trxes_path, multipart: true do %>
+      <%= file_field_tag :file %>
+      <%= submit_tag 'Preview Upload' %>
+    <% end %>
+  </div>
+</div>
+
+<br>
+<div>
+  <%= link_to "New Vendor", new_vendor_path %>
+</div>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || trxes_path %>
+</div>

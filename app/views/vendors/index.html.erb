@@ -1,0 +1,11 @@
+<% provide(:title, "Vendors") %>
+<h1>Vendors</h1>
+<%= link_to 'New', new_vendor_path %>
+
+<ul>
+  <% @vendors.each do |vendor| %>
+    <li>
+      <%= link_to vendor.name, edit_vendor_path(vendor) %>
+    </li>
+  <% end %>
+</ul>

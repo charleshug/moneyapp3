@@ -1,0 +1,15 @@
+<% provide(:title, "Categories") %>
+<h1>All Categories</h1>
+
+<%= link_to 'New', new_category_path %>
+
+<% @categories.each do |category| %>
+  <h2><%= link_to category.name, edit_category_path(category) %></h2>
+  <% if category.subcategories.any? %>
+    <ul>
+      <% category.subcategories.each do |subcategory| %>
+        <li><%= subcategory.name %></li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

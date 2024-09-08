@@ -1,0 +1,22 @@
+<% provide(:title, "Edit Trx") %>
+<h1>Editing trx</h1>
+
+<%= render "form", trx: @trx %>
+
+<div>
+  <%#= link_to "Delete Transaction", trx_path(@trx), method: :delete, data: { confirm: 'Are you sure?'} %>
+
+
+  <%= link_to "Delete Transaction", trx_path(@trx), data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %>
+</div>
+
+<br>
+<div>
+  <%= link_to "New Vendor", new_vendor_path %>
+</div>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || trxes_path %>
+</div>
