@@ -1,12 +1,11 @@
 class LedgerService
-
   def recalculate_forward_ledgers(ledger)
     ledgers = ordered_ledgers(ledger)
     ledgers.each(&:save!)
   end
 
   def ordered_ledgers(start_ledger)
-    ledgers = [start_ledger]
+    ledgers = [ start_ledger ]
     current_ledger = start_ledger
 
     while current_ledger.next
@@ -35,9 +34,10 @@ class LedgerService
   end
 
   def self.create_necessary_ledgers
+    # TODO - use current budget
     # 1. Convert Trx Dates to the Last Day of the Month
     trx_with_last_day_of_month = Trx.all.map do |trx|
-      [trx.subcategory_id, trx.date.end_of_month]
+      [ trx.subcategory_id, trx.date.end_of_month ]
     end
 
     # 2. Group and Select Unique Category/Date Pairs
@@ -50,14 +50,16 @@ class LedgerService
       ledger.save
     end
 
+    # TODO - use current_budget
     Ledger.all.each do |l|
       LedgerService.new.update_prev_and_next(l)
     end
   end
 
   def zero_all_budgeted_amounts(date)
+    # TODO - use current budget
     ledgers = Ledger.where(date: date).where.not(budget: 0)
-    ledgers.each do |ledger| 
+    ledgers.each do |ledger|
       ledger.update(budget: 0)
       recalculate_forward_ledgers(ledger)
     end
@@ -81,7 +83,7 @@ class LedgerService
   def last_month_outflows(date)
     prev_month_date = date.prev_month.end_of_month
     prev_month_ledgers = Ledger.where(date: prev_month_date)
-    
+
     prev_month_ledgers.each do |prev_ledger|
       current_ledger = Ledger.find_or_initialize_by(subcategory_id: prev_ledger.subcategory_id, date: date)
       current_ledger.budget = -prev_ledger.actual
@@ -131,6 +133,16 @@ class LedgerService
     ledger
   end
 
+  def update_ledger_from_line(line)
+    ledger = line.ledger
+    ledger.save
+    if ledger.invalid?
+      return ledger
+    end
+    update_next_ledgers(ledger)
+    ledger
+  end
+
   def update_next_ledgers(ledger)
     if next_ledger = ledger.find_next_ledgers.first
       next_ledger.save
@@ -141,6 +153,7 @@ class LedgerService
   end
 
   def self.update_all_ledgers
+    # TODO - use current_budget
     time_start = Time.now
     ledger_heads = Ledger.where(prev: nil)
     ledger_heads.each do |head|

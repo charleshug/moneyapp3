@@ -1,9 +1,8 @@
 class AccountCreatorService
-
   def create_account(account)
     account.save
     if account.invalid?
-      #do something when account fails
+      # do something when account fails
       return account
     end
 
@@ -23,11 +22,22 @@ class AccountCreatorService
     category = account.budget.categories.find_or_create_by(name: "Income Parent")
     subcategory = category.subcategories.find_or_create_by(name: "Income")
 
+    # trx = account.trxes.build(
+    #   date: account.starting_date,
+    #   amount: account.starting_balance,
+    #   memo: "Starting Balance",
+    #   vendor: vendor,
+    #   subcategory: subcategory
+    # )
+    # TrxCreatorService.new.create_trx(trx)
+
     trx = account.trxes.build(
       date: account.starting_date,
-      amount: account.starting_balance,
       memo: "Starting Balance",
       vendor: vendor,
+      )
+    trx.lines.build(
+      amount: account.starting_balance,
       subcategory: subcategory
     )
     TrxCreatorService.new.create_trx(trx)
@@ -35,7 +45,6 @@ class AccountCreatorService
 
   def create_vendor_from_account(account)
     account.budget.vendors.create!(name: "Transfer: " + account.name, account: account)
-    #Vendor.create!(name: "Transfer: " + account.name, account_id: account.id )
+    # Vendor.create!(name: "Transfer: " + account.name, account_id: account.id )
   end
-
 end

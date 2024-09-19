@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_08_014742) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_19_055242) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_014742) do
     t.index ["subcategory_id"], name: "index_ledgers_on_subcategory_id"
   end
 
+  create_table "lines", force: :cascade do |t|
+    t.integer "amount"
+    t.string "memo"
+    t.bigint "ledger_id", null: false
+    t.bigint "trx_id", null: false
+    t.bigint "transfer_line_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ledger_id"], name: "index_lines_on_ledger_id"
+    t.index ["transfer_line_id"], name: "index_lines_on_transfer_line_id"
+    t.index ["trx_id"], name: "index_lines_on_trx_id"
+  end
+
   create_table "subcategories", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "hidden", default: false, null: false
@@ -78,9 +91,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_014742) do
     t.integer "amount", default: 0, null: false
     t.string "memo"
     t.bigint "account_id", null: false
-    t.bigint "subcategory_id", null: false
+    t.bigint "subcategory_id"
     t.bigint "vendor_id", null: false
-    t.bigint "ledger_id", null: false
+    t.bigint "ledger_id"
     t.boolean "cleared", default: false, null: false
     t.integer "transfer_id"
     t.datetime "created_at", null: false
@@ -120,6 +133,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_014742) do
   add_foreign_key "ledgers", "ledgers", column: "next_id"
   add_foreign_key "ledgers", "ledgers", column: "prev_id"
   add_foreign_key "ledgers", "subcategories"
+  add_foreign_key "lines", "ledgers"
+  add_foreign_key "lines", "lines", column: "transfer_line_id"
+  add_foreign_key "lines", "trxes"
   add_foreign_key "subcategories", "categories"
   add_foreign_key "trxes", "accounts"
   add_foreign_key "trxes", "subcategories"

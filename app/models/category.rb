@@ -1,7 +1,8 @@
 class Category < ApplicationRecord
   belongs_to :budget
   has_many :subcategories, dependent: :destroy
-  has_many :trxes, through: :subcategories
+  # has_many :trxes, through: :subcategories
+  has_many :lines, through: :subcategories
   has_many :ledgers, through: :subcategories
 
   validates :name, presence: true

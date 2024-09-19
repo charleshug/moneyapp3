@@ -1,7 +1,8 @@
 class Subcategory < ApplicationRecord
   belongs_to :category
   has_many :ledgers
-  has_many :trxes, through: :ledgers
+  # has_many :trxes, through: :ledgers
+  has_many :lines, through: :ledgers
 
   validates :name, presence: true
 

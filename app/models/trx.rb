@@ -3,11 +3,12 @@ class Trx < ApplicationRecord
 
   validates :date, presence: true
   belongs_to :account
-  belongs_to :subcategory
+  # belongs_to :subcategory
   belongs_to :vendor
-  belongs_to :ledger
-  belongs_to :transfer, class_name: "Trx", optional: true
-  delegate :category, to: :subcategory
+  # belongs_to :ledger
+  # belongs_to :transfer, class_name: "Trx", optional: true
+  # delegate :category, to: :subcategory
+  has_many :lines
   delegate :budget, to: :account
 
   scope :within_dates, ->(start_date, end_date) { where(date: start_date..end_date) }

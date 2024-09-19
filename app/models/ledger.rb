@@ -5,7 +5,8 @@ class Ledger < ApplicationRecord
   belongs_to :subcategory
   belongs_to :prev, class_name: "Ledger", optional: true
   belongs_to :next, class_name: "Ledger", optional: true
-  has_many :trxes
+  # has_many :trxes
+  has_many :lines
 
   def self.ransackable_attributes(auth_object = nil)
     [ "subcategory_id", "date", "id", "prev_id", "user_changed", "budget", "actual", "balance", "carry_forward_negative_balance" ]
@@ -60,7 +61,8 @@ class Ledger < ApplicationRecord
   end
 
   def calculate_actual
-    self.actual = trxes.sum(:amount)
+    # self.actual = trxes.sum(:amount)
+    self.actual = lines.sum(:amount)
   end
 
   def find_prev_ledgers
@@ -94,9 +96,9 @@ class Ledger < ApplicationRecord
           .sum(:balance)
   end
 
- def self.get_overspent_before_month(date)
-  date = date.prev_month.end_of_month
-  Ledger.where(date: ..date)
+  def self.get_overspent_before_month(date)
+    date = date.prev_month.end_of_month
+    Ledger.where(date: ..date)
         .where("balance < ?", 0)
         .sum do |ledger|
           if ledger.carry_forward_negative_balance
