@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
     budget = Budget.find_by(id: budget_id)
 
     if budget && current_user.budgets.include?(budget)
-    puts "DEBUG: FOUR"
+      puts "DEBUG: FOUR"
       @current_budget = budget
     else
       update_current_budget
