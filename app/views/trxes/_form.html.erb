@@ -31,29 +31,33 @@
   <%= f.date_field :date, :value => (f.object.date || Date.today ) %>
 </div>
 <div>
-  <%= f.label :subcategory %>
-  <%= f.grouped_collection_select(
-    :subcategory_id,
-    @current_budget.categories.includes(:subcategories),
-    :subcategories,
-    :name,
-    :id,
-    :name,
-    { prompt: 'Select Category'}
-  ) %>
-</div>
-<div>
   <%= f.label :memo %>
   <%= f.text_field :memo, placeholder:"Enter a memo..." %>
-</div>
-<div>
-  <%= f.label :amount %>
-  <%= f.number_field :amount, step: '0.01', placeholder: "Enter amount", value: formatted_amount_for_form(trx.amount) %>
 </div>
 <div>
   <%= f.label :cleared %>
   <%= f.check_box :cleared %>
 </div>
+  <%= f.fields_for :lines do |line_form| %>
+    <div>
+      <%= line_form.label :subcategory %>
+      <%= line_form.grouped_collection_select(
+        :subcategory_id,
+        @current_budget.categories.includes(:subcategories),
+        :subcategories,
+        :name,
+        :id,
+        :name,
+        { prompt: 'Select Category'}
+      ) %>
+    </div>
+
+    <div>
+      <%= line_form.label :amount %>
+      <%= line_form.number_field :amount, step: '0.01', placeholder: "Enter line amount" %>
+      <%#= line_form.number_field :amount, step: '0.01', placeholder: "Enter line amount", value: formatted_amount_for_form(line_form.object.amount)  %>
+    </div>
+  <% end %>
   
 
 

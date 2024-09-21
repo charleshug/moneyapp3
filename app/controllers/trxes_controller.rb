@@ -12,11 +12,13 @@ class TrxesController < ApplicationController
     @total_trx_sum = @q.result(distinct: true).sum(:amount)
     @displayed_trx_count = @trxes.count
     @displayed_trx_sum = @trxes.sum(:amount)
+    debugger
   end
 
   # GET /trxes/new
   def new
     @trx = Trx.new
+    @trx.lines.build
   end
 
   # GET /trxes/1/edit

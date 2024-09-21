@@ -1,0 +1,45 @@
+<% provide(:title, "Transactions") %>
+<h1>Trxes</h1>
+
+<table>
+  <thead>
+
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Date</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Amount</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Vendor</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Account</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Category</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Subcategory</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Memo</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Cleared</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">ID</th>
+      <th style="border: 1px solid #ddd; padding: 4px 8px;">Transfer?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @trxes.each do |trx| %>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.date.strftime("%b %d '%y") %></td>
+        <td style="border: 1px solid #ddd; padding: 4px 8px; text-align: right;"><%= number_to_currency((trx.amount / 100.0)) %></td>
+        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.vendor.name %></td>
+        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= trx.account.name %></td>
+        <% if trx.lines.count > 1%>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Split Transaction</td>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Various</td>
+        <% else %>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.category.name %></td>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.subcategory.name %></td>
+        <% end %>
+        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.memo %></td>
+        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= check_box_tag nil, nil, trx.cleared, disabled: true %></td>
+        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= link_to trx.id, edit_trx_path(trx) %></td>
+        <% if trx.lines.any? { |line| line.transfer_line.present? }%>
+          <td style="border: 1px solid #ddd; padding: 4px 8px;">Yes</td>
+        <% else %>
+          <td style="border: 1px solid #ddd; padding: 4px 8px;"></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+

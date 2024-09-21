@@ -10,6 +10,7 @@ class Trx < ApplicationRecord
   # delegate :category, to: :subcategory
   has_many :lines
   delegate :budget, to: :account
+  accepts_nested_attributes_for :lines, allow_destroy: true
 
   scope :within_dates, ->(start_date, end_date) { where(date: start_date..end_date) }
 
