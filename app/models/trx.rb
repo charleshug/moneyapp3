@@ -8,7 +8,7 @@ class Trx < ApplicationRecord
   # belongs_to :ledger
   # belongs_to :transfer, class_name: "Trx", optional: true
   # delegate :category, to: :subcategory
-  has_many :lines
+  has_many :lines, dependent: :destroy
   delegate :budget, to: :account
   accepts_nested_attributes_for :lines, allow_destroy: true
 

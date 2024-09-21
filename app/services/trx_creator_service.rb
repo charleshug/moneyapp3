@@ -3,7 +3,6 @@ class TrxCreatorService
     set_ledger(trx)
     # trx.amount = trx.lines.sum(:amount)
     trx.amount = trx.lines.sum { |line| line.amount } # necessary when not yet saved to the database
-    debugger
     trx.save
     if trx.invalid?
       # do something when trx fails
@@ -24,6 +23,7 @@ class TrxCreatorService
     #   LedgerService.new.update_ledger_from_trx(transfer_trx)
     # end
 
+    # TODO - update to search in lines.transfer_id
     # if trx is a transfer
     unless trx.vendor.account.nil?
       transfer_trx = create_opposite_trx(trx)
@@ -39,8 +39,14 @@ class TrxCreatorService
     # ledger = Ledger.find_or_create_by(date:trx.date.end_of_month, subcategory: trx.subcategory )
     # trx.ledger=ledger
     trx.lines.each do |line|
-      ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory))
+      if line.subcategory_form_id.empty?
+        ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory))
+      else
+        # this line is being created or changed by a form
+        ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory_form_id))
+      end
       line.ledger=ledger
+      debugger
     end
   end
 

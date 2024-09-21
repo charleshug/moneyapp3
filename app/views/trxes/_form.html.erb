@@ -42,7 +42,7 @@
     <div>
       <%= line_form.label :subcategory %>
       <%= line_form.grouped_collection_select(
-        :subcategory_id,
+        :subcategory_form_id,
         @current_budget.categories.includes(:subcategories),
         :subcategories,
         :name,

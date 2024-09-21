@@ -12,7 +12,6 @@ class TrxesController < ApplicationController
     @total_trx_sum = @q.result(distinct: true).sum(:amount)
     @displayed_trx_count = @trxes.count
     @displayed_trx_sum = @trxes.sum(:amount)
-    debugger
   end
 
   # GET /trxes/new
@@ -144,7 +143,7 @@ class TrxesController < ApplicationController
     def trx_params
       params.fetch(:trx, {}).permit(
         :id, :date, :memo, :amount, :subcategory_id, :account_id, :vendor_id,
-        :cleared, :trxes, :q
+        :cleared, :trxes, :q, lines_attributes: [ :id, :subcategory_form_id, :ledger_id, :amount, :_destroy ]
         )
     end
 
