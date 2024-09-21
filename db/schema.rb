@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_19_055242) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_21_211615) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -91,16 +91,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_19_055242) do
     t.integer "amount", default: 0, null: false
     t.string "memo"
     t.bigint "account_id", null: false
-    t.bigint "subcategory_id"
     t.bigint "vendor_id", null: false
-    t.bigint "ledger_id"
     t.boolean "cleared", default: false, null: false
-    t.integer "transfer_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_trxes_on_account_id"
-    t.index ["ledger_id"], name: "index_trxes_on_ledger_id"
-    t.index ["subcategory_id"], name: "index_trxes_on_subcategory_id"
     t.index ["vendor_id"], name: "index_trxes_on_vendor_id"
   end
 
@@ -138,7 +133,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_19_055242) do
   add_foreign_key "lines", "trxes"
   add_foreign_key "subcategories", "categories"
   add_foreign_key "trxes", "accounts"
-  add_foreign_key "trxes", "subcategories"
   add_foreign_key "trxes", "vendors"
   add_foreign_key "vendors", "accounts"
   add_foreign_key "vendors", "budgets"
