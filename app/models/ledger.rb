@@ -3,6 +3,7 @@ class Ledger < ApplicationRecord
   attr_readonly :date
 
   belongs_to :subcategory
+  delegate :category, to: :subcategory
   belongs_to :prev, class_name: "Ledger", optional: true
   belongs_to :next, class_name: "Ledger", optional: true
   # has_many :trxes
