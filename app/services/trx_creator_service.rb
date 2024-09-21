@@ -46,7 +46,6 @@ class TrxCreatorService
         ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory_form_id))
       end
       line.ledger=ledger
-      debugger
     end
   end
 

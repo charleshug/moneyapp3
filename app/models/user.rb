@@ -11,7 +11,6 @@ class User < ApplicationRecord
     if budget.nil?
       budget = self.budgets.first
     end
-    debugger
     self.update(last_viewed_budget_id: budget)
   end
 end

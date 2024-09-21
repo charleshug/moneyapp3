@@ -38,7 +38,7 @@ class AccountCreatorService
       )
     trx.lines.build(
       amount: account.starting_balance,
-      subcategory: subcategory
+      subcategory_form_id: subcategory.id.to_s
     )
     TrxCreatorService.new.create_trx(trx)
   end

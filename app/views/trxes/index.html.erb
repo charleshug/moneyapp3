@@ -1,6 +1,43 @@
 <% provide(:title, "Transactions") %>
 <h1>Trxes</h1>
 
+<%= search_form_for @q do |f| %>
+  <div style="display: flex; ">
+    <div style="display: flex; flex-direction: column;">
+      <div><%= f.label :date_gteq, 'From Date' %></div>
+      <div><%= f.date_field :date_gteq %></div>
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <div><%= f.label :date_lteq, 'To Date' %></div>
+      <div><%= f.date_field :date_lteq %></div>
+    </div>
+  </div>
+  <div>
+    <%= f.label :account_id_in, 'Account' %>
+    <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+  </div>
+  <div>    
+    <%= f.label :subcategory_id_in, 'Subcategory' %>
+    <%= f.grouped_collection_select(
+      :subcategory_id_in,
+      @current_budget.categories.includes(:subcategories),
+      :subcategories,
+      :name,
+      :id,
+      :name,
+      {include_blank: true},
+      {multiple: true}
+    ) %>
+  </div>
+  <div>
+    <%= f.label :vendor_id_in, 'Vendor' %>
+    <%= f.collection_select :vendor_id_in, @current_budget.vendors.order('LOWER(name)'), :id, :name, {include_blank: true}, {multiple: true} %>
+  </div>
+  <div>
+  <%= f.submit "Filter" %>
+  </div>
+<% end %>
+
 <table>
   <thead>
 
@@ -46,3 +83,24 @@
   </tbody>
 </table>
 
+<% if @pagy.pages > 1 %>
+  <nav aria-label="Pagination" class="justify-content-center d-inline">
+    <% if @pagy.prev %>
+      <%= link_to 'First', url_for(request.query_parameters.merge(page: 1)), class: 'page-link' %>
+    <% end %>
+    <% if @pagy.prev %>
+      <%= link_to 'Previous', url_for(request.query_parameters.merge(page: @pagy.prev)), class: 'page-link' %>
+    <% end %>
+    
+    <% @pagy.series.each do |page| %>
+      <%= link_to page, url_for(request.query_parameters.merge(page: page)), class: 'page-link' %>
+    <% end %>
+    
+    <% if @pagy.next %>
+      <%= link_to 'Next', url_for(request.query_parameters.merge(page: @pagy.next)), class: 'page-link' %>
+      <%= link_to 'Last', url_for(request.query_parameters.merge(page: @pagy.pages)), class: 'page-link' %>
+    <% end %>
+  </nav>
+<% end %>
+
+<%= link_to "Export to CSV", url_for(controller: 'trxes', action: 'csv_export', format: :csv) %>
