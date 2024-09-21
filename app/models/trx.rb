@@ -3,8 +3,8 @@ class Trx < ApplicationRecord
 
   validates :date, presence: true
   belongs_to :account
-  # belongs_to :subcategory
   belongs_to :vendor
+  # belongs_to :subcategory
   # belongs_to :ledger
   # belongs_to :transfer, class_name: "Trx", optional: true
   # delegate :category, to: :subcategory
