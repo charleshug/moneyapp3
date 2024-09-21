@@ -5,11 +5,11 @@
   <%= f.label :account_id_in, 'Account' %>
   <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
 
-  <%= f.label :category_id_in, 'Category' %>
-  <%= f.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+  <%#= f.label :category_id_in, 'Category' %>
+  <%#=.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
   
-  <%= f.label :category_id_in, 'Subcategory' %>
-  <%= f.grouped_collection_select(
+  <%#= f.label :category_id_in, 'Subcategory' %>
+  <%#= f.grouped_collection_select(
     :subcategory_id_in,
     @current_budget.categories.expense.includes(:subcategories),
     :subcategories,
