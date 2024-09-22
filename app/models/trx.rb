@@ -12,6 +12,15 @@ class Trx < ApplicationRecord
   delegate :budget, to: :account
   accepts_nested_attributes_for :lines, allow_destroy: true
 
+  scope :income, -> {
+    joins(lines: { ledger: { subcategory: :category } })
+    .where(categories: Category.income)
+  }
+  scope :expense, -> {
+    joins(lines: { ledger: { subcategory: :category } })
+    .where(categories: Category.expense)
+  }
+
   scope :within_dates, ->(start_date, end_date) { where(date: start_date..end_date) }
 
   def self.ransackable_attributes(auth_object = nil)

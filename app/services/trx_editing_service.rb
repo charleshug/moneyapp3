@@ -1,33 +1,39 @@
 class TrxEditingService
-
   def edit_trx(trx, trx_params)
     convert_amount_to_cents(trx_params)
     ledgers_to_update = Set.new
-    ledgers_to_update.add(trx.ledger)
+    # ledgers_to_update.add(trx.ledger)
+    trx.lines.each { |line| ledgers_to_update << line.ledger }
+
+    # trx.lines.each do |line|
+    #   if line.transfer_id?
+
+    #   end
+    # end
 
     if trx.transfer_id?
-      
+
       if trx_params[:vendor_id] && Vendor.find(trx_params[:vendor_id]).account.nil?
-        #transfer becomes non-transfer
+        # transfer becomes non-transfer
         old_account = trx.transfer.account
         ledgers_to_update.add(trx.transfer.ledger)
         trx.transfer.delete
         old_account.calculate_balance!
 
-        #update remaining params like non-transfer
+        # update remaining params like non-transfer
         trx.transfer_id = nil
         trx.assign_attributes(trx_params)
         set_ledger(trx)
         trx.save!
 
         if trx.invalid?
-          #do something
+          # do something
           return trx
         end
         ledgers_to_update.add(trx.ledger)
-      
+
       else
-        #transfer remains a transfer
+        # transfer remains a transfer
         trx.assign_attributes(trx_params)
         set_ledger(trx)
         trx.save!
@@ -42,11 +48,11 @@ class TrxEditingService
       end
 
     elsif trx_params[:vendor_id] && !Vendor.find(trx_params[:vendor_id]).account.nil?
-      #non-transfer become transfer
+      # non-transfer become transfer
       trx.update(trx_params)
       if trx.invalid?
-        #trx failed, do something
-        
+        # trx failed, do something
+
       end
       transfer_trx = create_opposite_trx(trx)
       trx.update(transfer: transfer_trx)
@@ -56,14 +62,14 @@ class TrxEditingService
       trx.account.calculate_balance!
 
     else
-      #non-transfer trx
+      # non-transfer trx
       trx.assign_attributes(trx_params)
       set_ledger(trx)
       trx.save
-      #trx.update(trx_params)
+      # trx.update(trx_params)
       if trx.invalid?
-        #trx failed, do something
-        
+        # trx failed, do something
+
       end
       ledgers_to_update.add(trx.ledger)
       trx.account.calculate_balance!
@@ -85,12 +91,11 @@ class TrxEditingService
       account_id: trx.vendor.account.id,
       subcategory_id: trx.subcategory_id,
       ledger_id: trx.ledger_id,
-      memo: trx.memo,
+      memo: trx.memo
     }
     transfer_trx.assign_attributes(attributes)
     set_ledger(transfer_trx)
     transfer_trx.save!
-
   end
 
     def create_opposite_trx(trx)
@@ -101,7 +106,7 @@ class TrxEditingService
       account_id: trx.vendor.account.id,
       subcategory_id: trx.subcategory_id,
       transfer_id: trx.id,
-      memo: trx.memo,
+      memo: trx.memo
     }
     opposite_trx = Trx.new(attributes)
     set_ledger(opposite_trx)
@@ -110,7 +115,7 @@ class TrxEditingService
   end
 
   def set_ledger(trx)
-    ledger = Ledger.find_or_create_by(date:trx.date.end_of_month, subcategory: trx.subcategory )
+    ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: trx.subcategory)
     trx.ledger=ledger
   end
 

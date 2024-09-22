@@ -6,8 +6,8 @@ class Ledger < ApplicationRecord
   delegate :category, to: :subcategory
   belongs_to :prev, class_name: "Ledger", optional: true
   belongs_to :next, class_name: "Ledger", optional: true
-  # has_many :trxes
   has_many :lines
+  # has_many :trxes
 
   def self.ransackable_attributes(auth_object = nil)
     [ "subcategory_id", "date", "id", "prev_id", "user_changed", "budget", "actual", "balance", "carry_forward_negative_balance" ]

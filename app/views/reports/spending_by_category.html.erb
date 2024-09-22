@@ -3,14 +3,14 @@
 
 <%= search_form_for @q, url: category_reports_path do |f| %>
   <%= f.label :account_id_in, 'Account' %>
-  <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+  <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
 
   <%= f.label :category_id_in, 'Category' %>
-  <%= f.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+  <%= f.collection_select :ledger_subcategory_category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
   
   <%= f.label :subcategory_id_in, 'SubCategory' %>
   <%= f.grouped_collection_select(
-    :subcategory_id_in,
+    :ledger_subcategory_id_in,
     @current_budget.categories.expense.includes(:subcategories),
     :subcategories,
     :name,
@@ -21,10 +21,10 @@
   ) %>
 
   <%= f.label :date_gteq, 'From Date' %>
-  <%= f.date_field :date_gteq %>
+  <%= f.date_field :trx_date_gteq %>
 
   <%= f.label :date_lteq, 'To Date' %>
-  <%= f.date_field :date_lteq %>
+  <%= f.date_field :trx_date_lteq %>
 
   <%= f.submit "Filter" %>
 <% end %>
@@ -49,7 +49,7 @@
       <% data[:subcategories].each do |subcategory_id, sub_amount| %>
         <% subcategory = Subcategory.find_by(id: subcategory_id) %>
         <tr>
-          <td style="padding-left: 20px;"><%= sub_category.name %></td>
+          <td style="padding-left: 20px;"><%= subcategory.name %></td>
           <td style="text-align: right;"><%= link_to number_to_currency((sub_amount / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(subcategory_id_in: subcategory )) %></td>
         </tr>
       <% end %>

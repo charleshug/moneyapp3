@@ -2,10 +2,14 @@ class ReportsController < ApplicationController
   before_action :set_spending_by_params, only: [ :spending_by_vendor, :spending_by_category ]
 
   def spending_by_category
-    @q = @current_budget.trxes.includes(:account, :vendor).ransack(params[:q])
-    @trxes = @q.result(distinct: true).merge(@current_budget.categories.expense).order(date: :desc)
+    @q = @current_budget.lines.expense.includes(trx: [ :account, :vendor ], ledger: [ subcategory: [ :category ] ]).ransack(params[:q])
+    @lines = @q.result(distinct: true)
+               .joins(:trx)
+               .joins(ledger: { subcategory: :category })
+    #  .select("lines.*, trxes.date")
+    #  .order("trxes.date DESC")
 
-    @output = SpendingByCategoryReportService.get_hash_trx_by_category_1(@trxes)
+    @output = SpendingByCategoryReportService.get_hash_line_by_category_1(@lines)
   end
 
   def net_worth
