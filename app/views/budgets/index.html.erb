@@ -27,7 +27,7 @@
     <td>Overspent in Prev</td>
   </tr>
   <tr>
-    <td style="text-align: right;"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { subcategory_id_in: Category.income.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+    <td style="text-align: right;"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { subcategory_id_in: Category.income.first.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
     <td>Income for Current</td>
   </tr>
   <tr>

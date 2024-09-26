@@ -4,8 +4,7 @@ class TrxesController < ApplicationController
 
   def index
     @current_budget_trxes = @current_budget.trxes
-    # @q = @current_budget_trxes.includes(:account, :subcategory, :vendor, :transfer).ransack(params[:q])
-    @q = @current_budget_trxes.includes(:account, :vendor, :lines).ransack(params[:q])
+    @q = @current_budget_trxes.includes(:account, :vendor, lines: [ ledger: [ subcategory: :category ] ]).ransack(params[:q])
     @pagy, @trxes = pagy(@q.result(distinct: true).order(date: :desc), items: 25)
 
     @total_trx_count = @q.result(distinct: true).count

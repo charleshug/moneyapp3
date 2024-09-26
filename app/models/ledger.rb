@@ -62,7 +62,6 @@ class Ledger < ApplicationRecord
   end
 
   def calculate_actual
-    # self.actual = trxes.sum(:amount)
     self.actual = lines.sum(:amount)
   end
 

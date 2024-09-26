@@ -23,7 +23,8 @@ class BudgetsController < ApplicationController
 
     @budget_available_previously = BudgetService.get_budget_available(@current_budget, @selected_month.prev_month.end_of_month)
     @overspent_prev = @current_budget.ledgers.get_overspent_in_date_range(@selected_month.prev_month.beginning_of_month, @selected_month.prev_month.end_of_month)
-    @income_current = @current_budget.trxes.get_income_in_month(@selected_month)
+    # @income_current = @current_budget.trxes.get_income_in_month(@selected_month)
+    @income_current = @current_budget.lines.income.joins(:trx).where(trxes: { date: @selected_month.beginning_of_month..@selected_month.end_of_month }).sum(:amount)
     @budget_current = @current_budget.ledgers.get_budget_sum_current_month(@selected_month)
     @budget_available_current = BudgetService.get_budget_available(@current_budget, @selected_month)
     # @budget_available_current = @budget_available_previously - @overspent_prev + @income_current - @budget_current

@@ -24,7 +24,12 @@ class Trx < ApplicationRecord
   scope :within_dates, ->(start_date, end_date) { where(date: start_date..end_date) }
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "account_id", "amount", "subcategory_id", "cleared", "created_at", "date", "id", "id_value", "memo", "transfer_id", "updated_at", "vendor_id" ]
+    [ "account_id", "amount", "category_id", "subcategory_id", "cleared", "created_at", "date", "id", "id_value", "memo", "transfer_id", "updated_at", "vendor_id" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    # note: these match belongs_to (no plurals)
+    [ "account", "category", "subcategory", "vendor", "lines" ]
   end
 
   def self.to_csv
@@ -84,39 +89,30 @@ class Trx < ApplicationRecord
   report_data
 end
 
-  def self.ransackable_associations(auth_object = nil)
-    # note: these match belongs_to (no plurals)
-    [ "account", "category", "subcategory", "vendor" ]
-  end
-
   def self.get_sum_amount_by_date
     Trx.group("strftime('%Y-%m', date)").sum(:amount)
   end
 
   def self.get_income_in_month(date)
-    Trx.joins(:subcategory)
-       .where(subcategory: { category_id: Category.find_by_name("Income Parent") })
+    Trx.income
        .where(date: date.beginning_of_month .. date.end_of_month)
        .sum(:amount)
   end
 
   def self.get_income_before_month(date)
-    Trx.joins(:subcategory)
-       .where(subcategory: { category_id: Category.find_by_name("Income Parent") })
+    Trx.income
        .where(date: .. date.prev_month.end_of_month)
        .sum(:amount)
   end
 
   def self.get_income_in_date_range(start_date, end_date)
-    Trx.joins(:subcategory)
-       .where(subcategory: { category_id: Category.find_by_name("Income Parent") })
+    Trx.income
        .where(date: start_date..end_date)
        .sum(:amount)
   end
 
   def self.get_expense_in_month(date)
-    Trx.joins(:category)
-       .where.not(category: { parent_id: Category.find_by_name("Income Parent") })
+    Trx.expense
        .where(date: date.beginning_of_month ..date.end_of_month)
        .sum(:amount)
   end
@@ -127,8 +123,7 @@ end
   end
 
   def self.get_expense_before_month(date)
-    Trx.joins(:subcategory)
-       .where(subcategory: { category_id: Category.find_by(normal_balance: "INCOME") })
+    Trx.expense
        .where(date: ..date.prev_month.end_of_month)
        .sum(:amount)
   end

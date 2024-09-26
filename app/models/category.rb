@@ -32,6 +32,6 @@ class Category < ApplicationRecord
 
   def self.ransackable_associations(auth_object = nil)
     # note: these match belongs_to (no plurals)
-    [ "subcategories", "trxes", "name" ]
+    [ "subcategories", "trxes", "ledgers", "name" ]
   end
 end

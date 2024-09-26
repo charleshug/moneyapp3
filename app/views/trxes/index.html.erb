@@ -17,10 +17,19 @@
     <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
   </div>
   <div>    
+    <%= f.label :category_id_in, 'Category' %>
+    <%= f.collection_select(
+      :category_id_in,
+      @current_budget.categories,
+      :id,
+      :name,
+      {include_blank: true, multiple: true}
+    ) %>
+  <div>    
     <%= f.label :subcategory_id_in, 'Subcategory' %>
     <%= f.grouped_collection_select(
       :subcategory_id_in,
-      @current_budget.categories.includes(:subcategories),
+      @current_budget.categories,
       :subcategories,
       :name,
       :id,
