@@ -6,6 +6,7 @@ class BudgetsController < ApplicationController
     @budget = Budget.find(params[:id])
     if @budget.user == current_user
       current_user.set_current_budget(@budget)
+      session[:last_viewed_budget_id] = @budget.id
       flash[:notice] = "Current budget has been updated."
     else
       flash[:alert] = "You are not authorized to set this budget as current."

@@ -11,6 +11,6 @@ class User < ApplicationRecord
     if budget.nil?
       budget = self.budgets.first
     end
-    self.update(last_viewed_budget_id: budget)
+    self.update(last_viewed_budget_id: budget.id)
   end
 end
