@@ -2,6 +2,7 @@ class Trx < ApplicationRecord
   require "csv"
 
   validates :date, presence: true
+  validates :lines, presence: { message: "A transaction must have at least one line." }
   belongs_to :account
   belongs_to :vendor
   # belongs_to :subcategory
@@ -54,40 +55,40 @@ class Trx < ApplicationRecord
   end
 
   def self.generate_report(start_date, end_date)
-  # Get all budget categories
-  categories = Category.all
+    # Get all budget categories
+    categories = Category.all
 
-  # Prepare an empty hash to store the report data
-  report_data = {}
+    # Prepare an empty hash to store the report data
+    report_data = {}
 
-  # Loop through each category
-  categories.each do |category|
-    # Get transactions for the current category within the specified date range
-    transactions = Trx.where(category_id: category.id)
-                      .within_dates(start_date, end_date)
-                      .group_by_month(:date, format: "%b %Y")
-                      .sum(:amount)
+    # Loop through each category
+    categories.each do |category|
+      # Get transactions for the current category within the specified date range
+      transactions = Trx.where(category_id: category.id)
+                        .within_dates(start_date, end_date)
+                        .group_by_month(:date, format: "%b %Y")
+                        .sum(:amount)
 
-    # Loop through each month within the date range
-    (start_date..end_date).each do |date|
-      # Format the date as month and year
-      formatted_date = date.strftime("%b %Y")
+      # Loop through each month within the date range
+      (start_date..end_date).each do |date|
+        # Format the date as month and year
+        formatted_date = date.strftime("%b %Y")
 
-      # If there are transactions for the current month, use the sum of amounts,
-      # otherwise, set the amount to 0
-      amount = transactions[formatted_date] || 0
+        # If there are transactions for the current month, use the sum of amounts,
+        # otherwise, set the amount to 0
+        amount = transactions[formatted_date] || 0
 
-      # Initialize the report data hash for the current category if not present
-      report_data[category.name] ||= {}
+        # Initialize the report data hash for the current category if not present
+        report_data[category.name] ||= {}
 
-      # Set the amount for the current month and category
-      report_data[category.name][formatted_date] = amount
+        # Set the amount for the current month and category
+        report_data[category.name][formatted_date] = amount
+      end
     end
-  end
 
-  # Return the report data
-  report_data
-end
+    # Return the report data
+    report_data
+  end
 
   def self.get_sum_amount_by_date
     Trx.group("strftime('%Y-%m', date)").sum(:amount)
@@ -132,8 +133,13 @@ end
     Category.left_joins(:trxes).group("categories.parent_id").sum(:amount)
   end
 
-  def set_ledger
-    ledger = budget.ledgers.find_or_create_by(date: date.end_of_month, subcategory: subcategory)
-    self.ledger=ledger
+  # def set_ledger
+  #   ledger = budget.ledgers.find_or_create_by(date: date.end_of_month, subcategory: subcategory)
+  #   self.ledger=ledger
+  # end
+  #
+  def set_amount
+    # self.amount = lines.sum(:amount) #This will sum the amount values stored in the database
+    self.amount = lines.map(&:amount).sum  # This will sum the `amount` values from in-memory objects.
   end
 end

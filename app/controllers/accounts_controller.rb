@@ -3,7 +3,7 @@ class AccountsController < ApplicationController
 
   def index
     session[:page]="Accounts"
-    @accounts = @current_budget.accounts.all
+    @accounts = @current_budget.accounts.all.order(:id)
 
     @on_budget_accounts = @accounts.where(closed: false, on_budget: true)
     @on_budget_balance = @on_budget_accounts.sum(:balance)

@@ -39,6 +39,12 @@
   <%= f.check_box :cleared %>
 </div>
   <%= f.fields_for :lines do |line_form| %>
+
+  <div>
+    <%= line_form.label :id %>
+    <%= line_form.object.id %>
+    <%#= line_form.hidden_field :id %>  <!-- Ensures correct line is updated -->
+  </div>
     <div>
       <%= line_form.label :subcategory %>
       <%= line_form.grouped_collection_select(
@@ -48,16 +54,26 @@
         :name,
         :id,
         :name,
-        { prompt: 'Select Category'}
+        { prompt: 'Select Category'},
+        { selected: line_form.object.subcategory_form_id } # Ensure selected value is set
       ) %>
     </div>
 
     <div>
       <%= line_form.label :amount %>
-      <%= line_form.number_field :amount, step: '0.01', placeholder: "Enter line amount" %>
+      <%# <%= line_form.number_field :amount, step: '0.01', placeholder: "Enter line amount" %>
+      <%#= line_form.number_field :amount, value: line_form.object.amount.to_f / 100, step: '0.01', placeholder: "Enter line amount" %>
+      <%= line_form.number_field :amount, value: (line_form.object.amount.to_f / 100).round(2), step: '0.01', placeholder: "Enter line amount" %>
       <%#= line_form.number_field :amount, step: '0.01', placeholder: "Enter line amount", value: formatted_amount_for_form(line_form.object.amount)  %>
     </div>
+    <% if params[:action] == "edit" && trx.lines.size > 1 %>
+      <div>
+        <%= line_form.check_box :_destroy %>
+        <%= line_form.label :_destroy, "Remove?" %>
+      </div>
+    <% end %>
   <% end %>
+
   
 
 
@@ -65,3 +81,11 @@
     <%= f.submit %>
   </div>
 <% end %>
+
+  <!-- Add Line Button -->
+  <% if @trx.persisted? %>
+    <%= button_to "Add Line", add_line_to_trx_path(@trx), method: :post %>
+    <%#= button_to "Add Line", add_line_to_trx_path(@trx), method: :post, data: { turbo_stream: true } %>
+  <% else %>
+    <%= button_to "Add Line", add_line_to_new_trx_path(@trx), method: :post %>
+  <% end %>

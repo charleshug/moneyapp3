@@ -1,6 +1,6 @@
 class TrxesController < ApplicationController
   include Pagy::Backend
-  before_action :set_trx, only: %i[ edit update destroy ]
+  before_action :set_trx, only: %i[ edit update destroy add_line]
 
   def index
     @current_budget_trxes = @current_budget.trxes
@@ -19,6 +19,17 @@ class TrxesController < ApplicationController
     @trx.lines.build
   end
 
+  def add_line
+    if params[:id]
+      @trx.lines.build
+      redirect_to edit_trx_path(@trx)
+    else
+      @trx = Trx.new(trx_params)
+      @trx.lines.build
+      render :new
+    end
+  end
+
   # GET /trxes/1/edit
   def edit
     # Ensure the record belongs to the current budget
@@ -26,14 +37,15 @@ class TrxesController < ApplicationController
       redirect_to trxes_path, alert: "You are not authorized to edit this transaction."
       nil
     end
+    @trx.lines.each do |line|
+      line.subcategory_form_id = line.ledger.subcategory_id
+    end
   end
 
   # POST /trxes or /trxes.json
   def create
-    trx = @current_budget.trxes.build(trx_params)
-    trx_amount = (trx_params[:amount].to_d * 100).to_i  # Convert decimal to cents
-    trx.amount = trx_amount
-    @trx = TrxCreatorService.new.create_trx(trx)
+    @trx = @current_budget.trxes.build
+    @trx = TrxCreatorService.new.create_trx(@trx, trx_params)
 
     respond_to do |format|
       if @trx.valid?
@@ -52,10 +64,7 @@ class TrxesController < ApplicationController
       return
     end
 
-    @trx = TrxEditingService.new.edit_trx(
-      @trx,
-      trx_params
-      )
+    @trx = TrxEditingService.new.edit_trx(@trx, trx_params)
     respond_to do |format|
       if @trx.valid?
         format.html { redirect_to trxes_path(q: { account_id_in: @trx.account.id }), notice: "Trx was successfully updated." }
