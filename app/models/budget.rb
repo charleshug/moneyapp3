@@ -7,6 +7,7 @@ class Budget < ApplicationRecord
   has_many :ledgers, through: :subcategories
   has_many :vendors, dependent: :destroy
   has_many :trxes, through: :accounts
+  has_many :lines, through: :trxes
 
   after_create :create_default_vendors
   after_create :create_default_categories

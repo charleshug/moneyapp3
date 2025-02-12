@@ -17,10 +17,19 @@
     <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
   </div>
   <div>    
+    <%= f.label :category_id_in, 'Category' %>
+    <%= f.collection_select(
+      :category_id_in,
+      @current_budget.categories,
+      :id,
+      :name,
+      {include_blank: true, multiple: true}
+    ) %>
+  <div>    
     <%= f.label :subcategory_id_in, 'Subcategory' %>
     <%= f.grouped_collection_select(
       :subcategory_id_in,
-      @current_budget.categories.includes(:subcategories),
+      @current_budget.categories,
       :subcategories,
       :name,
       :id,
@@ -60,12 +69,24 @@
         <td style="border: 1px solid #ddd; padding: 4px 8px; text-align: right;"><%= number_to_currency((trx.amount / 100.0)) %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.vendor.name %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= trx.account.name %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.category.name %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.subcategory.name %></td>
+        <% if trx.lines.count > 1%>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Split Transaction</td>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Various</td>
+        <% elsif trx.lines.count > 0 %>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.category.name %></td>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.subcategory.name %></td>
+        <% else %>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">No Lines</td>
+          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">No Lines</td>
+        <% end %>
         <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.memo %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= check_box_tag nil, nil, trx.cleared, disabled: true %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= link_to trx.id, edit_trx_path(trx) %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= trx.transfer&.id %></td>
+        <% if trx.lines.any? { |line| line.transfer_line.present? }%>
+          <td style="border: 1px solid #ddd; padding: 4px 8px;">Yes</td>
+        <% else %>
+          <td style="border: 1px solid #ddd; padding: 4px 8px;"></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>

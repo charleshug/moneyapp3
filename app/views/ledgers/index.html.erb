@@ -49,8 +49,8 @@
         <td><%= link_to ledger.id, edit_ledger_path(ledger) %></td>
         <td style="text-align: center;"><%= ledger.prev_id || "head" %></td>
         <td style="text-align: center;"><%= ledger.next_id || "tail" %></td>
-        <td style="text-align: left;"><%= "#{ledger.category.parent_id}: #{ledger.subcategory.category.name}" %></td>
-        <td style="text-align: left;"><%= "#{ledger.category_id}: #{ledger.subcategory.category.name}" %></td>
+        <td style="text-align: left;"><%= "#{ledger.category.id}: #{ledger.category.name}" %></td>
+        <td style="text-align: left;"><%= "#{ledger.subcategory.id}: #{ledger.subcategory.name}" %></td>
         <td><%= ledger.date.strftime("%Y-%b") %></td>
         <td style="text-align: right;"><%= number_to_currency((ledger.budget / 100.0), precision: 2) %></td>
         <td style="text-align: right;"><%= number_to_currency((ledger.actual / 100.0), precision: 2) %></td>

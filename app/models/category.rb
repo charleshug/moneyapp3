@@ -1,7 +1,8 @@
 class Category < ApplicationRecord
   belongs_to :budget
   has_many :subcategories, dependent: :destroy
-  has_many :trxes, through: :subcategories
+  # has_many :trxes, through: :subcategories
+  has_many :lines, through: :subcategories
   has_many :ledgers, through: :subcategories
 
   validates :name, presence: true
@@ -31,6 +32,6 @@ class Category < ApplicationRecord
 
   def self.ransackable_associations(auth_object = nil)
     # note: these match belongs_to (no plurals)
-    [ "subcategories", "trxes", "name" ]
+    [ "subcategories", "trxes", "ledgers", "name" ]
   end
 end

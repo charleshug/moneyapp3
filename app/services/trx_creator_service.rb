@@ -1,44 +1,53 @@
 class TrxCreatorService
-
-  def create_trx(trx)
+  def create_trx(trx, trx_params)
+    convert_amount_to_cents(trx_params)
+    trx.assign_attributes(trx_params)
     set_ledger(trx)
+    trx.set_amount
     trx.save
     if trx.invalid?
-      #do something when trx fails
-      return trx
+      # trx failed, do something
     end
+
+    ledgers_to_update = Set.new
+    trx.lines.each { |line| ledgers_to_update << line.ledger }
+    ledgers_to_update.each do |ledger|
+      LedgerService.new.recalculate_forward_ledgers(ledger)
+    end
+
 
     trx.account.calculate_balance!
-    LedgerService.new.update_ledger_from_trx(trx)
-
-    #if trx is a transfer
-    unless trx.vendor.account.nil?
-      transfer_trx = create_opposite_trx(trx)
-      trx.update_column(:transfer_id, transfer_trx.id)
-      transfer_trx.account.calculate_balance!
-      LedgerService.new.update_ledger_from_trx(transfer_trx)
-    end
 
     trx
   end
 
+  def set_amount(trx)
+    amount = trx.lines.sum(:amount)
+    trx.update(amount: amount)
+  end
+
   def set_ledger(trx)
-    ledger = Ledger.find_or_create_by(date:trx.date.end_of_month, subcategory: trx.subcategory )
-    trx.ledger=ledger
+    trx.lines.each do |line|
+      if line.subcategory_form_id.empty?
+        ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory))
+      else
+        ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: Subcategory.find(line.subcategory_form_id))
+      end
+      line.ledger=ledger
+    end
   end
 
-  def create_opposite_trx(trx)
-    attributes = {
-      date: trx.date,
-      amount: -trx.amount,
-      vendor_id: trx.account.vendor.id,
-      account_id: trx.vendor.account.id,
-      subcategory_id: trx.subcategory_id,
-      ledger_id: trx.ledger_id, #note: when using on/off budgets this will need to change as transfer trx could have different category than trx
-      transfer_id: trx.id,
-      memo: trx.memo,
-    }
-    Trx.create!(attributes)
+  def set_amount(trx)
+    trx.amount = trx.lines.sum(:amount)
   end
 
+  def convert_amount_to_cents(trx_params)
+    return unless trx_params[:lines_attributes].present?
+
+    trx_params[:lines_attributes].each do |_, line_params|  # Keep index key (_ ignored)
+      if line_params[:amount].present?
+        line_params[:amount] = (line_params[:amount].to_d * 100).to_i
+      end
+    end
+  end
 end

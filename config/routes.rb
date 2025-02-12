@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   get "home/index"
 
+  post "trxes/:id/add_line", to: "trxes#add_line", as: :add_line_to_trx  # For existing transactions
+  post "trxes/add_line",     to: "trxes#add_line", as: :add_line_to_new_trx   # For new transactions
+
   resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ] do
     collection do
       post :import

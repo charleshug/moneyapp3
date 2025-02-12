@@ -25,6 +25,7 @@ class Account < ApplicationRecord
   end
 
   def self.calculate_balances!
+    # TODO - limit this to current budget
     Account.all.each do |account|
       account.calculate_balance!
     end

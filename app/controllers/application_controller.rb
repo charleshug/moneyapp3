@@ -6,7 +6,6 @@ class ApplicationController < ActionController::Base
 
   private
   def set_current_budget
-    puts "DEBUG: set_current_budget"
     if current_user.budgets.empty?
       redirect_to new_budget_path, notice: "Please create a budget first."
       return
@@ -25,18 +24,15 @@ class ApplicationController < ActionController::Base
 
   def update_current_budget
     if current_user.last_viewed_budget_id.present?
-    puts "DEBUG: FIVE"
       current_budget = Budget.find_by(id: current_user.last_viewed_budget_id)
 
       if current_budget && current_user.budgets.include?(current_budget)
-      puts "DEBUG: FIVERRR"
         # current_budget belongs to the current_user
         @current_budget = current_budget
       else
         use_fallback_budget
       end
     else
-      puts "DEBUG: SIX"
       # last_viewed_budget_id is blank
       use_fallback_budget
     end
