@@ -1,6 +1,6 @@
 class TrxesController < ApplicationController
   include Pagy::Backend
-  before_action :set_trx, only: %i[ edit update destroy add_line]
+  before_action :set_trx, only: %i[ edit update destroy ]
 
   def index
     @current_budget_trxes = @current_budget.trxes
@@ -19,16 +19,16 @@ class TrxesController < ApplicationController
     @trx.lines.build
   end
 
-  def add_line
-    if params[:id]
-      @trx.lines.build
-      redirect_to edit_trx_path(@trx)
-    else
-      @trx = Trx.new(trx_params)
-      @trx.lines.build
-      render :new
-    end
-  end
+  # def add_line
+  #   if params[:id]
+  #     @trx.lines.build
+  #     redirect_to edit_trx_path(@trx)
+  #   else
+  #     @trx = Trx.new(trx_params)
+  #     @trx.lines.build
+  #     render :new
+  #   end
+  # end
 
   # GET /trxes/1/edit
   def edit
@@ -102,10 +102,17 @@ class TrxesController < ApplicationController
   end
 
   def import_review
+    @categories = @current_budget.categories.includes(:subcategories)
+    @accounts = @current_budget.accounts
     @trxes = session[:parsed_trxes]
+
+    # quick check that Accounts in CSV exist in @current_budget
   end
 
   def submit_import
+    ledgers_to_update = Set.new
+    accounts_to_update = Set.new
+
     imported_trxes = params[:trx][:trxes].values.select { |trx| trx["include"] == "1" }
 
     if imported_trxes.empty?
@@ -113,28 +120,38 @@ class TrxesController < ApplicationController
     end
     ActiveRecord::Base.transaction do
       imported_trxes.each do |trx_params|
-        trx = Trx.new(
+        trx = @current_budget.trxes.build(
           date: trx_params["date"],
           account_id: trx_params["account_id"],
           vendor_id: trx_params["vendor_id"],
-          subcategory_id: trx_params["subcategory_id"],
-          memo: trx_params["memo"],
-          amount: convert_amount_to_cents(trx_params["amount"])
+          memo: trx_params["memo"]
         )
-        trx.set_ledger
+
+        trx_params["lines_attributes"].each do |_, line_params|
+          line = trx.lines.build(
+            subcategory_form_id: line_params["subcategory_id"],
+            amount: convert_amount_to_cents(line_params["amount"])
+          )
+          line.set_ledger
+          ledgers_to_update << line.ledger
+        end
+
+
+        trx.set_amount
         trx.save!
+        accounts_to_update << trx.account
+        trx.lines.each { |line| ledgers_to_update << line.ledger }
       end
 
-      imported_trxes.map { |trx| trx["account_id"] }.uniq.each do |account_id|
-        Account.find(account_id).calculate_balance!
-      end
+      accounts_to_update.each { |account| account.calculate_balance }
+      ledgers_to_update.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
     end
 
     redirect_to trxes_path, notice: "Transactions imported successfully."
   end
 
   def csv_export
-    @trxes = Trx.all # You can adjust this to filter the records if needed
+    @trxes = @current_budget.all # You can adjust this to filter the records if needed
     timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
     respond_to do |format|
       format.csv { send_data @trxes.to_csv, filename: "MoneyApp trxes-#{timestamp}.csv" }

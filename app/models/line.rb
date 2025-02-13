@@ -30,7 +30,7 @@ class Line < ApplicationRecord
   end
 
   def set_ledger
-    ledger = Ledger.find_by(date: trx.date.end_of_month, subcategory_id: subcategory_form_id)
+    ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory_id: subcategory_form_id)
     self.ledger = ledger
   end
 end

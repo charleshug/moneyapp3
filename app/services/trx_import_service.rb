@@ -1,5 +1,5 @@
 class TrxImportService
-  require 'csv'
+  require "csv"
 
   def self.parse(file)
     temp_table = CSV.read(file, headers: true)
@@ -14,50 +14,64 @@ class TrxImportService
 
   def self.import(file)
     ActiveRecord::Base.transaction do
-      temp_table = CSV.read(file, headers:true)
+      temp_table = CSV.read(file, headers: true)
       temp_account_list = temp_table["Account"].uniq
 
-      #Ensure all Accounts listed actually exist in our database
+      # Ensure all Accounts listed actually exist in our database
       return false unless temp_account_list.all? { |a| Account.find_by(name: a) || "" }
 
-      #Placeholder category in case a listed Category doesn't exist in our database
-      other = Category.find_or_create_by(name:"Other")
-      uncategorized = other.subcategories.find_or_create_by(name:"Uncategorized")
-      
+      # Placeholder category in case a listed Category doesn't exist in our database
+      other = @current_budget.categories.find_or_create_by(name: "Other")
+      uncategorized = other.subcategories.find_or_create_by(name: "Uncategorized")
+
+
+      ledgers_to_update = Set.new
+      accounts_to_update = Set.new
+
       temp_array = temp_table.map { |row| row.to_hash }
-      temp_array.each.with_index do |row,index|
+      temp_array.each.with_index do |row, index|
         if row["Date"]
           date = Date.parse(row["Date"])
-          account = Account.find_by(name: row["Account"])
-          vendor = Vendor.find_or_create_by(name: row["Vendor"])
-          category = Category.find_by(name: row["Category"]) || other
-          subcategory = Subcategory.find_by(name: row["Subcategory"]) || uncategorized
-          ledger = Ledger.find_or_create_by(date:date.end_of_month ,category:category)
+          account = @current_budget.accounts.find_by(name: row["Account"])
+          vendor = @current_budget.vendors.find_or_create_by(name: row["Vendor"])
+          # category = @current_budget.categories.find_by(name: row["Category"]) || other
+          subcategory = @current_budget.subcategories.find_by(name: row["Subcategory"]) || uncategorized
+          # ledger = @current_budget.ledger.find_or_create_by(date: date.end_of_month, subcategory: subcategory)
 
           temp_trx_attr = {
             date: date,
             memo: row["Memo"],
             vendor: vendor,
-            subcategory: subcategory,
             account: account,
-            ledger: ledger,
-            amount: convert_amount_to_cents(row["Amount"])
+            lines: [
+              {
+                subcategory: subcategory,
+                amount: convert_amount_to_cents(row["Amount"])
+              }
+            ]
           }
+
           temp_trx = Trx.new(temp_trx_attr)
+          set_ledger(temp_trx)
+          debugger
           temp_trx.save!
+
+          temp_trx.lines.each { |line| ledgers_to_update << line.ledger }
+          accounts_to_update << temp_trx.account
+
         elsif row["Account"]
           raise ("ERROR: Trx has Account but no date")
         end
       end
 
-      temp_account_list.each do |account|
-        Account.find_by_name(account).calculate_balance!
+      # update Ledgers and Accounts all at once at the end
+      ledgers_to_update.each do |ledger|
+        LedgerService.new.recalculate_forward_ledgers(ledger)
       end
-
+      accounts_to_update.each do |account|
+        account.calculate_balance!
+      end
     end
-
-    #TODO: Ledger update logic is complex, this catchall is simpler for now
-    LedgerService.update_all_ledgers
   end
 
   def convert_amount_to_cents(amount)
