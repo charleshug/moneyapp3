@@ -26,9 +26,9 @@
       {include_blank: true, multiple: true}
     ) %>
   <div>    
-    <%= f.label :subcategory_id_in, 'Subcategory' %>
+    <%= f.label :lines_ledger_subcategory_id_in, 'Subcategory' %>
     <%= f.grouped_collection_select(
-      :subcategory_id_in,
+      :lines_ledger_subcategory_id_in,
       @current_budget.categories,
       :subcategories,
       :name,
