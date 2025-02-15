@@ -8,7 +8,7 @@
   <% if category.subcategories.any? %>
     <ul>
       <% category.subcategories.each do |subcategory| %>
-        <li><%= subcategory.name %></li>
+        <li><%= link_to subcategory.name, edit_subcategory_path(subcategory) %></li>
       <% end %>
     </ul>
   <% end %>
