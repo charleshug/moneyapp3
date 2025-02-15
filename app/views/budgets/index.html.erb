@@ -56,7 +56,7 @@
       <tr>
         <td><strong><%= parent[:name] %></strong></td>
         <td style="text-align: right;"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
-        <td style="text-align: right;"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
+        <td style="text-align: right;"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
         <td style="text-align: right;"><strong><%= number_to_currency(parent[:balance] / 100.0) %></strong></td>
       </tr>
       <% parent[:subcategories].each do |subcategory| %>
@@ -64,7 +64,7 @@
           <td><%= subcategory[:name] %></td>
           <% if subcategory[:ledger] %>
             <td style="text-align: right;"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]) %></td>
-            <td style="text-align: right;"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+            <td style="text-align: right;"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
             <td style="text-align: right;">
               <%= number_to_currency(subcategory[:balance] / 100.0) %>
               <% if subcategory[:balance] < 0 && subcategory[:ledger].carry_forward_negative_balance %>

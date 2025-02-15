@@ -28,6 +28,7 @@ class BudgetService
       parent_balance = 0
 
       parent_data = {
+        id: category.id,
         name: category.name,
         budget: 0,
         actual: 0,
