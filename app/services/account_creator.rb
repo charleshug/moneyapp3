@@ -20,8 +20,8 @@ class AccountCreator
   end
 
   def create_starting_transaction
-    starting_balance = @account_params[:starting_balance].to_f
-    return if starting_balance.zero?
+    starting_balance = @account_params[:starting_balance]
+    return if starting_balance.empty?
 
     starting_date = @account_params[:starting_date].presence || Date.today
     vendor = @account.budget.vendors.find_or_create_by(name: "Starting Balance")
@@ -40,9 +40,9 @@ class AccountCreator
       ]
     }
 
-    trx = @account.trxes.build(trx_params)
-
-    TrxCreatorService.new.create_trx(trx, trx_params)
+    # trx = @account.trxes.build(trx_params)
+    StartingTrxCreator.new(@account, trx_params)
+    # TrxCreatorService.new.create_trx(trx, trx_params)
 
     @account.calculate_balance!
   end
