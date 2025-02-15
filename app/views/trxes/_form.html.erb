@@ -16,7 +16,7 @@
   <%= f.select :vendor_id, grouped_options_for_select({
       "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
       "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
-    }, f.object.vendor_id), prompt: "Select Vendor" %>
+    }, f.object.vendor_id), include_blank: "Select Vendor" %>
 </div>
   <div>
     <%= f.label :vendor_custom_text %>
