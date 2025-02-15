@@ -37,12 +37,10 @@ class AccountsController < ApplicationController
   end
 
   def create
-    account = @current_budget.accounts.build(account_params)
-    starting_balance = (account_params[:starting_balance].to_d * 100).to_i  # Convert decimal to cents
-    account.starting_balance = starting_balance
-    @account = AccountCreator.new(account)
+    account = @current_budget.accounts.build
+    AccountCreator.new(account, account_params)
     respond_to do |format|
-      if @account.valid?
+      if account.valid?
         format.html { redirect_to accounts_path, notice: "Account was successfully created." }
       else
         format.html { render :new, status: :unprocessable_entity }

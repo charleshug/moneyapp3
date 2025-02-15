@@ -1,50 +1,49 @@
 class AccountCreator
-  def initialize(account)
-    account.save
-    if account.invalid?
-      # do something when account fails
-      return account
+  def initialize(account, account_params)
+    @account = account
+    @account_params = account_params
+
+    ActiveRecord::Base.transaction do
+      create_account
+      create_vendor_from_account
+      create_starting_transaction
     end
-
-    create_vendor_from_account(account)
-
-    if account.starting_balance != 0
-      create_starting_transaction(account)
-      account.calculate_balance!
-    end
-
-    account
   end
 
-  def create_starting_transaction(account)
-    vendor = account.budget.vendors.find_or_create_by(name: "Starting Balance")
+  def create_account
+    @account.assign_attributes(@account_params.except(:starting_balance, :starting_date))
+    @account.save
+  end
 
-    category = account.budget.categories.find_or_create_by(name: "Income Parent")
+  def create_vendor_from_account
+    @account.budget.vendors.create!(name: "Transfer: " + @account.name, account: @account)
+  end
+
+  def create_starting_transaction
+    starting_balance = @account_params[:starting_balance].to_f
+    return if starting_balance.zero?
+
+    starting_date = @account_params[:starting_date].presence || Date.today
+    vendor = @account.budget.vendors.find_or_create_by(name: "Starting Balance")
+    category = @account.budget.categories.find_or_create_by(name: "Income Parent")
     subcategory = category.subcategories.find_or_create_by(name: "Income")
 
-    # trx = account.trxes.build(
-    #   date: account.starting_date,
-    #   amount: account.starting_balance,
-    #   memo: "Starting Balance",
-    #   vendor: vendor,
-    #   subcategory: subcategory
-    # )
-    # TrxCreatorService.new.create_trx(trx)
-
-    trx = account.trxes.build(
-      date: account.starting_date,
+    trx_params = {
+      date: starting_date,
       memo: "Starting Balance",
-      vendor: vendor,
-      )
-    trx.lines.build(
-      amount: account.starting_balance,
-      subcategory_form_id: subcategory.id.to_s
-    )
-    TrxCreatorService.new.create_trx(trx)
-  end
+      vendor_id: vendor.id,
+      lines_attributes: [
+        {
+          amount: starting_balance,
+          subcategory_form_id: subcategory.id.to_s
+        }
+      ]
+    }
 
-  def create_vendor_from_account(account)
-    account.budget.vendors.create!(name: "Transfer: " + account.name, account: account)
-    # Vendor.create!(name: "Transfer: " + account.name, account_id: account.id )
+    trx = @account.trxes.build(trx_params)
+
+    TrxCreatorService.new.create_trx(trx, trx_params)
+
+    @account.calculate_balance!
   end
 end

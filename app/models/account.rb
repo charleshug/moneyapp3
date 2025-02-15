@@ -8,7 +8,7 @@ class Account < ApplicationRecord
   has_many :trxes
   has_one :vendor, dependent: :destroy
 
-  attr_accessor :starting_balance, :starting_date
+  # attr_accessor :starting_balance, :starting_date
   before_destroy :ensure_no_trxes
 
   def self.ransackable_attributes(auth_object = nil)
