@@ -37,7 +37,7 @@ class VendorsController < ApplicationController
       return
     end
 
-    @vendor = VendorService.new.update_vendor(@vendorvendor, vendor_params)
+    @vendor = VendorService.new.update_vendor(@vendor, vendor_params)
     respond_to do |format|
       if @vendor.valid?
         format.html { redirect_to vendors_path, notice: "Vendor was successfully updated." }
