@@ -17,9 +17,9 @@
     <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
   </div>
   <div>    
-    <%= f.label :category_id_in, 'Category' %>
+    <%= f.label :lines_ledger_subcategory_category_id_in, 'Category' %>
     <%= f.collection_select(
-      :category_id_in,
+      :lines_ledger_subcategory_category_id_in,
       @current_budget.categories,
       :id,
       :name,
