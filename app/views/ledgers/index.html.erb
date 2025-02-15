@@ -4,7 +4,7 @@
 <%= search_form_for @q do |f| %>
 
 <%= f.label :category_id_in, 'Category' %>
-<%= f.collection_select :subcategory_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+<%= f.collection_select :subcategory_category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
 
 <%= f.label :subcategory_id_in, 'Subcategory' %>
   <%= f.grouped_collection_select(
@@ -27,13 +27,17 @@
   <%= f.submit "Filter" %>
 <% end %>
 
+<%= button_to 'Clear Filters', ledgers_path, method: :get %>
+
 <table>
   <thead>
     <tr>
       <th><%= sort_link @q, :id, 'Id' %></th>
       <th><%= sort_link @q, :prev_id, 'Prev' %></th>
       <th><%= sort_link @q, :next_id, 'Next' %></th>
+      <th><%= sort_link @q, :category_id, 'Id' %></th>
       <th><%= sort_link @q, :category_name, 'Category' %></th>
+      <th><%= sort_link @q, :subcategory_id, 'Id' %></th>
       <th><%= sort_link @q, :subcategory_name, 'Subcategory' %></th>
       <th><%= sort_link @q, :date, 'Date' %></th>
       <th><%= sort_link @q, :budget, 'Budget' %></th>
@@ -49,8 +53,10 @@
         <td><%= link_to ledger.id, edit_ledger_path(ledger) %></td>
         <td style="text-align: center;"><%= ledger.prev_id || "head" %></td>
         <td style="text-align: center;"><%= ledger.next_id || "tail" %></td>
-        <td style="text-align: left;"><%= "#{ledger.category.id}: #{ledger.category.name}" %></td>
-        <td style="text-align: left;"><%= "#{ledger.subcategory.id}: #{ledger.subcategory.name}" %></td>
+        <td style="text-align: left;"><%= ledger.category.id %></td>
+        <td style="text-align: left;"><%= ledger.category.name %></td>
+        <td style="text-align: left;"><%= ledger.subcategory.id %></td>
+        <td style="text-align: left;"><%= ledger.subcategory.name %></td>
         <td><%= ledger.date.strftime("%Y-%b") %></td>
         <td style="text-align: right;"><%= number_to_currency((ledger.budget / 100.0), precision: 2) %></td>
         <td style="text-align: right;"><%= number_to_currency((ledger.actual / 100.0), precision: 2) %></td>
