@@ -1,5 +1,5 @@
-class AccountCreatorService
-  def create_account(account)
+class AccountCreator
+  def initialize(account)
     account.save
     if account.invalid?
       # do something when account fails
