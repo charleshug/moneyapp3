@@ -18,6 +18,10 @@
       "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
     }, f.object.vendor_id), prompt: "Select Vendor" %>
 </div>
+  <div>
+    <%= f.label :vendor_custom_text %>
+    <%= f.text_field :vendor_custom_text, placeholder: "Enter new vendor name..." %>
+  </div>
 <div>
   <%= f.label :account, "Account" %>
   <%= f.select(

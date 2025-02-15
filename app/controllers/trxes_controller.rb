@@ -45,7 +45,7 @@ class TrxesController < ApplicationController
   # POST /trxes or /trxes.json
   def create
     @trx = @current_budget.trxes.build
-    @trx = TrxCreatorService.new.create_trx(@trx, trx_params)
+    @trx = TrxCreatorService.new.create_trx(@current_budget, trx_params)
 
     respond_to do |format|
       if @trx.valid?
@@ -167,7 +167,7 @@ class TrxesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def trx_params
       params.fetch(:trx, {}).permit(
-        :id, :date, :memo, :amount, :subcategory_id, :account_id, :vendor_id,
+        :id, :date, :memo, :amount, :subcategory_id, :account_id, :vendor_id, :vendor_custom_text,
         :cleared, :trxes, :q, lines_attributes: [ :id, :subcategory_form_id, :ledger_id, :amount, :_destroy ]
         )
     end

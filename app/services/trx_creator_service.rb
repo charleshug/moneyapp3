@@ -1,24 +1,29 @@
 class TrxCreatorService
-  def create_trx(trx, trx_params)
-    convert_amount_to_cents(trx_params)
-    trx.assign_attributes(trx_params)
-    set_ledger(trx)
-    trx.set_amount
-    trx.save
-    if trx.invalid?
-      # trx failed, do something
+  def create_trx(budget, trx_params)
+    ActiveRecord::Base.transaction do
+      convert_amount_to_cents(trx_params)
+
+      unless trx_params[:vendor_custom_text].empty?
+        vendor = budget.vendors.find_or_create_by(name: trx_params[:vendor_custom_text])
+        trx_params[:vendor_id] = vendor.id
+        trx_params.delete(:vendor_custom_text)
+      end
+
+      trx = budget.trxes.build(trx_params)
+      set_ledger(trx)
+      trx.set_amount
+      trx.save
+
+      ledgers_to_update = Set.new
+      trx.lines.each { |line| ledgers_to_update << line.ledger }
+      ledgers_to_update.each do |ledger|
+        LedgerService.new.recalculate_forward_ledgers(ledger)
+      end
+
+      trx.account.calculate_balance!
+
+      trx
     end
-
-    ledgers_to_update = Set.new
-    trx.lines.each { |line| ledgers_to_update << line.ledger }
-    ledgers_to_update.each do |ledger|
-      LedgerService.new.recalculate_forward_ledgers(ledger)
-    end
-
-
-    trx.account.calculate_balance!
-
-    trx
   end
 
   def set_amount(trx)
