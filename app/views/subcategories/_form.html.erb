@@ -22,8 +22,8 @@
   </div>
 
   <div>
-    <%= form.label :category_id, style: "display: block" %>
-    <%= form.text_field :category_id %>
+    <%= form.label :category_id, "Category", style: "display: block" %>
+    <%= form.collection_select :category_id, @current_budget.categories.all, :id, :name, prompt: "Select a Category" %>
   </div>
 
   <div>
