@@ -13,8 +13,7 @@ class LedgersController < ApplicationController
   end
 
     def create
-      ledger = Ledger.new(ledger_params)
-      @ledger = LedgerService.new.create_ledger(ledger)
+      @ledger = LedgerService.new.create_ledger(ledger_params)
       respond_to do |format|
         if @ledger.valid?
           format.html { redirect_to budgets_path(year: @ledger.date.year, month: @ledger.date.month), notice: "Ledger was successfully created." }

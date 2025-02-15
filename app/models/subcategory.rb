@@ -3,6 +3,7 @@ class Subcategory < ApplicationRecord
   has_many :ledgers
   has_many :lines, through: :ledgers
   # has_many :trxes, through: :ledgers
+  has_one :budget, through: :category
 
   validates :name, presence: true
 

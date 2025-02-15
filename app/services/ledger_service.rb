@@ -100,7 +100,9 @@ class LedgerService
     end
   end
 
-  def create_ledger(ledger)
+  def create_ledger(ledger_params)
+    ledger = Ledger.new(ledger_params)
+    ledger.budget = (BigDecimal(ledger_params[:budget])*100).to_s
     ledger.save
     if ledger.invalid?
       return ledger
