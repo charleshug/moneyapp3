@@ -1,5 +1,3 @@
-# app/services/income_expense_report_service.rb
-
 class IncomeExpenseReportService
   def initialize(current_budget, start_date, end_date)
     @current_budget = current_budget
@@ -8,14 +6,12 @@ class IncomeExpenseReportService
   end
 
   def call
-    # income_data = income_by_vendor_and_month
     income_data = @current_budget.lines
     .includes(trx: :vendor)
     .joins(ledger: { subcategory: :category })
     .where(trxes: { date: @start_date..@end_date })
     .where(categories: { normal_balance: "INCOME" })
 
-    # expense_data = expenses_by_category_and_month
     expense_data = @current_budget.lines
                                   .includes(trx: [ :account ])  # Preloads trx and its account
                                   .includes(ledger: { subcategory: :category }) # Preloads ledger, subcategory, and category
@@ -36,12 +32,6 @@ class IncomeExpenseReportService
   end
 
   private
-
-  # def load_all_categories
-  #   @current_budget.categories.expense.includes(:subcategories).each_with_object({}) do |category, hash|
-  #     hash[category.name] = category.subcategories.map(&:name)
-  #   end
-  # end
 
   def initialize_report_structure
     {
