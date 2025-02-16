@@ -6,8 +6,8 @@ class TrxEditingService
       unless trx_params[:vendor_custom_text].empty?
         vendor = trx.budget.vendors.find_or_create_by(name: trx_params[:vendor_custom_text])
         trx_params[:vendor_id] = vendor.id
-        trx_params.delete(:vendor_custom_text)
       end
+      trx_params.delete(:vendor_custom_text)
 
       ledgers_to_update = Set.new
 
