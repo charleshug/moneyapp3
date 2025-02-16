@@ -44,8 +44,9 @@ class IncomeExpenseReportService
     total_income = Hash.new(0)
     income_data.group_by(&:vendor).each do |vendor, lines|
       report_data[:income][vendor.name] = lines.each_with_object({}) do |line, hash|
-        hash[line.date.month] = line.amount
-        total_income[line.date.month] += hash[line.date.month]
+        month_key = line.trx.date.strftime("%Y-%m")
+        hash[month_key] = line.amount
+        total_income[month_key] += hash[month_key]
       end
     end
     report_data[:income]["All Income Sources"] = total_income
