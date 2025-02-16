@@ -115,6 +115,7 @@ class LedgerService
   end
 
   def update_ledger(ledger, ledger_update_params)
+    ledger_update_params[:budget]=(BigDecimal(ledger_update_params[:budget])*100).to_s
     ledger.update(ledger_update_params)
     if ledger.invalid?
       return ledger
