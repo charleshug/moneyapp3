@@ -64,11 +64,12 @@ class IncomeExpenseReportService
     expense_data.joins(ledger: { subcategory: :category }).group_by(&:category).each do |category, categories|
       categories.group_by(&:subcategory).each do |subcategory, lines|
         lines.each do |line|
+          month_key = line.trx.date.strftime("%Y-%m")
           report_data[:expenses][category.name] ||= {}
           report_data[:expenses][category.name][subcategory.name] ||= {}
-          report_data[:expenses][category.name][subcategory.name][line.date.month] ||= 0
+          report_data[:expenses][category.name][subcategory.name][month_key] ||= 0
 
-          report_data[:expenses][category.name][subcategory.name][line.date.month] += line.amount
+          report_data[:expenses][category.name][subcategory.name][month_key] += line.amount
         end
       end
     end
