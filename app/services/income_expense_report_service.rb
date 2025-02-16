@@ -9,7 +9,12 @@ class IncomeExpenseReportService
 
   def call
     # income_data = income_by_vendor_and_month
-    income_data = @current_budget.lines.income.where(trxes: { date: @start_date..@end_date })
+    income_data = @current_budget.lines
+    .includes(trx: :vendor)
+    .joins(ledger: { subcategory: :category })
+    .where(trxes: { date: @start_date..@end_date })
+    .where(categories: { normal_balance: "INCOME" })
+
     # expense_data = expenses_by_category_and_month
     expense_data = @current_budget.lines.expense.where(trxes: { date: @start_date..@end_date })
     format_report_data(income_data, expense_data)
