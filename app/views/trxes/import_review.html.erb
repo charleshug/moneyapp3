@@ -19,7 +19,6 @@
           <td><%= date_field_tag "trx[trxes][#{index}][date]", trx["Date"] %></td>
           <td><%= select_tag "trx[trxes][#{index}][account_id]", options_from_collection_for_select(@accounts, :id, :name, selected: @accounts.find_by(name: trx["Account"]).id) %></td>
           <td><%= select_tag "trx[trxes][#{index}][vendor_id]", options_from_collection_for_select(@current_budget.vendors, :id, :name, selected: @current_budget.vendors.find_or_create_by(name: trx["Vendor"]).id) %></td>
-          <td><%= text_field_tag "trx[trxes][#{index}][memo]", trx["Memo"] %></td>
           <td><%= select_tag "trx[trxes][#{index}][lines_attributes][0][subcategory_id]", 
                   grouped_options_for_select(
                     @categories.map { |category| 
@@ -28,6 +27,7 @@
                     selected: @current_budget.subcategories.find_by(name: trx["Subcategory"])&.id || @current_budget.subcategories.find_or_create_by(name: "Uncategorized").id
                   ) 
             %>
+          <td><%= text_field_tag "trx[trxes][#{index}][memo]", trx["Memo"] %></td>
           </td>          
           <td><%= number_field_tag "trx[trxes][#{index}][lines_attributes][0][amount]", trx["Amount"], step: '0.01' %></td>
           <td><%= check_box_tag "trx[trxes][#{index}][include]", '1', true %></td>
