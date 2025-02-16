@@ -17,9 +17,12 @@ class IncomeExpenseReportService
 
     # expense_data = expenses_by_category_and_month
     expense_data = @current_budget.lines
-                                .includes(ledger: { subcategory: :category })
-                                .where(trxes: { date: @start_date..@end_date })
-                                .where(categories: { normal_balance: "EXPENSE" })
+                                  .includes(trx: [ :account ])  # Preloads trx and its account
+                                  .includes(ledger: { subcategory: :category }) # Preloads ledger, subcategory, and category
+                                  .joins(:trx, ledger: { subcategory: :category }) # Ensures proper SQL joins
+                                  .where(trxes: { date: @start_date..@end_date })
+                                  .where(categories: { normal_balance: "EXPENSE" })
+
     format_report_data(income_data, expense_data)
   end
 
@@ -71,20 +74,20 @@ class IncomeExpenseReportService
 
       category.subcategories.each do |subcategory|
         report_data[:expenses][category.name][subcategory.name] ||= {}
+
+        # Initialize months to zero for this subcategory
+        report_data[:months].each do |month_key|
+          report_data[:expenses][category.name][subcategory.name][month_key] ||= 0
+        end
       end
     end
 
-    expense_data.joins(ledger: { subcategory: :category }).group_by(&:category).each do |category, categories|
-      categories.group_by(&:subcategory).each do |subcategory, lines|
-        lines.each do |line|
-          month_key = line.trx.date.strftime("%Y-%m")
-          report_data[:expenses][category.name] ||= {}
-          report_data[:expenses][category.name][subcategory.name] ||= {}
-          report_data[:expenses][category.name][subcategory.name][month_key] ||= 0
+    expense_data.includes(ledger: { subcategory: :category }).each do |line|
+      category = line.ledger.subcategory.category
+      subcategory = line.ledger.subcategory
+      month_key = line.trx.date.strftime("%Y-%m")
 
-          report_data[:expenses][category.name][subcategory.name][month_key] += line.amount
-        end
-      end
+      report_data[:expenses][category.name][subcategory.name][month_key] += line.amount
     end
   end
 end
