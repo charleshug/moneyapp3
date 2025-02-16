@@ -19,17 +19,6 @@ class TrxesController < ApplicationController
     @trx.lines.build
   end
 
-  # def add_line
-  #   if params[:id]
-  #     @trx.lines.build
-  #     redirect_to edit_trx_path(@trx)
-  #   else
-  #     @trx = Trx.new(trx_params)
-  #     @trx.lines.build
-  #     render :new
-  #   end
-  # end
-
   # GET /trxes/1/edit
   def edit
     # Ensure the record belongs to the current budget
