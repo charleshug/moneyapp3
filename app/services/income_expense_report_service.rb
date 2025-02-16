@@ -50,13 +50,18 @@ class IncomeExpenseReportService
 
   def populate_income_data(report_data, income_data)
     total_income = Hash.new(0)
-    income_data.group_by(&:vendor).each do |vendor, lines|
-      report_data[:income][vendor.name] = lines.each_with_object({}) do |line, hash|
+
+    income_data.group_by { |line| line.trx.vendor }.each do |vendor, lines|
+      report_data[:income][vendor.name] ||= {}
+
+      lines.each do |line|
         month_key = line.trx.date.strftime("%Y-%m")
-        hash[month_key] = line.amount
-        total_income[month_key] += hash[month_key]
+        report_data[:income][vendor.name][month_key] ||= 0
+        report_data[:income][vendor.name][month_key] += line.amount
+        total_income[month_key] += line.amount
       end
     end
+
     report_data[:income]["All Income Sources"] = total_income
   end
 
