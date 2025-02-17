@@ -16,22 +16,34 @@ class Budget < ApplicationRecord
 
   private
 
+  def load_default_categories
+    (budget_type == "BUSINESS" ? Category::DEFAULT_CATEGORIES_BUSINESS : Category::DEFAULT_CATEGORIES_PERSONAL)
+      .inject({}) { |acc, hash| acc.merge(hash) }
+  end
+
   def create_default_categories
-    if budget_type && budget_type == "BUSINESS"
-      default_categories = Category::DEFAULT_CATEGORIES_BUSINESS
-    else
-      default_categories = Category::DEFAULT_CATEGORIES_PERSONAL
+    default_categories = load_default_categories
+
+    # Batch insert categories
+    category_data = default_categories.keys.map do |category_name|
+      { name: category_name, budget_id: id, created_at: Time.current, updated_at: Time.current }
     end
-    default_categories.each do |category_hash|
-      category_hash.each do |category_name, subcategory_names|
-        category = self.categories.create(name: category_name)
-        subcategory_names.each do |subcategory_name|
-          category.subcategories.create(name: subcategory_name)
-        end
+    inserted_categories = Category.insert_all(category_data, returning: %w[id name])
+
+    # Map inserted categories by name
+    category_ids = inserted_categories.index_by { |c| c["name"] }
+
+    # Prepare batch insert for subcategories
+    subcategory_data = default_categories.flat_map do |category_name, subcategories|
+      subcategories.map do |subcategory_name|
+        { name: subcategory_name, category_id: category_ids[category_name]["id"], created_at: Time.current, updated_at: Time.current }
       end
     end
-    category = self.categories.create(name: "Income Parent", normal_balance: "INCOME")
-    category.subcategories.create(name: "Income")
+    Subcategory.insert_all(subcategory_data)
+
+    # Insert Income Parent category
+    income_category = categories.create(name: "Income Parent", normal_balance: "INCOME")
+    income_category.subcategories.create(name: "Income")
   end
 
   def create_default_vendors
