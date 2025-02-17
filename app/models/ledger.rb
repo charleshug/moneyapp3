@@ -53,9 +53,13 @@ class Ledger < ApplicationRecord
   end
 
   def prev_balance
-    prev_balance = prev&.balance || 0
+    if prev.nil?
+      return 0
+    end
 
-    if carry_forward_negative_balance == false
+    prev_balance = prev.balance || 0
+
+    if prev.carry_forward_negative_balance == false
       prev_balance = [ prev_balance, 0 ].max
     end
     prev_balance
