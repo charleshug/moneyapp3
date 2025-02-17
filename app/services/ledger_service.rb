@@ -161,7 +161,7 @@ class LedgerService
     ledger_heads.each do |head|
       head.save
       ledgers = head.find_next_ledgers
-      ledgers.includes(:subcategory, :prev).each do |l|
+      ledgers.includes(:subcategory, :lines, :prev).each do |l|
         l.save
       end
     end
