@@ -92,8 +92,7 @@ class BudgetsController < ApplicationController
     when "Balance to 0.00"
       LedgerService.new.balance_to_zero(date)
     end
-    redirect_to root_path
-    # redirect_to budgets_path
+    redirect_to budgets_path
   end
 
   private
