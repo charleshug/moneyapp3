@@ -157,17 +157,13 @@ class LedgerService
 
   def self.update_all_ledgers
     # TODO - use current_budget
-    time_start = Time.now
     ledger_heads = Ledger.where(prev: nil)
     ledger_heads.each do |head|
       head.save
       ledgers = head.find_next_ledgers
-      ledgers.includes(:subcategory, :trxes, :prev).each do |l|
+      ledgers.includes(:subcategory, :prev).each do |l|
         l.save
       end
     end
-    time_end = Time.now
-    puts "Debug: update_all_ledgers"
-    puts (time_end - time_start) / 1000
   end
 end
