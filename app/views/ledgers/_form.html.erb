@@ -34,7 +34,7 @@
         <%= f.hidden_field :subcategory_id %>
       </td>
       <td><%= f.date_field :date, readonly: true %></td>
-      <td style="text-align: right;"><%= f.number_field :budget, value: (f.object.budget.to_f / 100).round(2),step: '0.01'  %></td>
+      <td style="text-align: right;"><%= f.number_field :budget, value: (f.object.budget.to_f / 100).round(2),step: '0.01', autofocus: true  %></td>
       <td style="text-align: right;"><%= number_to_currency(ledger.actual / 100.0) %></td>
       <td style="text-align: right;"><%= number_to_currency(ledger.balance / 100.0) %></td>
       <td style="text-align: center;"><%= f.check_box :carry_forward_negative_balance %></td>
