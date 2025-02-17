@@ -20,7 +20,7 @@ class Category < ApplicationRecord
 
   DEFAULT_CATEGORIES_PERSONAL = [
     { "Other" => [ "Pre-MoneyApp", "Transfer", "Uncategorized" ] },
-    { "Everyday" => [ "Groceries", "Restaurants", "Clothing", "Entertainment", "Gas", "Household & Cleaning", "MISC" ] },
+    { "Everyday" => [ "Groceries", "Restaurants", "Clothing", "Entertainment", "Fuel", "Household & Cleaning", "MISC" ] },
     { "Monthly" => [ "Rent", "Phone", "Internet & Utilities", "News Subscriptions", "Car Insurance", "Car Registration", "Retirement" ] },
     { "Irregular" => [ "Investment", "Taxes" ] },
     { "Sinking" => [ "Medical / Dental", "Gifts", "Computer Stuff", "Vacation", "Car Repairs & Maint", "New Phone" ] }
