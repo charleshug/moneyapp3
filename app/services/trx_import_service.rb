@@ -3,7 +3,16 @@ class TrxImportService
 
   def self.parse(file)
     temp_table = CSV.read(file, headers: true)
-    temp_array = temp_table.map(&:to_hash)
+    temp_array = temp_table.map do |row|
+      {
+        "Date" => row["Date"],
+        "Account" => row["Account"],
+        "Vendor" => row["Vendor"],
+        "Memo" => row["Memo"],
+        "Subcategory" => row["Subcategory"],
+        "Amount" => row["Amount"]
+      }
+    end
 
     # Check if all accounts exist
     temp_account_list = temp_table["Account"].uniq

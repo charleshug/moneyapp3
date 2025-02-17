@@ -94,8 +94,9 @@ class TrxesController < ApplicationController
     @categories = @current_budget.categories.includes(:subcategories)
     @accounts = @current_budget.accounts
     @trxes = session[:parsed_trxes]
-
-    # quick check that Accounts in CSV exist in @current_budget
+    if @trxes.nil?
+      redirect_to new_trx_path, alert: "No trxes to import"
+    end
   end
 
   def submit_import
