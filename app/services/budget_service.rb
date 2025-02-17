@@ -9,7 +9,8 @@ class BudgetService
     budget_available_previously = overspent_prev + income_prev - budget_prev
 
     overspent_current = current_budget.ledgers.get_overspent_in_date_range(date.prev_month.beginning_of_month, date.prev_month.end_of_month)
-    income_current = current_budget.lines.income.joins(:trx).where(trxes: { date: ..date.beginning_of_month }).sum(:amount)
+    income_ledgers = current_budget.ledgers.where(date: date.end_of_month, subcategory: Subcategory.find_by(category: Category.find_by(name: "Income Parent")))
+    income_current = income_ledgers.sum(:actual)
     budget_current = current_budget.ledgers.get_budget_sum_current_month(date)
     budget_available_previously + overspent_current + income_current - budget_current
   end
