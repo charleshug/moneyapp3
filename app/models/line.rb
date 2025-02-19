@@ -7,6 +7,9 @@ class Line < ApplicationRecord
   delegate :account, to: :trx
   delegate :date, to: :trx
   belongs_to :transfer_line, class_name: "Line", optional: true
+
+  validates :amount, presence: true
+
   # has_one :transferee_line, class_name: "Line", foreign_key: "transfer_line_id"
   # has_one :transfer_vendor, through: :transfer_line
   attr_accessor :subcategory_form_id
@@ -20,6 +23,11 @@ class Line < ApplicationRecord
     joins(ledger: { subcategory: :category })
       .merge(Category.expense)
   }
+
+  # This ensures empty parameters generate 0 instead of nil
+  def amount=(value)
+    super(value.presence&.to_i || 0)
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     [ "id", "amount", "ledger_id", "transfer_line_id" ]
