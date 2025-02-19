@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_21_211615) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_19_045035) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,7 +65,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_211615) do
   end
 
   create_table "lines", force: :cascade do |t|
-    t.integer "amount"
+    t.integer "amount", default: 0, null: false
     t.string "memo"
     t.bigint "ledger_id", null: false
     t.bigint "trx_id", null: false
