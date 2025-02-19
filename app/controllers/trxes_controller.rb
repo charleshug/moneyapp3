@@ -133,7 +133,7 @@ class TrxesController < ApplicationController
         trx.lines.each { |line| ledgers_to_update << line.ledger }
       end
 
-      accounts_to_update.each { |account| account.calculate_balance }
+      accounts_to_update.each { |account| account.calculate_balance! }
       ledgers_to_update.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
     end
 
