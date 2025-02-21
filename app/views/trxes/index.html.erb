@@ -114,4 +114,4 @@
   </nav>
 <% end %>
 
-<%= link_to "Export to CSV", url_for(controller: 'trxes', action: 'csv_export', format: :csv) %>
+<%= link_to "Export to CSV", trxes_export_csv_export_path(format: :csv) %>

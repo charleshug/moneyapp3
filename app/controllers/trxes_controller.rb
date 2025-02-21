@@ -140,14 +140,6 @@ class TrxesController < ApplicationController
     redirect_to trxes_path, notice: "Transactions imported successfully."
   end
 
-  def csv_export
-    @trxes = @current_budget.all # You can adjust this to filter the records if needed
-    timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
-    respond_to do |format|
-      format.csv { send_data @trxes.to_csv, filename: "MoneyApp trxes-#{timestamp}.csv" }
-    end
-  end
-
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_trx

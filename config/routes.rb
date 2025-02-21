@@ -9,8 +9,11 @@ Rails.application.routes.draw do
       post :import
       get "import_review", to: "trxes#import_review"
       post "submit_import", to: "trxes#submit_import"
-      get :csv_export, format: :csv  # Add this line for CSV export
     end
+  end
+
+  namespace :trxes_export do
+    get :csv_export
   end
 
   resources :accounts

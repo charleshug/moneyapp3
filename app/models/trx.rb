@@ -33,27 +33,6 @@ class Trx < ApplicationRecord
     [ "account", "category", "subcategory", "vendor", "lines" ]
   end
 
-  def self.to_csv
-    attributes = %w[id date amount memo account_name category_name subcategory_name vendor_name]
-
-    CSV.generate(headers: true) do |csv|
-      csv << attributes
-
-      all.includes(:account, :category, :subcategory, :vendor).each do |trx|
-        csv << [
-          trx.id,
-          trx.date,
-          trx.amount.to_f / 100, # Convert amount back to decimal
-          trx.memo,
-          trx.account.name,
-          trx.category.name,
-          trx.subcategory.name,
-          trx.vendor.name
-        ]
-      end
-    end
-  end
-
   def self.generate_report(start_date, end_date)
     # Get all budget categories
     categories = Category.all
