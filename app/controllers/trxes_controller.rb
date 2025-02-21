@@ -80,7 +80,7 @@ class TrxesController < ApplicationController
   end
 
   def import
-    @parsed_trxes = TrxImportService.parse(params[:file])
+    @parsed_trxes = TrxImportService.parse(params[:file], @current_budget)
 
     if @parsed_trxes
       session[:parsed_trxes] = @parsed_trxes

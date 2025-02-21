@@ -1,7 +1,7 @@
 class TrxImportService
   require "csv"
 
-  def self.parse(file)
+  def self.parse(file, budget)
     temp_table = CSV.read(file, headers: true)
     temp_array = temp_table.map do |row|
       {
@@ -16,7 +16,7 @@ class TrxImportService
 
     # Check if all accounts exist
     temp_account_list = temp_table["Account"].uniq
-    return false unless temp_account_list.all? { |a| Account.find_by(name: a) || "" }
+    return false unless temp_account_list.all? { |a| budget.accounts.find_by(name: a) }
 
     temp_array
   end
