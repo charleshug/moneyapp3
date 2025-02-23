@@ -17,72 +17,49 @@ class BudgetService
 
 
   def self.generate_budget_table_data(current_budget, selected_month)
-    categories = current_budget.categories.expense
-    ledgers = current_budget.ledgers.includes(:subcategory).where(date: selected_month)
+    # Eager load all related data in a single query
+    categories = current_budget.categories
+      .includes(:subcategories)
+      .includes(subcategories: :ledgers)
 
-    budget_table_data = []
+    end_of_month = selected_month.end_of_month.to_date
 
-    # Iterate through each category
-    categories.each do |category|
-      parent_budget = 0
-      parent_actual = 0
-      parent_balance = 0
-
-      parent_data = {
-        id: category.id,
-        name: category.name,
-        budget: 0,
-        actual: 0,
-        balance: 0,
-        subcategories: []
-      }
-
-      # Iterate through the subcategories of the current category
-      category.subcategories.each do |subcategory|
-        # Get the ledger associated with the subcategory for the selected month (if it exists)
-        ledger = ledgers.detect { |l| l.subcategory_id == subcategory.id }
-
-        subcategory_data = if ledger
-                            {
-                              id: subcategory.id,
-                              name: subcategory.name,
-                              budget: ledger.budget,
-                              actual: ledger.actual,
-                              balance: ledger.balance,
-                              ledger: ledger
-                            }
-        else
-                            # If no ledger exists for the selected month, check for previous ledgers
-                            previous_ledger = Ledger.where(subcategory_id: subcategory.id).where("date < ?", selected_month).order(date: :desc).first
-                            balance_to_display = previous_ledger&.carry_forward_negative_balance ? previous_ledger.balance : [ previous_ledger.balance, 0 ].max if previous_ledger
-                            {
-                              id: subcategory.id,
-                              name: subcategory.name,
-                              budget: 0,
-                              actual: 0,
-                              balance: previous_ledger ? balance_to_display : 0,
-                              ledger: nil
-                            }
+    categories.map do |category|
+      subcategories_data = category.subcategories.map do |subcategory|
+        # More explicit ledger matching
+        current_ledger = subcategory.ledgers.find_by(date: end_of_month)
+        previous_ledger = current_ledger&.prev
+        if previous_ledger.nil?
+          previous_ledger = subcategory.ledgers.where("date < ?", end_of_month).order(date: :desc).first
         end
 
-        # Accumulate subcategory totals into the parent category
-        parent_budget += subcategory_data[:budget]
-        parent_actual += subcategory_data[:actual]
-        parent_balance += subcategory_data[:balance]
+        Rails.logger.debug "Subcategory: #{subcategory.name}"
+        Rails.logger.debug "Current ledger: #{current_ledger.inspect}"
+        Rails.logger.debug "Previous ledger: #{previous_ledger.inspect}"
 
-        # Add the subcategory data to the parent
-        parent_data[:subcategories] << subcategory_data
+        {
+          id: subcategory.id,
+          name: subcategory.name,
+          budget: current_ledger&.budget || 0,
+          actual: current_ledger&.actual || 0,
+          balance: current_ledger&.balance || 0,
+          previous_amount: previous_ledger&.budget || 0, # previous_ledger is nil if it's the first ledger
+          ledger: current_ledger
+        }
       end
 
-      # Populate the parent category data with the summed totals from its subcategories
-      parent_data[:budget] = parent_budget
-      parent_data[:actual] = parent_actual
-      parent_data[:balance] = parent_balance
+      # Calculate category totals
+      category_budget = subcategories_data.sum { |s| s[:budget] }
+      category_actual = subcategories_data.sum { |s| s[:actual] }
 
-      # Add the parent data to the budget table data
-      budget_table_data << parent_data
+      {
+        id: category.id,
+        name: category.name,
+        budget: category_budget,
+        actual: category_actual,
+        balance: category_budget - category_actual,
+        subcategories: subcategories_data
+      }
     end
-
-    budget_table_data
   end
 end
