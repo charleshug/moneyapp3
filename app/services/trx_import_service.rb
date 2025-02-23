@@ -43,9 +43,7 @@ class TrxImportService
           date = Date.parse(row["Date"])
           account = @current_budget.accounts.find_by(name: row["Account"])
           vendor = @current_budget.vendors.find_or_create_by(name: row["Vendor"])
-          # category = @current_budget.categories.find_by(name: row["Category"]) || other
           subcategory = @current_budget.subcategories.find_by(name: row["Subcategory"]) || uncategorized
-          # ledger = @current_budget.ledger.find_or_create_by(date: date.end_of_month, subcategory: subcategory)
 
           temp_trx_attr = {
             date: date,
