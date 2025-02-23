@@ -49,8 +49,18 @@
       <tr>
         <td><%= vendor_name.nil? ? "N/A" : vendor_name %></td>
         <td style="text-align: right;">
-          <%= link_to number_to_currency((amount / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(vendor_id_eq: vendor_id)) %>
+          <%= link_to number_to_currency((amount / 100.0), precision: 2), 
+              trxes_path(
+                q: {
+                  vendor_id_in: [vendor_id],
+                  date_gteq: params.dig(:q, :date_gteq),
+                  date_lteq: params.dig(:q, :date_lteq),
+                  account_id_in: params.dig(:q, :account_id_in)
+                }
+              ) 
+          %>
         </td>
+      </tr>
     <% end %>
     <tr>
       <td>Total</td>
