@@ -40,9 +40,7 @@ class AccountCreator
       ]
     }
 
-    # trx = @account.trxes.build(trx_params)
     StartingTrxCreator.new(@account, trx_params)
-    # TrxCreatorService.new.create_trx(trx, trx_params)
 
     @account.calculate_balance!
   end
