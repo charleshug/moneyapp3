@@ -20,9 +20,4 @@ class SpendingByCategoryReportService
     # Sort by parent category ID and subcategories by ID
     categorized_amounts.sort.to_h
   end
-
-  def self.get_hash_line_by_category
-    # TODO - update with @current_budget
-    SpendingByCategoryReportService.get_hash_line_by_category_1(Line.all)
-  end
 end
