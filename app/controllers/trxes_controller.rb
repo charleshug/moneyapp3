@@ -5,19 +5,31 @@ class TrxesController < ApplicationController
   def index
     @current_budget = Budget.includes(:accounts, :vendors, :categories, :subcategories, :trxes).find(@current_budget.id)
     @current_budget_trxes = @current_budget.trxes
-    @q = @current_budget_trxes.includes(:account, :vendor, lines: [ ledger: [ subcategory: :category ] ]).ransack(params[:q])
-    @pagy, @trxes = pagy(@q.result(distinct: true).order(date: :desc), items: 25)
+    @ransack_params = params.fetch(:q, {}).permit(
+      :vendor_id_eq,
+      :date_gteq,
+      :date_lteq,
+      :category_id_not_in,
+      :lines_ledger_subcategory_category_id_eq,
+      :lines_ledger_subcategory_id_eq,
+      category_id_not_in: []
+    )
 
-    @total_trx_count = @q.result(distinct: true).count
-    @total_trx_sum = @q.result(distinct: true).sum(:amount)
-    @displayed_trx_count = @trxes.count
-    @displayed_trx_sum = @trxes.sum(:amount)
+    @q = @current_budget.trxes.ransack(@ransack_params)
+    @all_results = @q.result(distinct: true)
+      .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
+      .order(date: :desc, id: :desc)
+
+    @total_count = @all_results.count
+    @total_amount = @all_results.sum(:amount)
+
+    @pagy, @trxes = pagy(@all_results)
+    @displayed_amount = @trxes.sum(:amount)
   end
 
   # GET /trxes/new
   def new
     @trx = Trx.new
-    @current_budget.categories.includes(:subcategories)
     @trx.lines.build
   end
 
@@ -28,7 +40,6 @@ class TrxesController < ApplicationController
       redirect_to trxes_path, alert: "You are not authorized to edit this transaction."
       nil
     end
-    @current_budget.categories.includes(:subcategories)
     @trx.lines.each do |line|
       line.subcategory_form_id = line.ledger.subcategory_id
     end

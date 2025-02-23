@@ -92,26 +92,24 @@
       </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="2">Page Total (<%= @trxes.size %> transactions)</td>
+      <td style="text-align: right;">
+        <%= number_to_currency(@displayed_amount / 100.0) %>
+      </td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td colspan="2">Filter Total (<%= @total_count %> transactions)</td>
+      <td style="text-align: right;">
+        <%= number_to_currency(@total_amount / 100.0) %>
+      </td>
+      <td colspan="2"></td>
+    </tr>
+  </tfoot>
 </table>
 
-<% if @pagy.pages > 1 %>
-  <nav aria-label="Pagination" class="justify-content-center d-inline">
-    <% if @pagy.prev %>
-      <%= link_to 'First', url_for(request.query_parameters.merge(page: 1)), class: 'page-link' %>
-    <% end %>
-    <% if @pagy.prev %>
-      <%= link_to 'Previous', url_for(request.query_parameters.merge(page: @pagy.prev)), class: 'page-link' %>
-    <% end %>
-    
-    <% @pagy.series.each do |page| %>
-      <%= link_to page, url_for(request.query_parameters.merge(page: page)), class: 'page-link' %>
-    <% end %>
-    
-    <% if @pagy.next %>
-      <%= link_to 'Next', url_for(request.query_parameters.merge(page: @pagy.next)), class: 'page-link' %>
-      <%= link_to 'Last', url_for(request.query_parameters.merge(page: @pagy.pages)), class: 'page-link' %>
-    <% end %>
-  </nav>
-<% end %>
+<%== pagy_nav(@pagy) %>
 
 <%= link_to "Export to CSV", trxes_export_path(format: :csv) %>
