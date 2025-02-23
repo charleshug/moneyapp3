@@ -2,7 +2,6 @@ class CategoriesController < ApplicationController
   before_action :set_category, only: [ :edit, :update, :destroy ]
 
   def index
-    # debugger
     @categories = @current_budget.categories.expense.includes(:subcategories)
   end
 

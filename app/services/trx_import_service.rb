@@ -62,7 +62,6 @@ class TrxImportService
 
           temp_trx = Trx.new(temp_trx_attr)
           set_ledger(temp_trx)
-          debugger
           temp_trx.save!
 
           temp_trx.lines.each { |line| ledgers_to_update << line.ledger }
