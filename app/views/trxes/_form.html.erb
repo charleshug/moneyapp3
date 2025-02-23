@@ -45,54 +45,29 @@
   <%= f.label :cleared %>
   <%= f.check_box :cleared %>
 </div>
-  <%= f.fields_for :lines do |line_form| %>
 
-  <div>
-    <%#= line_form.hidden_field :id %>  <!-- Ensures correct line is updated -->
-  </div>
-    <div>
-      <%= line_form.label :subcategory %>
-      <br>
-      <%= line_form.grouped_collection_select(
-        :subcategory_form_id,
-        @current_budget.categories.includes(:subcategories),
-        :subcategories,
-        :name,
-        :id,
-        :name,
-        { prompt: 'Select Category'},
-        { selected: line_form.object.subcategory_form_id } # Ensure selected value is set
-      ) %>
-    </div>
-
-    <div>
-      <%= line_form.label :amount %>
-      <br>
-      <%= line_form.number_field :amount, value: (line_form.object.amount.to_f / 100).round(2), step: '0.01', placeholder: "Enter line amount" %>
-    </div>
-    <% if params[:action] == "edit" && trx.lines.size > 1 %>
-      <div>
-        <%= line_form.check_box :_destroy %>
-        <%= line_form.label :_destroy, "Remove?" %>
-      </div>
+  <div id="trx-lines">
+    <%= f.fields_for :lines do |line_form| %>
+      <%= render 'line_fields', f: line_form %>
     <% end %>
-  <% end %>
-
-  
-
-
-  <div>
-    <%= f.submit %>
   </div>
-<% end %>
-<br>
-<div>
 
   <!-- Add Line Button -->
-  <% if @trx.persisted? %>
-    <%= button_to "Add Line", add_line_to_trx_path(@trx), method: :post %>
-    <%#= button_to "Add Line", add_line_to_trx_path(@trx), method: :post, data: { turbo_stream: true } %>
-  <% else %>
-    <%= button_to "Add Line", add_line_to_new_trx_path(@trx), method: :post %>
-  <% end %>
-</div>
+  <div class="button-group">
+    <% if @trx.persisted? %>
+      <%= link_to "Add Line", 
+          add_line_to_trx_trx_path(@trx),  
+          class: "button",
+          data: { turbo_method: :post, turbo_stream: true } %>
+    <% else %>
+      <%= link_to "Add Line", 
+          add_line_to_new_trx_trxes_path,  
+          class: "button",
+          data: { turbo_method: :post, turbo_stream: true } %>
+    <% end %>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  </div>
+<% end %>

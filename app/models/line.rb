@@ -26,7 +26,12 @@ class Line < ApplicationRecord
 
   # This ensures empty parameters generate 0 instead of nil
   def amount=(value)
-    super(value.presence&.to_i || 0)
+    if value.present?
+      decimal_value = BigDecimal(value.to_s)
+      super(decimal_value.round)
+    else
+      super(value)
+    end
   end
 
   def self.ransackable_attributes(auth_object = nil)
@@ -38,7 +43,15 @@ class Line < ApplicationRecord
   end
 
   def set_ledger
-    ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory_id: subcategory_form_id)
+    return unless subcategory_form_id.present?  # Guard clause
+
+    subcategory = Subcategory.find_by(id: subcategory_form_id.to_i)  # More defensive find
+    return unless subcategory  # Guard clause
+
+    ledger = Ledger.find_or_create_by(
+      date: trx.date.end_of_month,
+      subcategory: subcategory
+    )
     self.ledger = ledger
   end
 end

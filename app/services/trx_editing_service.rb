@@ -35,9 +35,19 @@ class TrxEditingService
 
   def set_ledger(trx)
     trx.lines.each do |line|
-      subcategory = line.subcategory_form_id || line.ledger.subcategory
-      ledger = Ledger.find_or_create_by(date: trx.date.end_of_month, subcategory: subcategory)
-      line.ledger=ledger
+      subcategory = if line.subcategory_form_id.present?
+        Subcategory.find(line.subcategory_form_id)
+      else
+        line.ledger&.subcategory
+      end
+
+      next unless subcategory  # Skip if no subcategory found
+
+      ledger = Ledger.find_or_create_by(
+        date: trx.date.end_of_month,
+        subcategory: subcategory
+      )
+      line.ledger = ledger
     end
   end
 

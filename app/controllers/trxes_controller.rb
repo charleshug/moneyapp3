@@ -17,6 +17,7 @@ class TrxesController < ApplicationController
   # GET /trxes/new
   def new
     @trx = Trx.new
+    @current_budget.categories.includes(:subcategories)
     @trx.lines.build
   end
 
@@ -27,6 +28,7 @@ class TrxesController < ApplicationController
       redirect_to trxes_path, alert: "You are not authorized to edit this transaction."
       nil
     end
+    @current_budget.categories.includes(:subcategories)
     @trx.lines.each do |line|
       line.subcategory_form_id = line.ledger.subcategory_id
     end
@@ -77,6 +79,26 @@ class TrxesController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to trxes_path(q: { account_id_in: @trx.account.id }), notice: "Trx was successfully destroyed." }
+    end
+  end
+
+  def add_line_to_trx
+    @trx = Trx.find(params[:id])
+    @line = @trx.lines.build
+    @line.subcategory_form_id = nil
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
+  def add_line_to_new_trx
+    @trx = Trx.new
+    @line = @trx.lines.build
+    @line.subcategory_form_id = nil
+
+    respond_to do |format|
+      format.turbo_stream
     end
   end
 
