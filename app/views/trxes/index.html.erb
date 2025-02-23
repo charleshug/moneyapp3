@@ -71,10 +71,10 @@
         <td style="border: 1px solid #ddd; padding: 4px 8px; text-align: right;"><%= number_to_currency((trx.amount / 100.0)) %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.vendor.name %></td>
         <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= trx.account.name %></td>
-        <% if trx.lines.count > 1%>
+        <% if trx.lines.size > 1%>
           <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Split Transaction</td>
           <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Various</td>
-        <% elsif trx.lines.count > 0 %>
+        <% elsif trx.lines.size > 0 %>
           <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.category.name %></td>
           <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.subcategory.name %></td>
         <% else %>
