@@ -79,66 +79,66 @@ class TrxesController < ApplicationController
     end
   end
 
-  def import
-    @parsed_trxes = TrxImportService.parse(params[:file], @current_budget)
+  # def import
+  #   @parsed_trxes = TrxImportService.parse(params[:file], @current_budget)
 
-    if @parsed_trxes
-      session[:parsed_trxes] = @parsed_trxes
-      redirect_to import_review_trxes_path
-    else
-      redirect_to accounts_path, alert: "Error in CSV file."
-    end
-  end
+  #   if @parsed_trxes
+  #     session[:parsed_trxes] = @parsed_trxes
+  #     redirect_to import_review_trxes_path
+  #   else
+  #     redirect_to accounts_path, alert: "Error in CSV file."
+  #   end
+  # end
 
-  def import_review
-    @categories = @current_budget.categories.includes(:subcategories)
-    @accounts = @current_budget.accounts
-    @trxes = session[:parsed_trxes]
-    if @trxes.nil?
-      redirect_to new_trx_path, alert: "No trxes to import"
-    end
-  end
+  # def import_review
+  #   @categories = @current_budget.categories.includes(:subcategories)
+  #   @accounts = @current_budget.accounts
+  #   @trxes = session[:parsed_trxes]
+  #   if @trxes.nil?
+  #     redirect_to new_trx_path, alert: "No trxes to import"
+  #   end
+  # end
 
-  def submit_import
-    ledgers_to_update = Set.new
-    accounts_to_update = Set.new
+  # def submit_import
+  #   ledgers_to_update = Set.new
+  #   accounts_to_update = Set.new
 
-    imported_trxes = params[:trx][:trxes].values.select { |trx| trx["include"] == "1" }
+  #   imported_trxes = params[:trx][:trxes].values.select { |trx| trx["include"] == "1" }
 
-    if imported_trxes.empty?
-      redirect_to new_trx_path, notice: "No transactions selected for import" and return
-    end
-    ActiveRecord::Base.transaction do
-      imported_trxes.each do |trx_params|
-        trx = @current_budget.trxes.build(
-          date: trx_params["date"],
-          account_id: trx_params["account_id"],
-          vendor_id: trx_params["vendor_id"],
-          memo: trx_params["memo"]
-        )
+  #   if imported_trxes.empty?
+  #     redirect_to new_trx_path, notice: "No transactions selected for import" and return
+  #   end
+  #   ActiveRecord::Base.transaction do
+  #     imported_trxes.each do |trx_params|
+  #       trx = @current_budget.trxes.build(
+  #         date: trx_params["date"],
+  #         account_id: trx_params["account_id"],
+  #         vendor_id: trx_params["vendor_id"],
+  #         memo: trx_params["memo"]
+  #       )
 
-        trx_params["lines_attributes"].each do |_, line_params|
-          line = trx.lines.build(
-            subcategory_form_id: line_params["subcategory_id"],
-            amount: convert_amount_to_cents(line_params["amount"])
-          )
-          line.set_ledger
-          ledgers_to_update << line.ledger
-        end
+  #       trx_params["lines_attributes"].each do |_, line_params|
+  #         line = trx.lines.build(
+  #           subcategory_form_id: line_params["subcategory_id"],
+  #           amount: convert_amount_to_cents(line_params["amount"])
+  #         )
+  #         line.set_ledger
+  #         ledgers_to_update << line.ledger
+  #       end
 
 
-        trx.set_amount
-        trx.save!
-        accounts_to_update << trx.account
-        trx.lines.each { |line| ledgers_to_update << line.ledger }
-      end
+  #       trx.set_amount
+  #       trx.save!
+  #       accounts_to_update << trx.account
+  #       trx.lines.each { |line| ledgers_to_update << line.ledger }
+  #     end
 
-      accounts_to_update.each { |account| account.calculate_balance! }
-      ledgers_to_update.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
-    end
+  #     accounts_to_update.each { |account| account.calculate_balance! }
+  #     ledgers_to_update.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
+  #   end
 
-    redirect_to trxes_path, notice: "Transactions imported successfully."
-  end
+  #   redirect_to trxes_path, notice: "Transactions imported successfully."
+  # end
 
   private
     # Use callbacks to share common setup or constraints between actions.

@@ -1,16 +1,17 @@
 Rails.application.routes.draw do
   get "home/index"
 
+  resources :import_trxes, only: [] do
+    collection do
+      post :submit_import
+      post :import_preview
+    end
+  end
+
   post "trxes/:id/add_line", to: "trxes#add_line", as: :add_line_to_trx  # For existing transactions
   post "trxes/add_line",     to: "trxes#add_line", as: :add_line_to_new_trx   # For new transactions
 
-  resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ] do
-    collection do
-      post :import
-      get "import_review", to: "trxes#import_review"
-      post "submit_import", to: "trxes#submit_import"
-    end
-  end
+  resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ]
 
   namespace :trxes_export do
     get :csv_export

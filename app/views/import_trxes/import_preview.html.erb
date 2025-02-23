@@ -1,6 +1,6 @@
 <% provide(:title, "Import Transactions") %>
 <h1>Review Transactions</h1>
-<%= form_with url: submit_import_trxes_path, method: :post do %>
+<%= form_with url: import_trxes_path, method: :post do %>
   <table>
     <thead>
       <tr>
@@ -16,10 +16,10 @@
     <tbody>
       <% @trxes.each_with_index do |trx, index| %>
         <tr>
-          <td><%= date_field_tag "trx[trxes][#{index}][date]", trx["Date"] %></td>
-          <td><%= select_tag "trx[trxes][#{index}][account_id]", options_from_collection_for_select(@accounts, :id, :name, selected: @accounts.find_by(name: trx["Account"]).id) %></td>
-          <td><%= select_tag "trx[trxes][#{index}][vendor_id]", options_from_collection_for_select(@current_budget.vendors, :id, :name, selected: @current_budget.vendors.find_or_create_by(name: trx["Vendor"]).id) %></td>
-          <td><%= select_tag "trx[trxes][#{index}][lines_attributes][0][subcategory_id]", 
+          <td><%= date_field_tag "trx[#{index}][date]", trx["Date"] %></td>
+          <td><%= select_tag "trx[#{index}][account_id]", options_from_collection_for_select(@accounts, :id, :name, selected: @accounts.find_by(name: trx["Account"]).id) %></td>
+          <td><%= select_tag "trx[#{index}][vendor_id]", options_from_collection_for_select(@current_budget.vendors, :id, :name, selected: @current_budget.vendors.find_or_create_by(name: trx["Vendor"]).id) %></td>
+          <td><%= select_tag "trx[#{index}][lines_attributes][0][subcategory_id]", 
                   grouped_options_for_select(
                     @categories.map { |category| 
                       [category.name, category.subcategories.map { |sub| [sub.name, sub.id] }] 
@@ -27,10 +27,10 @@
                     selected: @current_budget.subcategories.find_by(name: trx["Subcategory"])&.id || @current_budget.subcategories.find_or_create_by(name: "Uncategorized").id
                   ) 
             %>
-          <td><%= text_field_tag "trx[trxes][#{index}][memo]", trx["Memo"] %></td>
+          <td><%= text_field_tag "trx[#{index}][memo]", trx["Memo"] %></td>
           </td>          
-          <td><%= number_field_tag "trx[trxes][#{index}][lines_attributes][0][amount]", trx["Amount"], step: '0.01' %></td>
-          <td><%= check_box_tag "trx[trxes][#{index}][include]", '1', true %></td>
+          <td><%= number_field_tag "trx[#{index}][lines_attributes][0][amount]", trx["Amount"], step: '0.01' %></td>
+          <td><%= check_box_tag "trx[#{index}][include]", '1', true %></td>
         </tr>
       <% end %>
     </tbody>
