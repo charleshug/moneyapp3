@@ -22,7 +22,6 @@ class ImportTrxesController < ApplicationController
 
 
     imported_trxes = import_trxes_params.values.select { |trx| trx["include"] == "1" }
-    debugger
 
     if imported_trxes.empty?
       redirect_to new_trx_path, notice: "No transactions selected for import" and return
