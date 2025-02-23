@@ -1,7 +1,10 @@
 class ImportTrxesController < ApplicationController
   def import_preview
-    @categories = @current_budget.categories.includes(:subcategories)
+    @current_budget = Budget.includes(:accounts, :vendors, :categories, :subcategories).find(@current_budget.id)
     @accounts = @current_budget.accounts
+    @vendors = @current_budget.vendors
+    @categories = @current_budget.categories
+    @subcategories = @current_budget.subcategories
 
     @parsed_trxes = TrxImportService.parse(preview_import_trxes_params[:file], @current_budget)
     if @parsed_trxes
