@@ -45,14 +45,31 @@
       <% total_amount += data[:total] %>
       <tr>
         <td><strong><%= category.name %></strong></td>
-        <%# TODO Link to doesn't take date params %>
-        <td style="text-align: right;"><strong><%= link_to number_to_currency((data[:total] / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(subcategory_id_eq: parent_id )) %></strong></td>
+        <td style="text-align: right;"><strong>
+          <%= link_to number_to_currency((data[:total] / 100.0), precision: 2), 
+              trxes_path(
+                q: { 
+                  lines_ledger_subcategory_category_id_eq: parent_id,
+                  trx_date_gteq: @q.trx_date_gteq,
+                  trx_date_lteq: @q.trx_date_lteq
+                }
+              ) 
+          %></strong></td>
       </tr>
       <% data[:subcategories].each do |subcategory_id, sub_amount| %>
         <% subcategory = Subcategory.find_by(id: subcategory_id) %>
         <tr>
           <td style="padding-left: 20px;"><%= subcategory.name %></td>
-          <td style="text-align: right;"><%= link_to number_to_currency((sub_amount / 100.0), precision: 2), trxes_path(q: @ransack_params.merge(subcategory_id_in: subcategory )) %></td>
+          <td style="text-align: right;">
+            <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
+                trxes_path(
+                  q: {
+                    lines_ledger_subcategory_id_eq: subcategory_id,
+                    trx_date_gteq: @q.trx_date_gteq,
+                    trx_date_lteq: @q.trx_date_lteq
+                  }
+                ) 
+            %></td>
         </tr>
       <% end %>
     <% end %>
