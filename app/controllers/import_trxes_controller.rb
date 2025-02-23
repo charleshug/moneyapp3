@@ -62,7 +62,7 @@ class ImportTrxesController < ApplicationController
 
   # # Only allow a list of trusted parameters through.
   def preview_import_trxes_params
-    params.permit(:file)
+    params.permit(:file, :authenticity_token, :commit)
   end
 
   def import_trxes_params
