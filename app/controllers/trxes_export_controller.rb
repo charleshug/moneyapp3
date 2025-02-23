@@ -1,5 +1,5 @@
 class TrxesExportController < ApplicationController
-  def csv_export
+  def create
     @trxes = @current_budget.trxes.all
     timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
     budget_name = @current_budget.name.gsub(/[^0-9A-Za-z]/, "_") # sanitize name

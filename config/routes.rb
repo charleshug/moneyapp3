@@ -13,9 +13,7 @@ Rails.application.routes.draw do
 
   resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ]
 
-  namespace :trxes_export do
-    get :csv_export
-  end
+  get "/trxes_export", to: "trxes_export#create"
 
   resources :accounts
   resources :ledgers
