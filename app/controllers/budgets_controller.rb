@@ -3,14 +3,24 @@ class BudgetsController < ApplicationController
   before_action :set_budget, only: %i[ edit update destroy ]
 
   def set_current
+    Rails.logger.info "=== Setting Current Budget (Controller Action) ==="
     @budget = Budget.find(params[:id])
+    Rails.logger.info "Attempting to set budget: #{@budget.name} (ID: #{@budget.id})"
+
     if @budget.user == current_user
+      Rails.logger.info "Updating user's last_viewed_budget_id from #{current_user.last_viewed_budget_id} to #{@budget.id}"
       current_user.set_current_budget(@budget)
+
+      Rails.logger.info "Updating session budget_id from #{session[:last_viewed_budget_id]} to #{@budget.id}"
       session[:last_viewed_budget_id] = @budget.id
+
       flash[:notice] = "Current budget has been updated."
     else
+      Rails.logger.info "Unauthorized attempt to set budget"
       flash[:alert] = "You are not authorized to set this budget as current."
     end
+
+    Rails.logger.info "=== End Setting Current Budget (Controller Action) ==="
     redirect_to root_path
   end
 
@@ -37,16 +47,14 @@ class BudgetsController < ApplicationController
   def create
     @budget = current_user.budgets.build(budget_params)
 
-    respond_to do |format|
-      if @budget.save
-        current_user.update(last_viewed_budget_id: @budget)
-        session[:last_viewed_budget_id] = current_user.last_viewed_budget_id
-        format.html { redirect_to root_path, notice: "Budget was successfully created." }
-        format.json { render :show, status: :created, location: @budget }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @budget.errors, status: :unprocessable_entity }
-      end
+    if @budget.save
+      # Update both session and user's last viewed budget
+      session[:last_viewed_budget_id] = @budget.id
+      current_user.update(last_viewed_budget_id: @budget.id)
+
+      redirect_to root_path, notice: "Budget was successfully created."
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
