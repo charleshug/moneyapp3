@@ -31,7 +31,7 @@
           @accounts,
           :id,
           :name,
-          {},
+          { include_blank: true },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
@@ -43,7 +43,7 @@
           @vendors.order('LOWER(name)'),
           :id,
           :name,
-          {},
+          { include_blank: true },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
@@ -55,7 +55,7 @@
           @categories,
           :id,
           :name,
-          {},
+          { include_blank: true },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
@@ -67,7 +67,7 @@
           @subcategories,
           :id,
           :name,
-          {},
+          { include_blank: true },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
