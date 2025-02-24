@@ -129,6 +129,23 @@ class Ledger < ApplicationRecord
           .sum(:budget)
   end
 
+  def self.rebuild_chain_for_subcategory(subcategory_id)
+    ledgers = where(subcategory_id: subcategory_id)
+              .order(:date, :id)
+              .to_a
+
+    # Clear existing relationships
+    ledgers.each do |ledger|
+      ledger.update_columns(prev_id: nil, next_id: nil)
+    end
+
+    # Build new chain
+    ledgers.each_cons(2) do |current, next_ledger|
+      current.update_columns(next_id: next_ledger.id)
+      next_ledger.update_columns(prev_id: current.id)
+    end
+  end
+
   def toggle_carry_forward_and_propagate!
     # Toggle current ledger's carry_forward and mark as user changed
     self.carry_forward_negative_balance = !carry_forward_negative_balance

@@ -166,4 +166,39 @@ class LedgerService
       end
     end
   end
+
+  def self.update_ledger(ledger, params)
+    new(ledger).update(params)
+  end
+
+  def initialize(ledger)
+    @ledger = ledger
+  end
+
+  def update(params)
+    carry_forward_changed = @ledger.carry_forward_negative_balance.to_s != params[:carry_forward_negative_balance].to_s
+    new_carry_forward = params[:carry_forward_negative_balance]
+
+    # Use update_ledger_params for the main update
+    update_params = update_ledger_params(params)
+
+    if @ledger.update(update_params)
+      # Handle carry_forward separately
+      if carry_forward_changed
+        @ledger.update_columns(
+          carry_forward_negative_balance: new_carry_forward,
+          user_changed: true
+        )
+      end
+      true
+    else
+      false
+    end
+  end
+
+  private
+
+  def update_ledger_params(params)
+    params.slice(:budget)
+  end
 end

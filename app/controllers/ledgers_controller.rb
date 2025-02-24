@@ -29,6 +29,15 @@ class LedgersController < ApplicationController
     @pagy, @ledgers = pagy(@filtered_results)
   end
 
+  def rebuild_chains
+    subcategory_ids = @current_budget.subcategories.pluck(:id)
+    subcategory_ids.each do |subcategory_id|
+      Ledger.rebuild_chain_for_subcategory(subcategory_id)
+    end
+
+    redirect_to ledgers_path, notice: "Ledger chains have been rebuilt."
+  end
+
   def new
     @ledger = Ledger.new(ledger_params)
   end
@@ -54,19 +63,12 @@ class LedgersController < ApplicationController
   end
 
   def update
-    # Ensure the ledger belongs to the current budget
-    if @ledger.subcategory.budget != @current_budget
-      redirect_to ledgers_path, alert: "You are not authorized to edit this ledger."
-      return
-    end
+    service = LedgerService.new(@ledger)
 
-    @ledger = LedgerService.new.update_ledger(@ledger, ledger_update_params)
-    respond_to do |format|
-      if @ledger.valid?
-        format.html { redirect_to budgets_path(year: @ledger.date.year, month: @ledger.date.month), notice: "Ledger was successfully updated." }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-      end
+    if service.update(ledger_params)
+      redirect_to ledgers_path, notice: "Ledger was successfully updated."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -86,7 +88,7 @@ class LedgersController < ApplicationController
   end
 
   def ledger_params
-    params.require(:ledger).permit(:id, :budget, :date, :subcategory_id, :carry_forward_negative_balance)
+    params.require(:ledger).permit(:subcategory_id, :date, :budget, :carry_forward_negative_balance)
   end
 
   def ledger_update_params

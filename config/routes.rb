@@ -31,6 +31,9 @@ Rails.application.routes.draw do
     member do
       post :toggle_carry_forward
     end
+    collection do
+      post :rebuild_chains
+    end
   end
   resources :vendors
   resources :categories
