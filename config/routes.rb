@@ -3,8 +3,9 @@ Rails.application.routes.draw do
 
   resources :import_trxes, only: [] do
     collection do
-      post :submit_import
-      post :import_preview
+      get "import_preview"   # Redirect to import form
+      post "import_preview"  # Handles the file upload and shows preview
+      post "submit_import"   # Processes the final import
     end
   end
 
@@ -17,6 +18,9 @@ Rails.application.routes.draw do
     end
     collection do
       post :add_line_to_new_trx
+      post "import_preview"
+      post "submit_import"
+      get "import"
     end
   end
 

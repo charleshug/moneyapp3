@@ -5,19 +5,9 @@
 
 <br>
 
-<div>
-  <p><strong>Transaction Upload (CSV)</strong></p>
-  <div>
-    <%= form_tag import_preview_import_trxes_path, multipart: true, data: { turbo: false } do %>
-      <%= file_field_tag :file %>
-      <%= submit_tag 'Preview Upload' %>
-    <% end %>
-  </div>
-</div>
-
-<br>
-<div>
-  <%= link_to "New Vendor", new_vendor_path %>
+<div class="actions">
+  <%= link_to "Import transactions", import_trxes_path, class: "button" %>
+  <%= link_to "New Vendor", new_vendor_path, class: "button" %>
 </div>
 
 <br>

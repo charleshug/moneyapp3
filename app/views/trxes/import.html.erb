@@ -1,0 +1,42 @@
+<% provide(:title, "Import Transactions") %>
+<h1>Import Transactions</h1>
+
+<div class="import-requirements">
+  <h4>File Requirements:</h4>
+  <ul>
+    <li>CSV format only</li>
+    <li>Required columns:
+      <ul>
+        <li>Date (MM/DD/YYYY)</li>
+        <li>Account (must match your budget account names)</li>
+        <li>Vendor</li>
+        <li>Subcategory (must match your budget subcategories)</li>
+        <li>Amount</li>
+      </ul>
+    </li>
+    <li>Optional columns:
+      <ul>
+        <li>Memo</li>
+        <li>Cleared</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<%= form_with(url: import_preview_import_trxes_path, 
+              local: true, 
+              multipart: true,
+              data: { turbo: false }) do |f| %>
+  <div class="field">
+    <%= f.label :file, "Select CSV file" %>
+    <%= f.file_field :file, accept: '.csv' %>
+  </div>
+
+  <%= f.submit "Preview Import", class: "button" %>
+<% end %>
+
+<br>
+
+<div>
+  <%= link_to "Back", trxes_path %>
+</div> 

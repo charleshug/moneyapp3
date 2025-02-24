@@ -113,3 +113,8 @@
 <%== pagy_nav(@pagy) %>
 
 <%= link_to "Export to CSV", trxes_export_path(format: :csv) %>
+
+<div class="actions">
+  <%= link_to "New transaction", new_trx_path, class: "button" %>
+  <%= link_to "Import transactions", import_trxes_path, class: "button" %>
+</div>

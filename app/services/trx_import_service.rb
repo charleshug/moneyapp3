@@ -1,24 +1,95 @@
 class TrxImportService
   require "csv"
+  class ImportError < StandardError; end
+
+  REQUIRED_HEADERS = [ "Date", "Account", "Vendor", "Subcategory", "Amount" ].freeze
+  OPTIONAL_HEADERS = [ "Memo", "Cleared", "Group" ].freeze
+  DATE_FORMATS = [ "%m/%d/%Y", "%Y-%m-%d", "%d/%m/%Y" ].freeze
 
   def self.parse(file, budget)
-    temp_table = CSV.read(file, headers: true)
-    temp_array = temp_table.map do |row|
-      {
-        "Date" => row["Date"],
-        "Account" => row["Account"],
-        "Vendor" => row["Vendor"],
-        "Memo" => row["Memo"],
-        "Subcategory" => row["Subcategory"],
-        "Amount" => row["Amount"]
-      }
+    raise ImportError, "No file provided" unless file
+    raise ImportError, "Invalid file type" unless valid_file_type?(file)
+
+    csv_text = file.read
+    csv = CSV.parse(csv_text, headers: true)
+
+    Rails.logger.debug "CSV Headers: #{csv.headers.inspect}"
+    validate_headers!(csv.headers)
+
+    # Group transactions based on presence of Group field
+    has_group_field = csv.headers.include?("Group")
+    grouped_rows = if has_group_field
+      csv.group_by { |row| [ row["Date"], row["Vendor"], row["Group"] ] }
+    else
+      # Each row becomes its own group unless it's a split transaction
+      csv.group_by { |row| [ row["Date"], row["Vendor"], row.object_id ] }
     end
 
-    # Check if all accounts exist
-    temp_account_list = temp_table["Account"].uniq
-    return false unless temp_account_list.all? { |a| budget.accounts.find_by(name: a) }
+    Rails.logger.debug "Grouped Rows: #{grouped_rows.inspect}"
+    Rails.logger.debug "Using Group field: #{has_group_field}"
 
-    temp_array
+    parsed_trxes = []
+    warnings = []
+
+    grouped_rows.each do |(date, vendor, group), rows|
+      begin
+        next if date.blank? || vendor.blank?
+
+        # Parse the first row for common transaction data
+        first_row = rows.first
+        parsed_date = parse_date(first_row["Date"])
+        raise ImportError, "Invalid date format: #{date}" unless parsed_date
+
+        account_id = find_account_id(first_row["Account"], budget)
+        raise ImportError, "Account not found: #{first_row['Account']}" unless account_id
+
+        vendor_id = find_or_create_vendor_id(vendor, budget)
+
+        # Build the transaction hash
+        trx = {
+          "date" => parsed_date.strftime("%Y-%m-%d"),
+          "memo" => first_row["Memo"],
+          "account_id" => account_id,
+          "vendor_id" => vendor_id,
+          "lines_attributes" => {}
+        }
+
+        total_amount = 0
+        # Add lines from all rows in the group
+        rows.each_with_index do |row, index|
+          amount = parse_amount(row["Amount"])
+          next unless amount
+
+          subcategory_id = find_subcategory_id(row["Subcategory"], budget)
+          unless subcategory_id
+            warnings << "Subcategory not found: #{row['Subcategory']}"
+            next
+          end
+
+          # Convert amount to cents and store as integer
+          amount_in_cents = (BigDecimal(amount.to_s) * BigDecimal("100")).to_i
+
+          trx["lines_attributes"][index.to_s] = {
+            "subcategory_id" => subcategory_id,
+            "amount" => amount_in_cents
+          }
+          total_amount += amount_in_cents
+        end
+
+        if trx["lines_attributes"].any?
+          parsed_trxes << trx
+          Rails.logger.debug "Added transaction: #{trx.inspect}"
+        end
+      rescue StandardError => e
+        warnings << "Row error (#{vendor} - #{date}): #{e.message}"
+        Rails.logger.error "Row error: #{e.message}\n#{e.backtrace.join("\n")}"
+      end
+    end
+
+    Rails.logger.debug "Final parsed transactions: #{parsed_trxes.inspect}"
+    Rails.logger.debug "Warnings: #{warnings.inspect}"
+
+    { trxes: parsed_trxes, warnings: warnings }
   end
 
   def self.import(file)
@@ -82,5 +153,87 @@ class TrxImportService
 
   def convert_amount_to_cents(amount)
     (trx.amount.to_d * 100).to_i
+  end
+
+  private
+
+  def self.valid_file_type?(file)
+    File.extname(file.original_filename).downcase == ".csv"
+  end
+
+  def self.validate_headers!(headers)
+    missing_headers = REQUIRED_HEADERS - headers.map(&:to_s)
+    raise ImportError, "Missing required headers: #{missing_headers.join(', ')}" if missing_headers.any?
+  end
+
+  def self.parse_date(date_str)
+    return nil unless date_str.present?
+
+    DATE_FORMATS.each do |format|
+      begin
+        return Date.strptime(date_str, format)
+      rescue ArgumentError
+        next
+      end
+    end
+
+    begin
+      Date.parse(date_str)
+    rescue ArgumentError
+      nil
+    end
+  end
+
+  def self.parse_amount(amount_str)
+    return nil unless amount_str.present?
+
+    # Remove any currency symbols and whitespace
+    cleaned = amount_str.gsub(/[$,\s]/, "")
+
+    # Handle parentheses for negative numbers
+    if cleaned.match?(/^\((.*)\)$/)
+      cleaned = "-#{cleaned.gsub(/[()]/, '')}"
+    end
+
+    # Convert to BigDecimal
+    BigDecimal(cleaned)
+  end
+
+  def self.find_account_id(account_name, budget)
+    return nil unless account_name.present?
+    budget.accounts.find_by("LOWER(name) = ?", account_name.downcase)&.id
+  end
+
+  def self.find_or_create_vendor_id(memo, budget)
+    return nil unless memo.present?
+    vendor = budget.vendors.find_by("LOWER(name) = ?", memo.downcase)
+    vendor ||= budget.vendors.create!(name: memo)
+    vendor.id
+  end
+
+  def self.find_subcategory_id(category_name, budget)
+    return nil unless category_name.present?
+
+    # Try to match category - subcategory format
+    if category_name.include?(" - ")
+      category_name, subcategory_name = category_name.split(" - ").map(&:strip)
+      category = budget.categories
+        .where("LOWER(categories.name) = ?", category_name.downcase)
+        .first
+
+      return category&.subcategories
+        .where("LOWER(subcategories.name) = ?", subcategory_name.downcase)
+        &.first&.id
+    end
+
+    # Try direct subcategory match
+    budget.subcategories
+      .where("LOWER(subcategories.name) = ?", category_name.downcase)
+      .first&.id
+  end
+
+  def self.validate_transaction!(trx, total_amount)
+    raise ImportError, "No lines found for transaction" if trx["lines_attributes"].empty?
+    raise ImportError, "Transaction total amount does not balance" unless total_amount.abs < 0.001
   end
 end

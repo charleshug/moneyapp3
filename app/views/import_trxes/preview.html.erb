@@ -1,0 +1,156 @@
+<% provide(:title, "Import Preview") %>
+<h1>Import Preview</h1>
+
+<% if @import_warnings.present? %>
+  <div class="alert alert-warning">
+    <h4>Import Warnings:</h4>
+    <ul>
+      <% @import_warnings.each do |warning| %>
+        <li><%= warning %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with(url: submit_import_import_trxes_path, local: true, data: { turbo: false }) do |f| %>
+  <table class="import-preview">
+    <thead>
+      <tr>
+        <th>Include</th>
+        <th>Date</th>
+        <th>Vendor</th>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Memo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @trxes.each_with_index do |trx, index| %>
+        <% is_multi_line = trx['lines_attributes'].size > 1 %>
+        <% total_amount = trx['lines_attributes'].values.sum { |line| line['amount'].to_i } %>
+        
+        <%# Main transaction row %>
+        <tr class="<%= is_multi_line ? 'multi-line-parent' : '' %>">
+          <td>
+            <%= f.check_box "trx[#{index}][include]", checked: true %>
+          </td>
+          <td>
+            <%= f.date_field "trx[#{index}][date]", value: trx['date'] %>
+          </td>
+          <td>
+            <%= f.select "trx[#{index}][vendor_id]",
+                options_from_collection_for_select(@current_budget.vendors.order('LOWER(name)'), :id, :name, trx['vendor_id']) %>
+          </td>
+          <td>
+            <%= f.select "trx[#{index}][account_id]",
+                options_from_collection_for_select(@current_budget.accounts, :id, :name, trx['account_id']) %>
+          </td>
+          <td class="amount <%= 'total-amount' if is_multi_line %>">
+            <% if is_multi_line %>
+              <%= number_to_currency(total_amount / 100.0) %>
+            <% else %>
+              <% amount_in_dollars = BigDecimal(trx['lines_attributes']['0']['amount'].to_s) / BigDecimal('100') %>
+              <%= f.number_field "trx[#{index}][lines_attributes][0][amount]",
+                  value: sprintf('%.2f', amount_in_dollars),
+                  step: '0.01',
+                  class: 'amount-field' %>
+            <% end %>
+          </td>
+          <td>
+            <% if is_multi_line %>
+              <span class="split-indicator">Split</span>
+            <% else %>
+              <%= f.select "trx[#{index}][lines_attributes][0][subcategory_id]",
+                  grouped_options_for_select(
+                    @current_budget.categories.includes(:subcategories).map { |c|
+                      [c.name, c.subcategories.map { |s| [s.name, s.id] }]
+                    },
+                    trx['lines_attributes']['0']['subcategory_id']
+                  ) %>
+            <% end %>
+          </td>
+          <td>
+            <%= f.text_field "trx[#{index}][memo]", value: trx['memo'] %>
+          </td>
+        </tr>
+
+        <%# Split lines for multi-line transactions %>
+        <% if is_multi_line %>
+          <% trx['lines_attributes'].each do |key, line| %>
+            <tr class="split-line">
+              <td colspan="4"></td>
+              <td>
+                <% amount_in_dollars = BigDecimal(line['amount'].to_s) / BigDecimal('100') %>
+                <%= f.number_field "trx[#{index}][lines_attributes][#{key}][amount]",
+                    value: sprintf('%.2f', amount_in_dollars),
+                    step: '0.01',
+                    class: 'amount-field' %>
+              </td>
+              <td>
+                <%= f.select "trx[#{index}][lines_attributes][#{key}][subcategory_id]",
+                    grouped_options_for_select(
+                      @current_budget.categories.includes(:subcategories).map { |c|
+                        [c.name, c.subcategories.map { |s| [s.name, s.id] }]
+                      },
+                      line['subcategory_id']
+                    ) %>
+              </td>
+              <td></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="actions">
+    <%= f.submit "Import Selected", class: "button" %>
+    <%= link_to "Cancel", import_trxes_path, class: "button" %>
+  </div>
+<% end %>
+
+<% content_for :styles do %>
+  <style>
+    .import-preview {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .import-preview td {
+      padding: 4px;
+      border: 1px solid #ddd;
+    }
+    
+    .amount-field {
+      text-align: right;
+      width: 100px;
+    }
+    
+    .total-amount {
+      color: #666;
+      font-style: italic;
+    }
+    
+    .split-line {
+      background-color: #f9f9f9;
+    }
+    
+    .split-line td {
+      border-top: none;
+    }
+    
+    .multi-line-parent {
+      border-bottom: none;
+    }
+    
+    .multi-line-parent td {
+      border-bottom: none;
+    }
+    
+    .split-indicator {
+      color: #666;
+      font-style: italic;
+    }
+  </style>
+<% end %> 
