@@ -35,7 +35,17 @@ class LedgersController < ApplicationController
       Ledger.rebuild_chain_for_subcategory(subcategory_id)
     end
 
-    redirect_to ledgers_path, notice: "Ledger chains have been rebuilt."
+    # Redirect back to the same page with the same filters
+    redirect_to ledgers_path(
+      q: {
+        date_gteq: params.dig(:q, :date_gteq),
+        date_lteq: params.dig(:q, :date_lteq),
+        s: params.dig(:q, :s),
+        subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
+        subcategory_id_in: params.dig(:q, :subcategory_id_in)
+      }.compact_blank,
+      page: params[:page]
+    ), notice: "Ledger chains have been rebuilt."
   end
 
   def new
@@ -76,10 +86,17 @@ class LedgersController < ApplicationController
     @ledger = Ledger.find(params[:id])
     @ledger.toggle_carry_forward_and_propagate!
 
-    respond_to do |format|
-      format.html { redirect_to ledgers_path, notice: "Ledger carry forward setting updated." }
-      format.json { render json: { success: true } }
-    end
+    # Redirect back to the same page with the same filters
+    redirect_to ledgers_path(
+      q: {
+        date_gteq: params.dig(:q, :date_gteq),
+        date_lteq: params.dig(:q, :date_lteq),
+        s: params.dig(:q, :s),
+        subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
+        subcategory_id_in: params.dig(:q, :subcategory_id_in)
+      }.compact_blank,
+      page: params[:page]
+    ), notice: "Ledger carry forward setting updated."
   end
 
   private
@@ -95,11 +112,15 @@ class LedgersController < ApplicationController
     params.fetch(:ledger, {}).permit(:id, :budget, :carry_forward_negative_balance)
   end
 
-  def ransack_params
-    params.require(:q).permit(
-      :date_gteq, :date_lteq,
-      :subcategory_category_id_in,
-      :subcategory_id_in
-    )
+  def filter_params
+    return {} unless params[:q]
+
+    {
+      date_gteq: params[:q][:date_gteq],
+      date_lteq: params[:q][:date_lteq],
+      s: params[:q][:s],
+      subcategory_category_id_in: params[:q][:subcategory_category_id_in],
+      subcategory_id_in: params[:q][:subcategory_id_in]
+    }.compact_blank
   end
 end

@@ -31,7 +31,7 @@
           @categories,
           :id,
           :name,
-          { include_blank: true },
+          { selected: params.dig(:q, :subcategory_category_id_in)&.reject(&:blank?) },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
@@ -43,7 +43,7 @@
           @subcategories,
           :id,
           :name,
-          { include_blank: true },
+          { selected: params.dig(:q, :subcategory_id_in)&.reject(&:blank?) },
           { multiple: true, class: 'select2' } %>
     </div>
   </div>
@@ -78,7 +78,15 @@
         <td class="amount"><%= number_to_currency(ledger.actual / 100.0) %></td>
         <td class="amount"><%= number_to_currency(ledger.balance / 100.0) %></td>
         <td class="center">
-          <%= button_to toggle_carry_forward_ledger_path(ledger),
+          <%= button_to toggle_carry_forward_ledger_path(ledger, 
+                  q: {
+                    date_gteq: params.dig(:q, :date_gteq),
+                    date_lteq: params.dig(:q, :date_lteq),
+                    s: params.dig(:q, :s),
+                    subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
+                    subcategory_id_in: params.dig(:q, :subcategory_id_in)
+                  }.compact_blank,
+                  page: params[:page]),
                 method: :post,
                 class: "toggle-carry-forward",
                 form_class: "inline-form",
