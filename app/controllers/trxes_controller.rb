@@ -3,28 +3,21 @@ class TrxesController < ApplicationController
   before_action :set_trx, only: %i[ edit update destroy ]
 
   def index
-    @current_budget = Budget.includes(:accounts, :vendors, :categories, :subcategories, :trxes).find(@current_budget.id)
-    @current_budget_trxes = @current_budget.trxes
-    @ransack_params = params.fetch(:q, {}).permit(
-      :vendor_id_eq,
-      :date_gteq,
-      :date_lteq,
-      :category_id_not_in,
-      :lines_ledger_subcategory_category_id_eq,
-      :lines_ledger_subcategory_id_eq,
-      category_id_not_in: []
-    )
+    @current_budget = Budget.includes(:accounts, :vendors, :categories, subcategories: :category)
+                           .find(@current_budget.id)
 
-    @q = @current_budget.trxes.ransack(@ransack_params)
-    @all_results = @q.result(distinct: true)
-      .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
-      .order(date: :desc, id: :desc)
+    # Load collections for filter dropdowns
+    @accounts = @current_budget.accounts.order(:name)
+    @vendors = @current_budget.vendors.order("LOWER(name)")
+    @categories = @current_budget.categories.order(:name)
+    @subcategories = @current_budget.subcategories.order(:name)
 
-    @total_count = @all_results.count
-    @total_amount = @all_results.sum(:amount)
+    @q = @current_budget.trxes
+                        .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
+                        .ransack(params[:q])
 
-    @pagy, @trxes = pagy(@all_results)
-    @displayed_amount = @trxes.sum(:amount)
+    # Get filtered results and paginate
+    @pagy, @trxes = pagy(@q.result(distinct: true).order(date: :desc, id: :desc))
   end
 
   # GET /trxes/new

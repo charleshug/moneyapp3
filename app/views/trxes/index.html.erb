@@ -1,120 +1,124 @@
 <% provide(:title, "Transactions") %>
-<h1>Trxes</h1>
 
-<%= search_form_for @q do |f| %>
-  <div style="display: flex; ">
-    <div style="display: flex; flex-direction: column;">
-      <div><%= f.label :date_gteq, 'From Date' %></div>
-      <div><%= f.date_field :date_gteq %></div>
+<div class="page-header">
+  <h1>Transactions</h1>
+  <div class="actions">
+    <%= link_to new_trx_path, class: "button" do %>
+      <i class="fas fa-plus"></i> New Transaction
+    <% end %>
+    <%= link_to import_trxes_path, class: "button" do %>
+      <i class="fas fa-file-import"></i> Import
+    <% end %>
+  </div>
+</div>
+
+<%= search_form_for @q, class: 'filter-form' do |f| %>
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :date_gteq, "Date From" %>
+      <%= f.date_field :date_gteq %>
     </div>
-    <div style="display: flex; flex-direction: column;">
-      <div><%= f.label :date_lteq, 'To Date' %></div>
-      <div><%= f.date_field :date_lteq %></div>
+    <div class="filter-field">
+      <%= f.label :date_lteq, "Date To" %>
+      <%= f.date_field :date_lteq %>
     </div>
   </div>
-  <div>
-    <%= f.label :account_id_in, 'Account' %>
-    <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :account_id_in, "Accounts" %>
+      <%= f.collection_select :account_id_in,
+          @accounts,
+          :id,
+          :name,
+          {},
+          { multiple: true, class: 'select2' } %>
+    </div>
   </div>
-  <div>    
-    <%= f.label :lines_ledger_subcategory_category_id_in, 'Category' %>
-    <%= f.collection_select(
-      :lines_ledger_subcategory_category_id_in,
-      @current_budget.categories,
-      :id,
-      :name,
-      {include_blank: true, multiple: true}
-    ) %>
-  <div>    
-    <%= f.label :lines_ledger_subcategory_id_in, 'Subcategory' %>
-    <%= f.grouped_collection_select(
-      :lines_ledger_subcategory_id_in,
-      @current_budget.categories,
-      :subcategories,
-      :name,
-      :id,
-      :name,
-      {include_blank: true},
-      {multiple: true}
-    ) %>
+
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :vendor_id_in, "Vendors" %>
+      <%= f.collection_select :vendor_id_in,
+          @vendors.order('LOWER(name)'),
+          :id,
+          :name,
+          {},
+          { multiple: true, class: 'select2' } %>
+    </div>
   </div>
-  <div>
-    <%= f.label :vendor_id_in, 'Vendor' %>
-    <%= f.collection_select :vendor_id_in, @current_budget.vendors.order('LOWER(name)'), :id, :name, {include_blank: true}, {multiple: true} %>
+
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :lines_ledger_subcategory_category_id_in, "Categories" %>
+      <%= f.collection_select :lines_ledger_subcategory_category_id_in,
+          @categories,
+          :id,
+          :name,
+          {},
+          { multiple: true, class: 'select2' } %>
+    </div>
   </div>
-  <div>
-  <%= f.submit "Filter" %>
+
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :lines_ledger_subcategory_id_in, "Subcategories" %>
+      <%= f.collection_select :lines_ledger_subcategory_id_in,
+          @subcategories,
+          :id,
+          :name,
+          {},
+          { multiple: true, class: 'select2' } %>
+    </div>
   </div>
+
+  <%= f.submit "Filter", class: "button" %>
+  <%= link_to "Clear", trxes_path, class: "button" %>
 <% end %>
 
-<%= button_to 'Clear Filters', trxes_path, method: :get %>
-
-<table>
+<table class="transactions">
   <thead>
-
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Date</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Amount</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Vendor</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Account</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Category</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Subcategory</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Memo</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Cleared</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">ID</th>
-      <th style="border: 1px solid #ddd; padding: 4px 8px;">Transfer?</th>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Vendor</th>
+      <th>Account</th>
+      <th>Amount</th>
+      <th>Category</th>
+      <th>Memo</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @trxes.each do |trx| %>
       <tr>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.date.strftime("%b %d '%y") %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; text-align: right;"><%= number_to_currency((trx.amount / 100.0)) %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.vendor.name %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= trx.account.name %></td>
-        <% if trx.lines.size > 1%>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Split Transaction</td>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">Various</td>
-        <% elsif trx.lines.size > 0 %>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.category.name %></td>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.lines.first.ledger.subcategory.name %></td>
-        <% else %>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">No Lines</td>
-          <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;">No Lines</td>
-        <% end %>
-        <td style="border: 1px solid #ddd; padding: 4px 8px; white-space: nowrap;"><%= trx.memo %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= check_box_tag nil, nil, trx.cleared, disabled: true %></td>
-        <td style="border: 1px solid #ddd; padding: 4px 8px;"><%= link_to trx.id, edit_trx_path(trx) %></td>
-        <% if trx.lines.any? { |line| line.transfer_line.present? }%>
-          <td style="border: 1px solid #ddd; padding: 4px 8px;">Yes</td>
-        <% else %>
-          <td style="border: 1px solid #ddd; padding: 4px 8px;"></td>
-        <% end %>
+        <td><%= link_to trx.id, edit_trx_path(trx) %></td>
+        <td><%= trx.date %></td>
+        <td><%= trx.vendor.name %></td>
+        <td><%= trx.account.name %></td>
+        <td class="amount"><%= number_to_currency(trx.amount / 100.0) %></td>
+        <td>
+          <% if trx.lines.size > 1 %>
+            <span class="split-indicator">Split</span>
+          <% else %>
+            <%= trx.lines.first&.ledger&.subcategory&.category&.name %>
+          <% end %>
+        </td>
+        <td><%= trx.memo %></td>
+        <td class="actions">
+          <%= link_to edit_trx_path(trx), class: "button" do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+          <%= link_to trx_path(trx),
+              method: :delete,
+              data: { confirm: 'Are you sure?' },
+              class: "button danger" do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>
-  <tfoot>
-    <tr>
-      <td colspan="2">Page Total (<%= @trxes.size %> transactions)</td>
-      <td style="text-align: right;">
-        <%= number_to_currency(@displayed_amount / 100.0) %>
-      </td>
-      <td colspan="2"></td>
-    </tr>
-    <tr>
-      <td colspan="2">Filter Total (<%= @total_count %> transactions)</td>
-      <td style="text-align: right;">
-        <%= number_to_currency(@total_amount / 100.0) %>
-      </td>
-      <td colspan="2"></td>
-    </tr>
-  </tfoot>
 </table>
 
-<%== pagy_nav(@pagy) %>
-
-<%= link_to "Export to CSV", trxes_export_path(format: :csv) %>
-
-<div class="actions">
-  <%= link_to "New transaction", new_trx_path, class: "button" %>
-  <%= link_to "Import transactions", import_trxes_path, class: "button" %>
-</div>
+<%= custom_pagy_nav(@pagy) %>

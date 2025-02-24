@@ -13,3 +13,30 @@
  *= require_tree .
  *= require_self
  */
+
+.pagy-nav {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.pagy-nav .page-count {
+  margin: 0 1rem;
+}
+
+.pagy-nav .prev,
+.pagy-nav .next {
+  margin: 0 0.5rem;
+}
+
+.pagy-nav .disabled {
+  color: #999;
+}
+
+.pagy-nav a {
+  text-decoration: none;
+  color: #333;
+}
+
+.pagy-nav a:hover {
+  color: #666;
+}
