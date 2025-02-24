@@ -79,14 +79,14 @@
 <table class="transactions">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Date</th>
-      <th>Vendor</th>
-      <th>Account</th>
-      <th>Amount</th>
-      <th>Category</th>
-      <th>Subcategory</th>
-      <th>Memo</th>
+      <th><%= sort_link(@q, :id, "ID") %></th>
+      <th><%= sort_link(@q, :date, "Date") %></th>
+      <th><%= sort_link(@q, :vendor_name, "Vendor") %></th>
+      <th><%= sort_link(@q, :account_name, "Account") %></th>
+      <th><%= sort_link(@q, :amount, "Amount") %></th>
+      <th><%= sort_link(@q, :lines_ledger_subcategory_category_name, "Category") %></th>
+      <th><%= sort_link(@q, :lines_ledger_subcategory_name, "Subcategory") %></th>
+      <th><%= sort_link(@q, :memo, "Memo") %></th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -208,6 +208,33 @@
 
     .page-totals, .filtered-totals {
       padding: 0.5rem;
+    }
+
+    /* Sorting styles */
+    .transactions th a {
+      color: #333;
+      text-decoration: none;
+      display: block;
+      position: relative;
+      padding-right: 15px;
+    }
+
+    .transactions th a:hover {
+      color: #666;
+    }
+
+    .transactions th a.asc:after {
+      content: "▲";
+      position: absolute;
+      right: 0;
+      font-size: 0.8em;
+    }
+
+    .transactions th a.desc:after {
+      content: "▼";
+      position: absolute;
+      right: 0;
+      font-size: 0.8em;
     }
   </style>
 <% end %>

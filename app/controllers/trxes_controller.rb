@@ -16,12 +16,15 @@ class TrxesController < ApplicationController
                         .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
                         .ransack(params[:q])
 
-    # Get all filtered results before pagination
+    # Use Ransack's sort or fall back to default sort
+    @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
+
+    # Get filtered results and paginate
     @filtered_results = @q.result(distinct: true)
     @filtered_count = @filtered_results.count
 
     # Get paginated results
-    @pagy, @trxes = pagy(@filtered_results.order(date: :desc, id: :desc))
+    @pagy, @trxes = pagy(@filtered_results)
     @page_count = @trxes.count
   end
 
