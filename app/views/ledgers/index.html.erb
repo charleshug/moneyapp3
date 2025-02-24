@@ -1,74 +1,124 @@
 <% provide(:title, "Ledgers") %>
-<h1>Ledgers</h1>
 
-<%= search_form_for @q do |f| %>
+<div class="page-header">
+  <h1>Ledgers</h1>
+</div>
 
-<%= f.label :category_id_in, 'Category' %>
-<%= f.collection_select :subcategory_category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+<%= search_form_for @q, class: 'filter-form' do |f| %>
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :date_gteq, "Date From" %>
+      <%= f.date_field :date_gteq %>
+    </div>
+    <div class="filter-field">
+      <%= f.label :date_lteq, "Date To" %>
+      <%= f.date_field :date_lteq %>
+    </div>
+  </div>
 
-<%= f.label :subcategory_id_in, 'Subcategory' %>
-  <%= f.grouped_collection_select(
-    :subcategory_id_in,
-    @current_budget.categories.expense.includes(:subcategories),
-    :subcategories,
-    :name,
-    :id,
-    :name,
-    {include_blank: true},
-    {multiple: true}
-  ) %>
-  
-  <%= f.label :date_gteq, 'From Date' %>
-  <%= f.date_field :date_gteq %>
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :subcategory_category_id_in, "Categories" %>
+      <%= f.collection_select :subcategory_category_id_in,
+          @categories,
+          :id,
+          :name,
+          { include_blank: true },
+          { multiple: true, class: 'select2' } %>
+    </div>
+  </div>
 
-  <%= f.label :date_lteq, 'To Date' %>
-  <%= f.date_field :date_lteq %>
+  <div class="filter-group">
+    <div class="filter-field">
+      <%= f.label :subcategory_id_in, "Subcategories" %>
+      <%= f.collection_select :subcategory_id_in,
+          @subcategories,
+          :id,
+          :name,
+          { include_blank: true },
+          { multiple: true, class: 'select2' } %>
+    </div>
+  </div>
 
-  <%= f.submit "Filter" %>
+  <%= f.submit "Filter", class: "button" %>
+  <%= link_to "Clear", ledgers_path, class: "button" %>
 <% end %>
 
-<%= button_to 'Clear Filters', ledgers_path, method: :get %>
-
-<table>
+<table class="ledgers">
   <thead>
     <tr>
-      <th><%= sort_link @q, :id, 'Id' %></th>
-      <th><%= sort_link @q, :prev_id, 'Prev' %></th>
-      <th><%= sort_link @q, :next_id, 'Next' %></th>
-      <th><%= sort_link @q, :category_id, 'Id' %></th>
-      <th><%= sort_link @q, :category_name, 'Category' %></th>
-      <th><%= sort_link @q, :subcategory_id, 'Id' %></th>
-      <th><%= sort_link @q, :subcategory_name, 'Subcategory' %></th>
-      <th><%= sort_link @q, :date, 'Date' %></th>
-      <th><%= sort_link @q, :budget, 'Budget' %></th>
-      <th><%= sort_link @q, :actual, 'Actual' %></th>
-      <th><%= sort_link @q, :balance, 'Balance' %></th>
-      <th><%= sort_link @q, :carry_forward_negative_balance, 'Carry Neg. Bal.' %></th>
-      <th><%= sort_link @q, :user_changed, 'User Changed' %></th>
+      <th><%= sort_link(@q, :id, "ID") %></th>
+      <th><%= sort_link(@q, :date, "Date") %></th>
+      <th><%= sort_link(@q, :subcategory_category_name, "Category") %></th>
+      <th><%= sort_link(@q, :subcategory_name, "Subcategory") %></th>
+      <th><%= sort_link(@q, :budget, "Budget") %></th>
+      <th><%= sort_link(@q, :actual, "Actual") %></th>
+      <th><%= sort_link(@q, :balance, "Balance") %></th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @ledgers.each do |ledger| %>
       <tr>
         <td><%= link_to ledger.id, edit_ledger_path(ledger) %></td>
-        <td style="text-align: center;"><%= ledger.prev_id || "head" %></td>
-        <td style="text-align: center;"><%= ledger.next_id || "tail" %></td>
-        <td style="text-align: left;"><%= ledger.category.id %></td>
-        <td style="text-align: left;"><%= ledger.category.name %></td>
-        <td style="text-align: left;"><%= ledger.subcategory.id %></td>
-        <td style="text-align: left;"><%= ledger.subcategory.name %></td>
-        <td><%= ledger.date.strftime("%Y-%b") %></td>
-        <td style="text-align: right;"><%= number_to_currency((ledger.budget / 100.0), precision: 2) %></td>
-        <td style="text-align: right;"><%= number_to_currency((ledger.actual / 100.0), precision: 2) %></td>
-        <td style="text-align: right;"><%= number_to_currency((ledger.balance / 100.0), precision: 2) %></td>
-        <td style="text-align: center;">
-          <%= check_box_tag nil, nil, ledger.carry_forward_negative_balance, disabled: true %>
-        </td>
-        <td style="text-align: center;">
-          <%= check_box_tag nil, nil, ledger.user_changed, disabled: true %>
+        <td><%= ledger.date %></td>
+        <td><%= ledger.subcategory.category.name %></td>
+        <td><%= ledger.subcategory.name %></td>
+        <td class="amount"><%= number_to_currency(ledger.budget / 100.0) %></td>
+        <td class="amount"><%= number_to_currency(ledger.actual / 100.0) %></td>
+        <td class="amount"><%= number_to_currency(ledger.balance / 100.0) %></td>
+        <td class="actions">
+          <%= link_to edit_ledger_path(ledger), class: "button" do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+          <%= link_to ledger_path(ledger),
+              method: :delete,
+              data: { confirm: 'Are you sure?' },
+              class: "button danger" do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<div class="totals">
+  <div class="page-totals">
+    <strong>Page:</strong> 
+    <%= pluralize(@ledgers.size, 'ledger') %>
+  </div>
+  <div class="filtered-totals">
+    <strong>Total:</strong> 
+    <%= pluralize(@filtered_count, 'ledger') %>
+  </div>
+</div>
+
+<%= custom_pagy_nav(@pagy) %>
+
+<% content_for :styles do %>
+  <style>
+    .ledgers td {
+      padding: 4px;
+      border: 1px solid #ddd;
+    }
+    
+    .amount {
+      text-align: right;
+    }
+
+    .totals {
+      margin: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .page-totals, .filtered-totals {
+      padding: 0.5rem;
+    }
+  </style>
+<% end %>
 

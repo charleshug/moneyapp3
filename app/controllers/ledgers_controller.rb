@@ -1,11 +1,32 @@
 class LedgersController < ApplicationController
+  include Pagy::Backend
+
   before_action :set_ledger, only: %i[ edit update ]
 
   def index
-    @q = @current_budget.ledgers.includes(:subcategory).ransack(params[:q])
-    @ledgers = @q.result(distinct: true).order(date: :desc)
+    @current_budget = Budget.includes(:categories, subcategories: :category)
+                           .find(@current_budget.id)
 
-    # @ledgers = Ledger.order(subcategory_id: :asc, date: :asc)
+    # Load collections for filter dropdowns
+    @categories = @current_budget.categories.order(:name)
+    @subcategories = @current_budget.subcategories.order(:name)
+
+    base_query = @current_budget.ledgers
+                               .select("ledgers.*, subcategories.name as subcategory_name, categories.name as category_name")
+                               .joins(subcategory: :category)
+                               .includes(subcategory: :category)
+
+    @q = base_query.ransack(params[:q])
+
+    # Use Ransack's sort or fall back to default sort
+    @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
+
+    # Get filtered results and paginate
+    @filtered_results = @q.result
+    @filtered_count = @filtered_results.count("DISTINCT ledgers.id")
+
+    # Get paginated results
+    @pagy, @ledgers = pagy(@filtered_results)
   end
 
   def new
@@ -60,5 +81,13 @@ class LedgersController < ApplicationController
 
   def ledger_update_params
     params.fetch(:ledger, {}).permit(:id, :budget, :carry_forward_negative_balance)
+  end
+
+  def ransack_params
+    params.require(:q).permit(
+      :date_gteq, :date_lteq,
+      :subcategory_category_id_in,
+      :subcategory_id_in
+    )
   end
 end
