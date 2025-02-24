@@ -69,7 +69,15 @@
         <td class="amount"><%= number_to_currency(ledger.budget / 100.0) %></td>
         <td class="amount"><%= number_to_currency(ledger.actual / 100.0) %></td>
         <td class="amount"><%= number_to_currency(ledger.balance / 100.0) %></td>
-        <td class="center"><%= ledger.carry_forward_negative_balance ? '✓' : '✗' %></td>
+        <td class="center">
+          <%= button_to toggle_carry_forward_ledger_path(ledger),
+                method: :post,
+                class: "toggle-carry-forward",
+                form_class: "inline-form",
+                data: { confirm: "Update carry forward setting for this and future ledgers?" } do %>
+            <%= ledger.carry_forward_negative_balance ? '✓' : '✗' %>
+          <% end %>
+        </td>
         <td class="center"><%= ledger.user_changed ? '✓' : '✗' %></td>
         <td class="actions">
           <%= link_to edit_ledger_path(ledger), class: "button" do %>
@@ -126,6 +134,22 @@
 
     .page-totals, .filtered-totals {
       padding: 0.5rem;
+    }
+
+    .toggle-carry-forward {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .toggle-carry-forward:hover {
+      color: #666;
+    }
+
+    .inline-form {
+      display: inline;
     }
   </style>
 <% end %>

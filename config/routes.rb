@@ -27,7 +27,11 @@ Rails.application.routes.draw do
   get "/trxes_export", to: "trxes_export#create"
 
   resources :accounts
-  resources :ledgers
+  resources :ledgers do
+    member do
+      post :toggle_carry_forward
+    end
+  end
   resources :vendors
   resources :categories
   resources :subcategories

@@ -70,6 +70,16 @@ class LedgersController < ApplicationController
     end
   end
 
+  def toggle_carry_forward
+    @ledger = Ledger.find(params[:id])
+    @ledger.toggle_carry_forward_and_propagate!
+
+    respond_to do |format|
+      format.html { redirect_to ledgers_path, notice: "Ledger carry forward setting updated." }
+      format.json { render json: { success: true } }
+    end
+  end
+
   private
   def set_ledger
     @ledger = Ledger.find(params[:id])

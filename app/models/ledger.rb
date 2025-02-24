@@ -128,4 +128,28 @@ class Ledger < ApplicationRecord
     Ledger.where(date: date.end_of_month)
           .sum(:budget)
   end
+
+  def toggle_carry_forward_and_propagate!
+    # Toggle current ledger's carry_forward and mark as user changed
+    self.carry_forward_negative_balance = !carry_forward_negative_balance
+    self.user_changed = true
+    save!
+
+    # Propagate the new carry_forward value to future ledgers
+    propagate_carry_forward_to_future_ledgers
+  end
+
+  private
+
+  def propagate_carry_forward_to_future_ledgers
+    current_ledger = self.next
+    new_state = self.carry_forward_negative_balance
+
+    while current_ledger.present? && !current_ledger.user_changed
+      current_ledger.update!(
+        carry_forward_negative_balance: new_state
+      )
+      current_ledger = current_ledger.next
+    end
+  end
 end
