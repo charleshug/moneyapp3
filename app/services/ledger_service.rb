@@ -179,16 +179,19 @@ class LedgerService
     carry_forward_changed = @ledger.carry_forward_negative_balance.to_s != params[:carry_forward_negative_balance].to_s
     new_carry_forward = params[:carry_forward_negative_balance]
 
-    # Use update_ledger_params for the main update
+    # Perform the main update with the existing logic
     update_params = update_ledger_params(params)
 
     if @ledger.update(update_params)
-      # Handle carry_forward separately
       if carry_forward_changed
+        # Update carry_forward and user_changed
         @ledger.update_columns(
           carry_forward_negative_balance: new_carry_forward,
           user_changed: true
         )
+
+        # Recalculate balances starting from this ledger
+        recalculate_balance_chain
       end
       true
     else
@@ -200,5 +203,16 @@ class LedgerService
 
   def update_ledger_params(params)
     params.slice(:budget)
+  end
+
+  def recalculate_balance_chain
+    # Start with current ledger
+    current_ledger = @ledger
+
+    while current_ledger.present?
+      current_ledger.calculate_balance
+      current_ledger.save!
+      current_ledger = current_ledger.next
+    end
   end
 end
