@@ -12,20 +12,22 @@ class TrxesController < ApplicationController
     @categories = @current_budget.categories.order(:name)
     @subcategories = @current_budget.subcategories.order(:name)
 
-    @q = @current_budget.trxes
-                        .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
-                        .ransack(params[:q])
+    base_query = @current_budget.trxes
+                               .select("trxes.*, accounts.name as account_name, vendors.name as vendor_name")
+                               .joins(:account, :vendor)
+                               .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
+
+    @q = base_query.ransack(params[:q])
 
     # Use Ransack's sort or fall back to default sort
     @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
 
     # Get filtered results and paginate
-    @filtered_results = @q.result(distinct: true)
-    @filtered_count = @filtered_results.count
+    @filtered_results = @q.result
+    @filtered_count = @filtered_results.count("DISTINCT trxes.id")
 
     # Get paginated results
     @pagy, @trxes = pagy(@filtered_results)
-    @page_count = @trxes.count
   end
 
   # GET /trxes/new
