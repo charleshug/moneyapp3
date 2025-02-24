@@ -144,6 +144,12 @@ class Ledger < ApplicationRecord
       current.update_columns(next_id: next_ledger.id)
       next_ledger.update_columns(prev_id: current.id)
     end
+
+    # Recalculate balances in chronological order
+    ledgers.each do |ledger|
+      ledger.calculate_balance
+      ledger.save!
+    end
   end
 
   def toggle_carry_forward_and_propagate!
@@ -152,20 +158,29 @@ class Ledger < ApplicationRecord
     self.user_changed = true
     save!
 
-    # Propagate the new carry_forward value to future ledgers
-    propagate_carry_forward_to_future_ledgers
+    # Recalculate balances starting from this ledger
+    recalculate_balance_chain
   end
 
   private
+
+  def recalculate_balance_chain
+    # Start with current ledger
+    current_ledger = self
+
+    while current_ledger.present?
+      current_ledger.calculate_balance
+      current_ledger.save!
+      current_ledger = current_ledger.next
+    end
+  end
 
   def propagate_carry_forward_to_future_ledgers
     current_ledger = self.next
     new_state = self.carry_forward_negative_balance
 
     while current_ledger.present? && !current_ledger.user_changed
-      current_ledger.update!(
-        carry_forward_negative_balance: new_state
-      )
+      current_ledger.carry_forward_negative_balance = new_state
       current_ledger = current_ledger.next
     end
   end
