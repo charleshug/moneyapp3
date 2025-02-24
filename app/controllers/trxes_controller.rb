@@ -16,8 +16,13 @@ class TrxesController < ApplicationController
                         .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
                         .ransack(params[:q])
 
-    # Get filtered results and paginate
-    @pagy, @trxes = pagy(@q.result(distinct: true).order(date: :desc, id: :desc))
+    # Get all filtered results before pagination
+    @filtered_results = @q.result(distinct: true)
+    @filtered_count = @filtered_results.count
+
+    # Get paginated results
+    @pagy, @trxes = pagy(@filtered_results.order(date: :desc, id: :desc))
+    @page_count = @trxes.count
   end
 
   # GET /trxes/new
@@ -126,5 +131,15 @@ class TrxesController < ApplicationController
 
   def convert_amount_to_cents(amount)
     (amount.to_d * 100).to_i
+  end
+
+  def ransack_params
+    params.require(:q).permit(
+      :date_gteq, :date_lteq,
+      account_id_in: [],
+      vendor_id_in: [],
+      lines_ledger_subcategory_category_id_in: [],
+      lines_ledger_subcategory_id_in: []
+    )
   end
 end

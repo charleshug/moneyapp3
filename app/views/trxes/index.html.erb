@@ -85,23 +85,34 @@
       <th>Account</th>
       <th>Amount</th>
       <th>Category</th>
+      <th>Subcategory</th>
       <th>Memo</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @trxes.each do |trx| %>
-      <tr>
+      <% is_split = trx.lines.size > 1 %>
+      
+      <%# Main transaction row %>
+      <tr class="<%= 'multi-line-parent' if is_split %>">
         <td><%= link_to trx.id, edit_trx_path(trx) %></td>
         <td><%= trx.date %></td>
         <td><%= trx.vendor.name %></td>
         <td><%= trx.account.name %></td>
-        <td class="amount"><%= number_to_currency(trx.amount / 100.0) %></td>
+        <td class="amount <%= 'total-amount' if is_split %>">
+          <%= number_to_currency(trx.amount / 100.0) %>
+        </td>
         <td>
-          <% if trx.lines.size > 1 %>
+          <% if is_split %>
             <span class="split-indicator">Split</span>
           <% else %>
             <%= trx.lines.first&.ledger&.subcategory&.category&.name %>
+          <% end %>
+        </td>
+        <td>
+          <% unless is_split %>
+            <%= trx.lines.first&.ledger&.subcategory&.name %>
           <% end %>
         </td>
         <td><%= trx.memo %></td>
@@ -117,8 +128,86 @@
           <% end %>
         </td>
       </tr>
+
+      <%# Split lines %>
+      <% if is_split %>
+        <% trx.lines.each do |line| %>
+          <tr class="split-line">
+            <td colspan="4"></td>
+            <td class="amount">
+              <%= number_to_currency(line.amount / 100.0) %>
+            </td>
+            <td><%= line.ledger&.subcategory&.category&.name %></td>
+            <td><%= line.ledger&.subcategory&.name %></td>
+            <td colspan="2"></td>
+          </tr>
+        <% end %>
+      <% end %>
     <% end %>
   </tbody>
 </table>
 
+<div class="totals">
+  <div class="page-totals">
+    <strong>Page:</strong> 
+    <%= pluralize(@page_count, 'transaction') %>
+  </div>
+  <div class="filtered-totals">
+    <strong>Total:</strong> 
+    <%= pluralize(@filtered_count, 'transaction') %>
+  </div>
+</div>
+
 <%= custom_pagy_nav(@pagy) %>
+
+<% content_for :styles do %>
+  <style>
+    .transactions td {
+      padding: 4px;
+      border: 1px solid #ddd;
+    }
+    
+    .amount {
+      text-align: right;
+    }
+    
+    .total-amount {
+      color: #666;
+      font-style: italic;
+    }
+    
+    .split-line {
+      background-color: #f9f9f9;
+    }
+    
+    .split-line td {
+      border-top: none;
+    }
+    
+    .multi-line-parent {
+      border-bottom: none;
+    }
+    
+    .multi-line-parent td {
+      border-bottom: none;
+    }
+    
+    .split-indicator {
+      color: #666;
+      font-style: italic;
+    }
+
+    .totals {
+      margin: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .page-totals, .filtered-totals {
+      padding: 0.5rem;
+    }
+  </style>
+<% end %>
