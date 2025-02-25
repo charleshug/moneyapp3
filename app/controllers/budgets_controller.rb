@@ -75,19 +75,20 @@ class BudgetsController < ApplicationController
   end
 
   def update_budgets
-    option = params[:option]
     date = Date.parse(params[:date])
-    case option
-    when "Zero all budgeted amounts"
-      LedgerService.new.zero_all_budgeted_amounts(date)
+
+    case params[:option]
+    when "Zero all budget values"
+      LedgerService.zero_all_budgeted_amounts(@current_budget, date)
     when "Budget values used last month"
-      LedgerService.new.budget_values_used_last_month(date)
+      LedgerService.budget_values_used_last_month(@current_budget, date)
     when "Last month outflows"
-      LedgerService.new.last_month_outflows(date)
-    when "Balance to 0.00"
-      LedgerService.new.balance_to_zero(date)
+      LedgerService.last_month_outflows(@current_budget, date)
+    when "Balance to zero"
+      LedgerService.balance_to_zero(@current_budget, date)
     end
-    redirect_to budgets_path
+
+    redirect_to budgets_path, notice: "Budget values have been updated."
   end
 
   private

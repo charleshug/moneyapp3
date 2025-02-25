@@ -167,31 +167,26 @@ class LedgerService
     end
   end
 
-  def self.update_ledger(ledger, params)
-    new(ledger).update(params)
-  end
+  def self.update(ledger, params)
+    # Convert params to hash with string keys if it's not already
+    params = params.to_h.stringify_keys
 
-  def initialize(ledger)
-    @ledger = ledger
-  end
-
-  def update(params)
-    carry_forward_changed = @ledger.carry_forward_negative_balance.to_s != params[:carry_forward_negative_balance].to_s
-    new_carry_forward = params[:carry_forward_negative_balance]
+    carry_forward_changed = params.key?("carry_forward_negative_balance") &&
+                           ledger.carry_forward_negative_balance.to_s != params["carry_forward_negative_balance"].to_s
 
     # Perform the main update with the existing logic
-    update_params = update_ledger_params(params)
+    update_params = params.slice("budget")
 
-    if @ledger.update(update_params)
+    if ledger.update(update_params)
+      # Only update carry_forward if it was included in the params and changed
       if carry_forward_changed
-        # Update carry_forward and user_changed
-        @ledger.update_columns(
-          carry_forward_negative_balance: new_carry_forward,
+        ledger.update_columns(
+          carry_forward_negative_balance: params["carry_forward_negative_balance"],
           user_changed: true
         )
 
         # Recalculate balances starting from this ledger
-        recalculate_balance_chain
+        recalculate_balance_chain(ledger)
       end
       true
     else
@@ -199,20 +194,67 @@ class LedgerService
     end
   end
 
-  private
-
-  def update_ledger_params(params)
-    params.slice(:budget)
-  end
-
-  def recalculate_balance_chain
-    # Start with current ledger
-    current_ledger = @ledger
-
+  def self.recalculate_balance_chain(ledger)
+    current_ledger = ledger
     while current_ledger.present?
       current_ledger.calculate_balance
       current_ledger.save!
       current_ledger = current_ledger.next
     end
+  end
+
+  def self.zero_all_budgeted_amounts(budget, date)
+    ledgers = get_ledgers_for_month(budget, date)
+    ledgers.each do |ledger|
+      update(ledger, budget: 0)
+    end
+  end
+
+  def self.budget_values_used_last_month(budget, date)
+    current_ledgers = get_ledgers_for_month(budget, date)
+    prev_month = date.prev_month
+    prev_ledgers = get_ledgers_for_month(budget, prev_month).index_by(&:subcategory_id)
+
+    current_ledgers.each do |ledger|
+      if prev_ledger = prev_ledgers[ledger.subcategory_id]
+        update(ledger, budget: prev_ledger.budget)
+      end
+    end
+  end
+
+  def self.last_month_outflows(budget, date)
+    current_ledgers = get_ledgers_for_month(budget, date)
+    prev_month = date.prev_month
+    prev_ledgers = get_ledgers_for_month(budget, prev_month).index_by(&:subcategory_id)
+
+    current_ledgers.each do |ledger|
+      if prev_ledger = prev_ledgers[ledger.subcategory_id]
+        update(ledger, budget: prev_ledger.actual.abs)
+      end
+    end
+  end
+
+  def self.balance_to_zero(budget, date)
+    ledgers = get_ledgers_for_month(budget, date)
+    ledgers.each do |ledger|
+      update(ledger, budget: ledger.balance.abs)
+    end
+  end
+
+  def self.recalculate_forward_ledgers(ledger)
+    current_ledger = ledger
+    while current_ledger.present?
+      current_ledger.calculate_balance
+      current_ledger.save!
+      current_ledger = current_ledger.next
+    end
+  end
+
+  private
+
+  def self.get_ledgers_for_month(budget, date)
+    Ledger.joins(subcategory: :category)
+          .where(categories: { budget_id: budget.id })
+          .where("date >= ? AND date <= ?", date.beginning_of_month, date.end_of_month)
   end
 end

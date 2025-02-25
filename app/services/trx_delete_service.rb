@@ -47,6 +47,6 @@ class TrxDeleteService
   end
 
   def update_ledgers
-    @ledgers.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
+    @ledgers.each { |ledger| LedgerService.recalculate_forward_ledgers(ledger) }
   end
 end

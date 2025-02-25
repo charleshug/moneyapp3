@@ -99,7 +99,9 @@ class ImportTrxesController < ApplicationController
       end
 
       accounts_to_update.each { |account| account.calculate_balance! }
-      ledgers_to_update.each { |ledger| LedgerService.new.recalculate_forward_ledgers(ledger) }
+      ledgers_to_update.each do |ledger|
+        LedgerService.recalculate_forward_ledgers(ledger)
+      end
     end
 
     @import_batch.destroy

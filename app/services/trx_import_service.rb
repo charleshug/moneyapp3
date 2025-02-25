@@ -143,7 +143,7 @@ class TrxImportService
 
       # update Ledgers and Accounts all at once at the end
       ledgers_to_update.each do |ledger|
-        LedgerService.new.recalculate_forward_ledgers(ledger)
+        LedgerService.recalculate_forward_ledgers(ledger)
       end
       accounts_to_update.each do |account|
         account.calculate_balance!

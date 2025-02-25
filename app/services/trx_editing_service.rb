@@ -25,7 +25,7 @@ class TrxEditingService
       trx.lines.each { |line| ledgers_to_update << line.ledger }
 
       ledgers_to_update.each do |ledger|
-        LedgerService.new.recalculate_forward_ledgers(ledger)
+        LedgerService.recalculate_forward_ledgers(ledger)
       end
       trx.account.calculate_balance!
 

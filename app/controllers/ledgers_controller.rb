@@ -73,9 +73,7 @@ class LedgersController < ApplicationController
   end
 
   def update
-    service = LedgerService.new(@ledger)
-
-    if service.update(ledger_params)
+    if LedgerService.update(@ledger, ledger_params)
       redirect_to ledgers_path, notice: "Ledger was successfully updated."
     else
       render :edit, status: :unprocessable_entity

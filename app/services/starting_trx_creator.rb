@@ -17,14 +17,32 @@ class StartingTrxCreator
     @trx.save!
   end
 
+  private
   def set_ledger
     @trx.lines.each do |line|
-      if line.subcategory_form_id.empty?
-        ledger = @budget.ledgers.find_or_create_by(date: @trx.date.end_of_month, subcategory: @budget.subcategories.find(line.subcategory))
-      else
-        ledger = @budget.ledgers.find_or_create_by(date: @trx.date.end_of_month, subcategory: @budget.subcategories.find(line.subcategory_form_id))
+      subcategory = @budget.subcategories.find(line.subcategory_form_id)
+
+      date = @trx.date.end_of_month
+      ledger = Ledger.find_by(
+        date: date,
+        subcategory: subcategory
+      )
+
+      if ledger.nil?
+        # Only set carry_forward for new ledgers
+        prev_ledger = Ledger.where(subcategory: subcategory)
+                           .where("date < ?", date)
+                           .order(date: :desc)
+                           .first
+
+        ledger = Ledger.create!(
+          date: date,
+          subcategory: subcategory,
+          carry_forward_negative_balance: prev_ledger&.carry_forward_negative_balance || false
+        )
       end
-      line.ledger=ledger
+
+      line.ledger = ledger
     end
   end
 end
