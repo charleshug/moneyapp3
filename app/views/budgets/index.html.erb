@@ -85,6 +85,6 @@
 <br>
 <%= form_tag update_budget_values_path, method: :post do %>
   <%= hidden_field_tag :date, @selected_month %>
-  <%= select_tag :option, options_for_select(["Zero all budgeted amounts", "Budget values used last month", "Last month outflows", "Balance to 0.00"]), include_blank: true, prompt: "Auto-fill budget values", class: "form-control", style: "font-size: 16px;" %>
+  <%= select_tag :option, options_for_select(["Zero all budgeted amounts", "Budget values used last month", "Last month outflows", "Balance to zero"]), include_blank: true, prompt: "Auto-fill budget values", class: "form-control", style: "font-size: 16px;" %>
   <%= submit_tag "Apply", class: "btn btn-primary" %>
 <% end %>
