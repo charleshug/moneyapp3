@@ -197,8 +197,7 @@ class LedgerService
   def self.recalculate_balance_chain(ledger)
     current_ledger = ledger
     while current_ledger.present?
-      current_ledger.calculate_balance
-      current_ledger.save!
+      current_ledger.save! # automatically calculates balance
       current_ledger = current_ledger.next
     end
   end

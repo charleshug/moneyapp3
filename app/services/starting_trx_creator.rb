@@ -15,6 +15,7 @@ class StartingTrxCreator
     set_ledger
     @trx.set_amount
     @trx.save!
+    LedgerService.recalculate_balance_chain(@trx.lines.first.ledger)
   end
 
   private
@@ -34,10 +35,15 @@ class StartingTrxCreator
                            .where("date < ?", date)
                            .order(date: :desc)
                            .first
-
+        next_ledger = Ledger.where(subcategory: subcategory)
+                           .where("date > ?", date)
+                           .order(date: :asc)
+                           .first
         ledger = Ledger.create!(
           date: date,
           subcategory: subcategory,
+          prev: prev_ledger,
+          next: next_ledger,
           carry_forward_negative_balance: prev_ledger&.carry_forward_negative_balance || false
         )
       end
