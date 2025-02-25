@@ -78,7 +78,7 @@ class BudgetsController < ApplicationController
     date = Date.parse(params[:date])
 
     case params[:option]
-    when "Zero all budget values"
+    when "Zero all budgeted amounts"
       LedgerService.zero_all_budgeted_amounts(@current_budget, date)
     when "Budget values used last month"
       LedgerService.budget_values_used_last_month(@current_budget, date)
