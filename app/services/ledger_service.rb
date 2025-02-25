@@ -155,18 +155,6 @@ class LedgerService
     end
   end
 
-  def self.update_all_ledgers
-    # TODO - use current_budget
-    ledger_heads = Ledger.where(prev: nil)
-    ledger_heads.each do |head|
-      head.save
-      ledgers = head.find_next_ledgers
-      ledgers.includes(:subcategory, :lines, :prev).each do |l|
-        l.save
-      end
-    end
-  end
-
   def self.update(ledger, params)
     # Convert params to hash with string keys if it's not already
     params = params.to_h.stringify_keys
