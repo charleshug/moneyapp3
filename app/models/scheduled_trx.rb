@@ -74,6 +74,10 @@ class ScheduledTrx < ApplicationRecord
     trx
   end
 
+  def set_amount
+    self.amount = scheduled_lines.map(&:amount).sum  # This will sum the `amount` values from in-memory objects.
+  end
+
   private
 
   def calculate_next_date

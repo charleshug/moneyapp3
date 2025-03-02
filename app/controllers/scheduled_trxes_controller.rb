@@ -14,9 +14,9 @@ class ScheduledTrxesController < ApplicationController
   end
 
   def create
-    @scheduled_trx = @current_budget.scheduled_trxes.build(scheduled_trx_params)
+    @scheduled_trx = ScheduledTrxCreatorService.new.create_trx(@current_budget, scheduled_trx_params)
 
-    if @scheduled_trx.save
+    if @scheduled_trx.valid?
       redirect_to scheduled_trxes_path, notice: "Scheduled transaction was created."
     else
       render :new, status: :unprocessable_entity
@@ -24,7 +24,14 @@ class ScheduledTrxesController < ApplicationController
   end
 
   def update
-    if @scheduled_trx.update(scheduled_trx_params)
+    if @scheduled_trx.budget != @current_budget
+      redirect_to scheduled_trxes_path, alert: "You are not authorized to edit this transaction."
+      return
+    end
+
+    @scheduled_trx = ScheduledTrxEditingService.new.edit_trx(@scheduled_trx, scheduled_trx_params)
+
+    if @scheduled_trx.valid?
       redirect_to scheduled_trxes_path, notice: "Scheduled transaction was updated."
     else
       render :edit, status: :unprocessable_entity
