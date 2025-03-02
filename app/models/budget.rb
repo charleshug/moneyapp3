@@ -8,6 +8,8 @@ class Budget < ApplicationRecord
   has_many :vendors, dependent: :destroy
   has_many :trxes, through: :accounts
   has_many :lines, through: :trxes
+  has_many :scheduled_trxes, through: :accounts
+  has_many :scheduled_lines, through: :accounts
 
   after_create :create_default_vendors
   after_create :create_default_categories

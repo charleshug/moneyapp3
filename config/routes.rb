@@ -72,4 +72,10 @@ Rails.application.routes.draw do
   get "reports/category", to: "reports#spending_by_category", as: "category_reports"
 
   root "accounts#index"
+
+  resources :scheduled_trxes do
+    collection do
+      post "create_selected"
+    end
+  end
 end

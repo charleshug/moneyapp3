@@ -6,6 +6,7 @@ class Account < ApplicationRecord
 
   belongs_to :budget
   has_many :trxes
+  has_many :scheduled_trxes
   has_one :vendor, dependent: :destroy
 
   # attr_accessor :starting_balance, :starting_date

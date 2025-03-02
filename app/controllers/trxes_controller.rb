@@ -128,10 +128,22 @@ class TrxesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def trx_params
-      params.fetch(:trx, {}).permit(
-        :id, :date, :memo, :amount, :subcategory_id, :account_id, :vendor_id, :vendor_custom_text,
-        :cleared, :trxes, :q, lines_attributes: [ :id, :subcategory_form_id, :ledger_id, :amount, :_destroy ]
-        )
+      params.require(:trx).permit(
+        :account_id,
+        :vendor_id,
+        :vendor_custom_text,
+        :date,
+        :memo,
+        :cleared,
+        lines_attributes: [
+          :id,
+          :ledger_id,
+          :subcategory_form_id,
+          :amount,
+          :memo,
+          :_destroy
+        ]
+      )
     end
 
   def convert_amount_to_cents(amount)

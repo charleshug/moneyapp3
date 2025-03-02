@@ -1,0 +1,32 @@
+<div class="nested-fields">
+  <div class="field">
+    <%= f.label :amount %>
+    <%= f.text_field :amount %>
+  </div>
+
+  <div class="field">
+    <%= f.label :subcategory_id, "Category" %>
+    <%= f.collection_select :subcategory_id, 
+                          @current_budget.subcategories.order('categories.name, subcategories.name')
+                                       .includes(:category), 
+                          :id, 
+                          :full_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :memo %>
+    <%= f.text_field :memo %>
+  </div>
+
+  <div class="transfer-fields">
+    <div class="field">
+      <%= f.label :transfer_account_id, "Transfer To" %>
+      <%= f.collection_select :transfer_account_id,
+                            @current_budget.accounts,
+                            :id,
+                            :name,
+                            { include_blank: true },
+                            { class: 'transfer-account-select' } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+class ScheduledTrxesController < ApplicationController
+  before_action :set_scheduled_trx, only: [ :edit, :update, :destroy ]
+
+  def index
+    @scheduled_trxes = @current_budget.scheduled_trxes.where(active: true)
+  end
+
+  def new
+    @scheduled_trx = @current_budget.scheduled_trxes.build
+    @scheduled_trx.scheduled_lines.build
+  end
+
+  def edit
+  end
+
+  def create
+    @scheduled_trx = @current_budget.scheduled_trxes.build(scheduled_trx_params)
+
+    if @scheduled_trx.save
+      redirect_to scheduled_trxes_path, notice: "Scheduled transaction was created."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @scheduled_trx.update(scheduled_trx_params)
+      redirect_to scheduled_trxes_path, notice: "Scheduled transaction was updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def create_selected
+    selected_ids = params[:selected_ids] || []
+    ActiveRecord::Base.transaction do
+      selected_ids.each do |id|
+        scheduled_trx = ScheduledTrx.find(id)
+        scheduled_trx.create_trx!
+      end
+    end
+
+    redirect_to scheduled_trxes_path, notice: "Selected transactions have been created."
+  end
+
+  def destroy
+    @scheduled_trx.update!(active: false)
+    redirect_to scheduled_trxes_path, notice: "Scheduled transaction was deleted."
+  end
+
+  private
+
+  def set_scheduled_trx
+    @scheduled_trx = @current_budget.scheduled_trxes.find(params[:id])
+  end
+
+  def scheduled_trx_params
+    params.require(:scheduled_trx).permit(
+      :account_id, :vendor_id, :next_date, :frequency, :memo,
+      scheduled_lines_attributes: [ :id, :subcategory_id, :amount, :memo, :transfer_account_id, :_destroy ]
+    )
+  end
+end

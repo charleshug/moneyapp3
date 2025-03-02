@@ -1,5 +1,5 @@
 <% provide(:title, "New Trx") %>
-<h1>New trx</h1>
+<h1>New Transaction</h1>
 
 <%= render "form", trx: @trx %>
 
@@ -8,6 +8,8 @@
 <div class="actions">
   <%= link_to "Import transactions", import_trxes_path, class: "button" %>
   <%= link_to "New Vendor", new_vendor_path, class: "button" %>
+  <%= link_to "Back to transactions", trxes_path %>
+  <%= link_to "Create scheduled transaction", new_scheduled_trx_path, class: "button" %>
 </div>
 
 <br>

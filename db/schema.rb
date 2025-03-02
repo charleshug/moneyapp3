@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_24_023608) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_02_041526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -86,6 +86,33 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_24_023608) do
     t.index ["trx_id"], name: "index_lines_on_trx_id"
   end
 
+  create_table "scheduled_lines", force: :cascade do |t|
+    t.bigint "scheduled_trx_id", null: false
+    t.bigint "subcategory_id", null: false
+    t.integer "amount", null: false
+    t.string "memo"
+    t.bigint "transfer_account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scheduled_trx_id"], name: "index_scheduled_lines_on_scheduled_trx_id"
+    t.index ["subcategory_id"], name: "index_scheduled_lines_on_subcategory_id"
+    t.index ["transfer_account_id"], name: "index_scheduled_lines_on_transfer_account_id"
+  end
+
+  create_table "scheduled_trxes", force: :cascade do |t|
+    t.integer "amount", default: 0, null: false
+    t.bigint "account_id", null: false
+    t.bigint "vendor_id"
+    t.date "next_date", null: false
+    t.string "frequency", null: false
+    t.string "memo"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_scheduled_trxes_on_account_id"
+    t.index ["vendor_id"], name: "index_scheduled_trxes_on_vendor_id"
+  end
+
   create_table "subcategories", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "hidden", default: false, null: false
@@ -141,6 +168,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_24_023608) do
   add_foreign_key "lines", "ledgers"
   add_foreign_key "lines", "lines", column: "transfer_line_id"
   add_foreign_key "lines", "trxes"
+  add_foreign_key "scheduled_lines", "accounts", column: "transfer_account_id"
+  add_foreign_key "scheduled_lines", "scheduled_trxes"
+  add_foreign_key "scheduled_lines", "subcategories"
+  add_foreign_key "scheduled_trxes", "accounts"
+  add_foreign_key "scheduled_trxes", "vendors"
   add_foreign_key "subcategories", "categories"
   add_foreign_key "trxes", "accounts"
   add_foreign_key "trxes", "vendors"
