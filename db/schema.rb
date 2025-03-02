@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_02_041526) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_02_171935) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -89,7 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_02_041526) do
   create_table "scheduled_lines", force: :cascade do |t|
     t.bigint "scheduled_trx_id", null: false
     t.bigint "subcategory_id", null: false
-    t.integer "amount", null: false
+    t.integer "amount", default: 0, null: false
     t.string "memo"
     t.bigint "transfer_account_id"
     t.datetime "created_at", null: false

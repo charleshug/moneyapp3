@@ -1,7 +1,15 @@
 <div class="nested-fields">
   <div class="field">
     <%= f.label :amount %>
-    <%= f.text_field :amount %>
+    <%#= f.text_field :amount %>
+    <%#= f.number_field :amount %>
+    <%= f.number_field :amount, 
+                      value: (BigDecimal(f.object.amount.to_s) / BigDecimal("100")).round(2),
+                      step: "0.01" %>
+    <%#= f.number_field :amount, 
+      value: (BigDecimal(f.object.amount.to_s.presence || "0") / BigDecimal("100")).round(2),
+      step: "0.01" %>
+    
   </div>
 
   <div class="field">
