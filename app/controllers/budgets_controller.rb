@@ -16,11 +16,6 @@ class BudgetsController < ApplicationController
 
   def index
     set_selected_month_from_params
-    @categories = @current_budget
-                          .categories
-                          .expense
-                          .order("categories.id, categories.name")
-    @ledgers = @current_budget.ledgers.includes(:subcategory).where(date: @selected_month)
 
     @budget_available_previously = BudgetService.get_budget_available(@current_budget, @selected_month.prev_month.end_of_month)
     @overspent_prev = @current_budget.ledgers.get_overspent_in_date_range(@selected_month.prev_month.beginning_of_month, @selected_month.prev_month.end_of_month)
