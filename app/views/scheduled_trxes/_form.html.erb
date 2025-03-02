@@ -1,4 +1,16 @@
 <%= form_with(model: scheduled_trx) do |f| %>
+  <% if scheduled_trx.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(scheduled_trx.errors.count, "error") %> prohibited this scheduled transaction from being saved:</h2>
+
+      <ul>
+        <% scheduled_trx.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <div class="field">
     <%= f.label :next_date, "Next Date" %>
     <%= f.date_field :next_date %>
@@ -11,17 +23,26 @@
 
   <div class="field">
     <%= f.label :memo %>
-    <%= f.text_field :memo %>
+    <%= f.text_field :memo, placeholder: "Enter a memo..." %>
   </div>
 
   <div class="field">
-    <%= f.label :account_id %>
-    <%= f.collection_select :account_id, @current_budget.accounts, :id, :name %>
+    <%= f.label :account %>
+    <br>
+    <%= f.select(
+      :account_id,
+      grouped_options_for_select(@current_budget.accounts.for_select, f.object.account_id),
+      { prompt: 'Select Account' }
+    ) %>
   </div>
 
   <div class="field">
-    <%= f.label :vendor_id %>
-    <%= f.collection_select :vendor_id, @current_budget.vendors, :id, :name %>
+    <%= f.label :vendor %>
+    <br>
+    <%= f.select :vendor_id, grouped_options_for_select({
+        "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
+        "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
+      }, f.object.vendor_id), include_blank: "Select Vendor" %>
   </div>
 
   <div id="trx-lines">
@@ -32,10 +53,10 @@
   </div>
 
   <div class="button-group">
-    <% if @scheduled_trx.persisted? %>
-      <%= link_to "Add Line", add_line_to_scheduled_trx_path(@scheduled_trx), class: "button", data: { turbo_method: :post, turbostream: true } %>
+    <% if scheduled_trx.persisted? %>
+      <%= link_to "Add Line", add_scheduled_line_to_scheduled_trx_path(scheduled_trx), class: "button", data: { turbo_method: :post, turbostream: true } %>
     <% else %>
-      <%= link_to "Add Line", add_line_to_new_scheduled_trx_path, class: "button", data: { turbo_method: :post, turbostream: true } %>
+      <%= link_to "Add Line", add_scheduled_line_to_new_scheduled_trx_path, class: "button", data: { turbo_method: :post, turbostream: true } %>
     <% end %>
   </div>
 

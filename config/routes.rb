@@ -12,8 +12,8 @@ Rails.application.routes.draw do
   post "trxes/:id/add_line", to: "trxes#add_line", as: :add_line_to_trx  # For existing transactions
   post "trxes/add_line",     to: "trxes#add_line", as: :add_line_to_new_trx   # For new transactions
 
-  post "scheduled_trxes/:id/add_line", to: "scheduled_trxes#add_scheduled_line", as: :add_line_to_scheduled_trx  # For existing transactions
-  post "scheduled_trxes/add_line",     to: "scheduled_trxes#add_scheduled_line_to_new_scheduled_trx", as: :add_line_to_new_scheduled_trx   # For new transactions
+  post "scheduled_trxes/:id/add_line", to: "scheduled_trxes#add_scheduled_line_to_scheduled_trx", as: :add_scheduled_line_to_scheduled_trx  # For existing transactions
+  post "scheduled_trxes/add_line",     to: "scheduled_trxes#add_scheduled_line_to_new_scheduled_trx", as: :add_scheduled_line_to_new_scheduled_trx   # For new transactions
 
   resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ] do
     member do

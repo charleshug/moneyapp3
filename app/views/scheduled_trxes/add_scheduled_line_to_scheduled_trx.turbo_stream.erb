@@ -1,7 +1,7 @@
 <%= turbo_stream.append "trx-lines" do %>
-  <%= fields_for @trx do |f| %>
-    <%= f.fields_for :lines, @line, child_index: Time.current.to_i do |line_form| %>
-      <%= render 'line_fields', f: line_form %>
+  <%= fields_for @scheduled_trx do |f| %>
+    <%= f.fields_for :scheduled_lines, @scheduled_line, child_index: Time.current.to_i do |line_form| %>
+      <%= render 'scheduled_line_fields', f: line_form %>
     <% end %>
   <% end %>
 <% end %> 

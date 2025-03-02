@@ -58,7 +58,7 @@ class ScheduledTrxesController < ApplicationController
   def add_scheduled_line_to_scheduled_trx
     @scheduled_trx = ScheduledTrx.find(params[:id])
     @scheduled_line = @scheduled_trx.scheduled_lines.build
-    @scheduled_line.subcategory_form_id = nil
+    # @scheduled_line.subcategory_form_id = nil
 
     respond_to do |format|
       format.turbo_stream
