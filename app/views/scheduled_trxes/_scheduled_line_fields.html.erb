@@ -1,0 +1,19 @@
+<div class="nested-fields">
+  <div class="field">
+    <%= f.label :subcategory_form_id, "Category" %>
+    <%= f.grouped_collection_select :subcategory_id,
+                                  @current_budget.categories,
+                                  :subcategories,
+                                  :name,
+                                  :id,
+                                  :name %>
+  </div>
+  <div class="field">
+    <%= f.label :amount %>
+    <%= f.number_field :amount, 
+                      value: (BigDecimal(f.object.amount.to_s) / BigDecimal("100")).round(2),
+                      step: "0.01" %>
+  </div>
+  <%= f.check_box :_destroy unless f.object.new_record? %>
+  <%= f.label :_destroy, "Remove" unless f.object.new_record? %>
+</div> 

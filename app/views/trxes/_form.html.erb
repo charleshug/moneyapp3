@@ -48,8 +48,7 @@
 
   <div id="trx-lines">
     <%= f.fields_for :lines do |line_form| %>
-    <%= render 'line_fields', f: line_form %>
-
+      <%= render 'line_fields', f: line_form %>
     <% end %>
   </div>
   <div class="button-group">

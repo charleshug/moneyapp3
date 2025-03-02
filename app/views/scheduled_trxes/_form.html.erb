@@ -1,0 +1,45 @@
+<%= form_with(model: scheduled_trx) do |f| %>
+  <div class="field">
+    <%= f.label :next_date, "Next Date" %>
+    <%= f.date_field :next_date %>
+  </div>
+
+  <div class="field">
+    <%= f.label :frequency %>
+    <%= f.select :frequency, ScheduledTrx::FREQUENCIES.map { |k, v| [v, k] } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :memo %>
+    <%= f.text_field :memo %>
+  </div>
+
+  <div class="field">
+    <%= f.label :account_id %>
+    <%= f.collection_select :account_id, @current_budget.accounts, :id, :name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :vendor_id %>
+    <%= f.collection_select :vendor_id, @current_budget.vendors, :id, :name %>
+  </div>
+
+  <div id="trx-lines">
+    <h2>Lines</h2>
+    <%= f.fields_for :scheduled_lines do |line_form| %>
+      <%= render 'scheduled_line_fields', f: line_form %>
+    <% end %>
+  </div>
+
+  <div class="button-group">
+    <% if @scheduled_trx.persisted? %>
+      <%= link_to "Add Line", add_line_to_scheduled_trx_path(@scheduled_trx), class: "button", data: { turbo_method: :post, turbostream: true } %>
+    <% else %>
+      <%= link_to "Add Line", add_line_to_new_scheduled_trx_path, class: "button", data: { turbo_method: :post, turbostream: true } %>
+    <% end %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

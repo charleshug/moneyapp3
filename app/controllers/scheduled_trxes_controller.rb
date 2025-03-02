@@ -55,6 +55,26 @@ class ScheduledTrxesController < ApplicationController
     redirect_to scheduled_trxes_path, notice: "Scheduled transaction was deleted."
   end
 
+  def add_scheduled_line_to_scheduled_trx
+    @scheduled_trx = ScheduledTrx.find(params[:id])
+    @scheduled_line = @scheduled_trx.scheduled_lines.build
+    @scheduled_line.subcategory_form_id = nil
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
+  def add_scheduled_line_to_new_scheduled_trx
+    @scheduled_trx = ScheduledTrx.new
+    @scheduled_line = @scheduled_trx.scheduled_lines.build
+    # @scheduled_line.subcategory_form_id = nil
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
   private
 
   def set_scheduled_trx
