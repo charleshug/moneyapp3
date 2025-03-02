@@ -18,7 +18,7 @@ class BudgetService
 
   def self.generate_budget_table_data(current_budget, selected_month)
     # Eager load all related data in a single query
-    categories = current_budget.categories
+    categories = current_budget.categories.expense
       .includes(:subcategories)
       .includes(subcategories: :ledgers)
 
