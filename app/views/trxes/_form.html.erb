@@ -46,37 +46,19 @@
   <%= f.check_box :cleared %>
 </div>
 
-  <div id="lines">
+  <div id="trx-lines">
     <%= f.fields_for :lines do |line_form| %>
-      <div class="line-fields">
-        <%= render 'line_fields', f: line_form %>
-        <%= line_form.hidden_field :_destroy %>
-        <%= button_tag "Delete Line", 
-            type: 'button',
-            onclick: "this.previousElementSibling.value = '1'; this.closest('.line-fields').style.display = 'none';" %>
-      </div>
+    <%= render 'line_fields', f: line_form %>
+
     <% end %>
-
-    <%= button_tag "Add Line", 
-        type: 'button',
-        onclick: "const template = document.querySelector('#line-template').innerHTML;
-                 const timestamp = new Date().getTime();
-                 const newFields = template.replace(/NEW_RECORD/g, timestamp);
-                 this.insertAdjacentHTML('beforebegin', newFields);" %>
-
-    <template id="line-template">
-      <div class="line-fields">
-        <%= f.fields_for :lines, Line.new, child_index: 'NEW_RECORD' do |line_form| %>
-          <%= render 'line_fields', f: line_form %>
-          <%= line_form.hidden_field :_destroy %>
-          <%= button_tag "Delete Line", 
-              type: 'button',
-              onclick: "this.previousElementSibling.value = '1'; this.closest('.line-fields').style.display = 'none';" %>
-        <% end %>
-      </div>
-    </template>
   </div>
-
+  <div class="button-group">
+    <% if @trx.persisted? %>
+      <%= link_to "Add Line", add_line_to_trx_trx_path(@trx), class: "button", data: { turbo_method: :post, turbostream: true } %>
+    <% else %>
+      <%= link_to "Add Line", add_line_to_new_trx_trxes_path, class: "button", data: { turbo_method: :post, turbostream: true } %>
+    <% end %>
+  </div>
   <div class="actions">
     <%= f.submit %>
   </div>
