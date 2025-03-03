@@ -199,13 +199,26 @@ class LedgerService
   end
 
   def self.budget_values_used_last_month(budget, date)
-    current_ledgers = get_ledgers_for_month(budget, date)
     prev_month = date.prev_month
-    prev_ledgers = get_ledgers_for_month(budget, prev_month).index_by(&:subcategory_id)
 
-    current_ledgers.each do |ledger|
-      if prev_ledger = prev_ledgers[ledger.subcategory_id]
-        update(ledger, budget: prev_ledger.budget)
+    # Get all ledgers from previous month with non-zero budget amounts
+    prev_ledgers_with_budget = get_ledgers_for_month(budget, prev_month)
+      .where.not(budget: 0)
+      .index_by(&:subcategory_id)
+
+    # For each previous month ledger with a budget
+    prev_ledgers_with_budget.each do |subcategory_id, prev_ledger|
+      # Find or create the corresponding current month ledger
+      current_ledger = Ledger.find_or_create_by(
+        date: date.end_of_month,
+        subcategory_id: subcategory_id
+      )
+
+      # Only update if current ledger's budget is 0
+      if current_ledger.budget == 0
+        # Convert budget amount from cents to dollars before updating
+        budget_in_dollars = (BigDecimal(prev_ledger.budget.to_s) / BigDecimal("100")).to_s
+        update(current_ledger, budget: budget_in_dollars)
       end
     end
   end
