@@ -157,6 +157,7 @@ class LedgerService
 
   def self.update(ledger, params)
     # Convert params to hash with string keys if it's not already
+    params[:budget]=(BigDecimal(params[:budget])*100).to_s
     params = params.to_h.stringify_keys
 
     carry_forward_changed = params.key?("carry_forward_negative_balance") &&

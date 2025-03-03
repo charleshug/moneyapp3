@@ -74,7 +74,7 @@ class LedgersController < ApplicationController
 
   def update
     if LedgerService.update(@ledger, ledger_params)
-      redirect_to ledgers_path, notice: "Ledger was successfully updated."
+      redirect_to budgets_path(year: @ledger.date.year, month: @ledger.date.month), notice: "Ledger was successfully created."
     else
       render :edit, status: :unprocessable_entity
     end
