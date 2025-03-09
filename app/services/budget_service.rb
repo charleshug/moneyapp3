@@ -33,6 +33,15 @@ class BudgetService
           previous_ledger = subcategory.ledgers.where("date < ?", end_of_month).order(date: :desc).first
         end
 
+        # Determine balance based on ledger availability
+        balance = if current_ledger
+                    current_ledger.rolling_balance
+        elsif previous_ledger
+                    previous_ledger.rolling_balance
+        else
+                    0
+        end
+
         Rails.logger.debug "Subcategory: #{subcategory.name}"
         Rails.logger.debug "Current ledger: #{current_ledger.inspect}"
         Rails.logger.debug "Previous ledger: #{previous_ledger.inspect}"
@@ -42,7 +51,7 @@ class BudgetService
           name: subcategory.name,
           budget: current_ledger&.budget || 0,
           actual: current_ledger&.actual || 0,
-          balance: current_ledger&.rolling_balance || 0,
+          balance: balance,
           previous_amount: previous_ledger&.budget || 0, # previous_ledger is nil if it's the first ledger
           ledger: current_ledger
         }
@@ -57,7 +66,7 @@ class BudgetService
         name: category.name,
         budget: category_budget,
         actual: category_actual,
-        balance: category_budget - category_actual,
+        balance: subcategories_data.sum { |s| s[:balance] },
         subcategories: subcategories_data
       }
     end
