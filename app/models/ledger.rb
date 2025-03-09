@@ -52,6 +52,27 @@ class Ledger < ApplicationRecord
     self.balance= (prev_balance + budget + actual)
   end
 
+  def calculate_rolling_balance
+    # update actual figure first
+    calculate_actual
+
+    temp_rolling_balance = prev_rolling_balance + budget + actual
+
+    if carry_forward_negative_balance
+      self.rolling_balance = temp_rolling_balance
+    else
+      self.rolling_balance = [ temp_rolling_balance, 0 ].max
+    end
+  end
+
+  def prev_rolling_balance
+    if prev.nil?
+      return 0
+    end
+
+    prev.rolling_balance
+  end
+
   def prev_balance
     if prev.nil?
       return 0
