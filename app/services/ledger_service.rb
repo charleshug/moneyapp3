@@ -94,7 +94,7 @@ class LedgerService
 
   def balance_to_zero(date)
     Ledger.where(date: date, budget: 0).each do |ledger|
-      balance_to_zero = -ledger.balance
+      balance_to_zero = -ledger.rolling_balance
       ledger.update(budget: balance_to_zero)
       recalculate_forward_ledgers(ledger)
     end
@@ -186,7 +186,7 @@ class LedgerService
   def self.recalculate_balance_chain(ledger)
     current_ledger = ledger
     while current_ledger.present?
-      current_ledger.save! # automatically calculates balance
+      current_ledger.save! # automatically calculates rolling balance
       current_ledger = current_ledger.next
     end
   end
@@ -238,14 +238,14 @@ class LedgerService
   def self.balance_to_zero(budget, date)
     ledgers = get_ledgers_for_month(budget, date)
     ledgers.each do |ledger|
-      update(ledger, budget: ledger.balance.abs)
+      update(ledger, budget: ledger.rolling_balance.abs)
     end
   end
 
   def self.recalculate_forward_ledgers(ledger)
     current_ledger = ledger
     while current_ledger.present?
-      current_ledger.calculate_balance
+      current_ledger.calculate_rolling_balance
       current_ledger.save!
       current_ledger = current_ledger.next
     end

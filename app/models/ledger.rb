@@ -23,7 +23,7 @@ class Ledger < ApplicationRecord
   validate :last_day_of_month
   validate :unique_date_and_category, on: :create
 
-  before_save :calculate_balance
+  before_save :calculate_rolling_balance
 
   # #unused - delete if no issues arise
   # def trx_entries
@@ -45,12 +45,12 @@ class Ledger < ApplicationRecord
     end
   end
 
-  def calculate_balance
-    # update actual figure first
-    calculate_actual
+  # def calculate_balance
+  #   # update actual figure first
+  #   calculate_actual
 
-    self.balance= (prev_balance + budget + actual)
-  end
+  #   self.balance= (prev_balance + budget + actual)
+  # end
 
   def calculate_rolling_balance
     # update actual figure first
@@ -73,18 +73,18 @@ class Ledger < ApplicationRecord
     prev.rolling_balance
   end
 
-  def prev_balance
-    if prev.nil?
-      return 0
-    end
+  # def prev_balance
+  #   if prev.nil?
+  #     return 0
+  #   end
 
-    prev_balance = prev.balance || 0
+  #   prev_balance = prev.balance || 0
 
-    if prev.carry_forward_negative_balance == false
-      prev_balance = [ prev_balance, 0 ].max
-    end
-    prev_balance
-  end
+  #   if prev.carry_forward_negative_balance == false
+  #     prev_balance = [ prev_balance, 0 ].max
+  #   end
+  #   prev_balance
+  # end
 
   def calculate_actual
     self.actual = lines.sum(:amount)
@@ -168,7 +168,7 @@ class Ledger < ApplicationRecord
 
     # Recalculate balances in chronological order
     ledgers.each do |ledger|
-      ledger.calculate_balance
+      ledger.calculate_rolling_balance
       ledger.save!
     end
   end
@@ -190,7 +190,7 @@ class Ledger < ApplicationRecord
     current_ledger = self
 
     while current_ledger.present?
-      current_ledger.calculate_balance
+      current_ledger.calculate_rolling_balance
       current_ledger.save!
       current_ledger = current_ledger.next
     end

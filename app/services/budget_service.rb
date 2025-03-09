@@ -42,7 +42,7 @@ class BudgetService
           name: subcategory.name,
           budget: current_ledger&.budget || 0,
           actual: current_ledger&.actual || 0,
-          balance: current_ledger&.balance || 0,
+          balance: current_ledger&.rolling_balance || 0,
           previous_amount: previous_ledger&.budget || 0, # previous_ledger is nil if it's the first ledger
           ledger: current_ledger
         }
