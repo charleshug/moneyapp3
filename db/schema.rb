@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_02_171935) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_09_222911) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_02_171935) do
     t.bigint "prev_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "rolling_balance", default: 0, null: false
     t.index ["date", "subcategory_id"], name: "index_ledgers_on_date_and_subcategory_id", unique: true, comment: "One ledger per date/category"
     t.index ["next_id"], name: "index_ledgers_on_next_id"
     t.index ["prev_id"], name: "index_ledgers_on_prev_id"
