@@ -62,6 +62,7 @@
       <th><%= sort_link(@q, :budget, "Budget") %></th>
       <th><%= sort_link(@q, :actual, "Actual") %></th>
       <th><%= sort_link(@q, :balance, "Balance") %></th>
+      <th><%= sort_link(@q, :rolling_balance, "Rolling Balance") %></th>
       <th><%= sort_link(@q, :carry_forward_negative_balance, "Carry Negative") %></th>
       <th><%= sort_link(@q, :user_changed, "User Changed") %></th>
       <th>Actions</th>
@@ -77,6 +78,7 @@
         <td class="amount"><%= number_to_currency(ledger.budget / 100.0) %></td>
         <td class="amount"><%= number_to_currency(ledger.actual / 100.0) %></td>
         <td class="amount"><%= number_to_currency(ledger.balance / 100.0) %></td>
+        <td class="amount"><%= number_to_currency(ledger.rolling_balance / 100.0) %></td>
         <td class="center">
           <%= button_to toggle_carry_forward_ledger_path(ledger, 
                   q: {
