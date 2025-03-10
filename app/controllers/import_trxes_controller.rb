@@ -1,7 +1,7 @@
 class ImportTrxesController < ApplicationController
   def import_preview
     if request.get?
-      redirect_to trxes_import_path and return
+      redirect_to import_trxes_path and return
     end
 
     Rails.logger.info "=== Starting Import Preview ==="
@@ -13,7 +13,7 @@ class ImportTrxesController < ApplicationController
     unless preview_import_trxes_params[:file]
       Rails.logger.info "No file provided"
       flash[:alert] = "Please select a file to import"
-      redirect_to trxes_import_path and return
+      redirect_to import_trxes_path and return
     end
 
     begin
@@ -42,16 +42,16 @@ class ImportTrxesController < ApplicationController
       else
         Rails.logger.info "No valid transactions found"
         flash[:alert] = "No valid transactions found in file. #{truncate_warnings(result[:warnings])}"
-        redirect_to trxes_import_path
+        redirect_to import_trxes_path
       end
     rescue TrxImportService::ImportError => e
       Rails.logger.error "Import error: #{e.message}"
       flash[:alert] = "Import failed: #{truncate_error_message(e.message)}"
-      redirect_to trxes_import_path
+      redirect_to import_trxes_path
     rescue StandardError => e
       Rails.logger.error "Unexpected error during import: #{e.message}\n#{e.backtrace.join("\n")}"
       flash[:alert] = "An unexpected error occurred during import. Please check your file format and try again."
-      redirect_to trxes_import_path
+      redirect_to import_trxes_path
     ensure
       Rails.logger.info "=== End Import Preview ==="
     end
@@ -61,13 +61,13 @@ class ImportTrxesController < ApplicationController
     @import_batch = ImportBatch.find_by(id: session[:import_batch_id])
 
     unless @import_batch
-      redirect_to trxes_import_path, alert: "Import session expired. Please try again." and return
+      redirect_to import_trxes_path, alert: "Import session expired. Please try again." and return
     end
 
     imported_trxes = import_trxes_params.select { |_, trx| trx["include"] == "1" }
 
     if imported_trxes.empty?
-      redirect_to trxes_import_path, notice: "No transactions selected for import" and return
+      redirect_to import_trxes_path, notice: "No transactions selected for import" and return
     end
 
     ledgers_to_update = Set.new

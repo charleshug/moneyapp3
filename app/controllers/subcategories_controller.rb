@@ -25,7 +25,7 @@ class SubcategoriesController < ApplicationController
 
     respond_to do |format|
       if @subcategory.save
-        format.html { redirect_to subcategory_url(@subcategory), notice: "Subcategory was successfully created." }
+        format.html { redirect_to categories_path, notice: "Subcategory was successfully created." }
         format.json { render :show, status: :created, location: @subcategory }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -53,7 +53,7 @@ class SubcategoriesController < ApplicationController
     @subcategory.destroy!
 
     respond_to do |format|
-      format.html { redirect_to subcategories_url, notice: "Subcategory was successfully destroyed." }
+      format.html { redirect_to categories_path, notice: "Subcategory was successfully destroyed." }
       format.json { head :no_content }
     end
   end
