@@ -28,6 +28,7 @@ class IncomeExpenseReportService
 
     populate_income_data(report_data, income_data)
     populate_expense_data(report_data, expense_data, all_categories)
+    add_summary_columns(report_data)
     report_data
   end
 
@@ -59,10 +60,12 @@ class IncomeExpenseReportService
   end
 
   def populate_expense_data(report_data, expense_data, all_categories)
-    all_categories.each do |category|
+    # Sort categories alphabetically
+    all_categories.order(:name).each do |category|
       report_data[:expenses][category.name] ||= {}
 
-      category.subcategories.each do |subcategory|
+      # Sort subcategories alphabetically
+      category.subcategories.order(:name).each do |subcategory|
         report_data[:expenses][category.name][subcategory.name] ||= {}
 
         # Initialize months to zero for this subcategory
@@ -79,5 +82,33 @@ class IncomeExpenseReportService
 
       report_data[:expenses][category.name][subcategory.name][month_key] += line.amount
     end
+  end
+
+  def add_summary_columns(report_data)
+    # Get number of months being displayed (excluding 'average' and 'total' columns)
+    month_count = report_data[:months].reject { |m| [ "average", "total" ].include?(m) }.count
+
+    # Add summary for income
+    report_data[:income].each do |vendor_name, monthly_data|
+      values = monthly_data.values.map(&:to_i)
+      next if values.empty?
+
+      monthly_data["total"] = values.sum
+      monthly_data["average"] = (values.sum.to_f / month_count).round(0)
+    end
+
+    # Add summary for expenses
+    report_data[:expenses].each do |category_name, subcategories|
+      subcategories.each do |subcategory_name, monthly_data|
+        values = monthly_data.values.map(&:to_i)
+        next if values.empty?
+
+        monthly_data["total"] = values.sum
+        monthly_data["average"] = (values.sum.to_f / month_count).round(0)
+      end
+    end
+
+    # Add summary columns to months array
+    report_data[:months] += [ "average", "total" ]
   end
 end

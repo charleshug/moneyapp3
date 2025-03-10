@@ -19,7 +19,11 @@
       <th></th>
       <th></th>
       <% @report_data[:months].each do |month| %>
-        <th><%= Date.parse("#{month}-01").strftime("%b'%y") %></th>
+        <% if month == 'average' || month == 'total' %>
+          <th><strong><%= month.titleize %></strong></th>
+        <% else %>
+          <th><%= Date.parse("#{month}-01").strftime("%b'%y") %></th>
+        <% end %>
       <% end %>
     </tr>
   </thead>
