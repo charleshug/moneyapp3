@@ -45,9 +45,6 @@
       </tr>
     <% end %>
     <tr>
-
-    </tr>
-    <tr>
       <td><strong>Expenses</strong></td>
     </tr>
     <% @report_data[:expenses].each do |parent_name, subcategories| %>
@@ -72,5 +69,17 @@
         <% end %>
       </tr>
     <% end %>
+    <tr>
+      <td colspan="2"><strong>Net Income</strong></td>
+      <% @report_data[:months].each do |month| %>
+        <td style="text-align: right;">
+          <% total_income = @report_data[:income]["All Income Sources"][month] || 0 %>
+          <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
+            <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
+          <% end %>
+          <%= number_to_currency((total_income + total_expenses) / 100.0) %>
+        </td>
+      <% end %>
+    </tr>
   </tbody>
 </table>
