@@ -70,6 +70,17 @@
       </tr>
     <% end %>
     <tr>
+      <td colspan="2"><strong>Total Expenses</strong></td>
+      <% @report_data[:months].each do |month| %>
+        <td style="text-align: right;">
+          <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
+            <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
+          <% end %>
+          <%= number_to_currency(total_expenses / 100.0) %>
+        </td>
+      <% end %>
+    </tr>
+    <tr>
       <td colspan="2"><strong>Net Income</strong></td>
       <% @report_data[:months].each do |month| %>
         <td style="text-align: right;">
