@@ -35,12 +35,14 @@ class BudgetService
         end
 
         # Determine balance based on ledger availability
-        balance = if current_ledger
-                    current_ledger.balance
+        balance = 0
+        carry_forward = false
+        if current_ledger
+                    balance = current_ledger.balance
+                    carry_forward = current_ledger.carry_forward_negative_balance
         elsif previous_ledger
-                    previous_ledger.balance
-        else
-                    0
+                    balance = previous_ledger.balance
+                    carry_forward = previous_ledger.carry_forward_negative_balance
         end
 
         Rails.logger.debug "Subcategory: #{subcategory.name}"
@@ -53,6 +55,7 @@ class BudgetService
           budget: current_ledger&.budget || 0,
           actual: current_ledger&.actual || 0,
           balance: balance,
+          carry_forward: carry_forward,
           previous_amount: previous_ledger&.budget || 0, # previous_ledger is nil if it's the first ledger
           ledger: current_ledger
         }
