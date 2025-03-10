@@ -38,7 +38,8 @@ class SubcategoriesController < ApplicationController
   def update
     respond_to do |format|
       if @subcategory.update(subcategory_params)
-        format.html { redirect_to subcategory_url(@subcategory), notice: "Subcategory was successfully updated." }
+        # format.html { redirect_to subcategory_url(@subcategory), notice: "Subcategory was successfully updated." }
+        format.html { redirect_to categories_path, notice: "Subcategory was successfully updated." }
         format.json { render :show, status: :ok, location: @subcategory }
       else
         format.html { render :edit, status: :unprocessable_entity }
