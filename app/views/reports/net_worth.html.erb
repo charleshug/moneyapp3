@@ -2,16 +2,17 @@
 <h2>Net Worth</h2>
 
 <%= search_form_for @q, url: net_worth_reports_path do |f| %>
-  <%= f.label :account_id_in, 'Account' %>
-  <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+  <%= f.label :trx_account_id_in, 'Account' %>
+  <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
 
-  <%= f.label :date_gteq, 'From Date' %>
-  <%= f.date_field :date_gteq %>
+  <%= f.label :trx_date_gteq, 'From Date' %>
+  <%= f.date_field :trx_date_gteq, value: @start_date %>
 
-  <%= f.label :date_lteq, 'To Date' %>
-  <%= f.date_field :date_lteq %>
+  <%= f.label :trx_date_lteq, 'To Date' %>
+  <%= f.date_field :trx_date_lteq, value: @end_date %>
 
   <%= f.submit "Filter" %>
+  <%= link_to "Clear Filters", net_worth_reports_path, class: "button" %>
 <% end %>
 
 <table>
@@ -23,11 +24,11 @@
     </tr>
   </thead>
   <tbody>
-    <% @output.each do |date, data| %>
+    <% @net_worth_data.each do |date, data| %>
       <tr>
-        <td><%= date.strftime("%Y-%m-%d") %></td>
-        <td style="text-align: right;"><%= number_to_currency((data[:amount] / 100.0), precision: 2) %></td>
-        <td style="text-align: right;"><%= number_to_currency((data[:running_balance] / 100.0), precision: 2) %></td>
+        <td><%= date.strftime("%Y-%m") %></td>
+        <td style="text-align: right;"><%= number_to_currency(data[:amount] / 100.0, precision: 2) %></td>
+        <td style="text-align: right;"><%= number_to_currency(data[:running_balance] / 100.0, precision: 2) %></td>
       </tr>
     <% end %>
   </tbody>

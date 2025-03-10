@@ -13,10 +13,15 @@ class ReportsController < ApplicationController
   end
 
   def net_worth
-    @q = @current_budget.trxes.includes(:account, :vendor).ransack(params[:q])
-    @trxes = @q.result(distinct: true).order(date: :asc)
+    service = NetWorthReportService.new(@current_budget, params)
+    @q = service.build_ransack_query  # Make the ransack query available to the view
+    @net_worth_data = service.call
 
-    @output = NetWorthReportService.get_hash_net_worth(@trxes)
+    # Set date range for form display
+    if @net_worth_data.present?
+      @start_date = @net_worth_data.keys.first
+      @end_date = @net_worth_data.keys.last
+    end
   end
 
   def spending_by_vendor
