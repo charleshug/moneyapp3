@@ -21,12 +21,13 @@ class BudgetService
     categories = current_budget.categories.expense
       .includes(:subcategories)
       .includes(subcategories: :ledgers)
+      .order(:name)  # Order categories alphabetically
 
     end_of_month = selected_month.end_of_month.to_date
 
     categories.map do |category|
-      subcategories_data = category.subcategories.map do |subcategory|
-        # More explicit ledger matching
+      # Order subcategories alphabetically within each category
+      subcategories_data = category.subcategories.order(:name).map do |subcategory|
         current_ledger = subcategory.ledgers.find_by(date: end_of_month)
         previous_ledger = current_ledger&.prev
         if previous_ledger.nil?

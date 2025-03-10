@@ -31,7 +31,7 @@
     <td>Income for Current</td>
   </tr>
   <tr>
-    <td style="text-align: right;"><%= number_to_currency((@budget_current / 100.0)) %></td>
+    <td style="text-align: right;"><%= number_to_currency(-(@budget_current / 100.0)) %></td>
     <td>Budgeted in Current</td>
   </tr>
   <tr>

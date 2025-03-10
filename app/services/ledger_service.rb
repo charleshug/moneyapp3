@@ -245,6 +245,7 @@ class LedgerService
   def self.recalculate_forward_ledgers(ledger)
     current_ledger = ledger
     while current_ledger.present?
+      current_ledger.calculate_balance
       current_ledger.calculate_rolling_balance
       current_ledger.save!
       current_ledger = current_ledger.next
