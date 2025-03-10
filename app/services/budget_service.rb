@@ -35,9 +35,9 @@ class BudgetService
 
         # Determine balance based on ledger availability
         balance = if current_ledger
-                    current_ledger.rolling_balance
+                    current_ledger.balance
         elsif previous_ledger
-                    previous_ledger.rolling_balance
+                    previous_ledger.balance
         else
                     0
         end

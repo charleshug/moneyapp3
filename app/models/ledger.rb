@@ -45,12 +45,12 @@ class Ledger < ApplicationRecord
     end
   end
 
-  # def calculate_balance
-  #   # update actual figure first
-  #   calculate_actual
+  def calculate_balance
+    # update actual figure first
+    calculate_actual
 
-  #   self.balance= (prev_balance + budget + actual)
-  # end
+    self.balance= (prev_rolling_balance + budget + actual)
+  end
 
   def calculate_rolling_balance
     # update actual figure first
@@ -168,6 +168,7 @@ class Ledger < ApplicationRecord
 
     # Recalculate balances in chronological order
     ledgers.each do |ledger|
+      ledger.calculate_balance
       ledger.calculate_rolling_balance
       ledger.save!
     end
@@ -190,6 +191,7 @@ class Ledger < ApplicationRecord
     current_ledger = self
 
     while current_ledger.present?
+      current_ledger.calculate_balance
       current_ledger.calculate_rolling_balance
       current_ledger.save!
       current_ledger = current_ledger.next
