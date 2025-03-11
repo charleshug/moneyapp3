@@ -1,4 +1,7 @@
 class Subcategory < ApplicationRecord
+  include RailsSortable::Model
+  set_sortable :order
+
   belongs_to :category
   has_many :ledgers, dependent: :destroy
   has_many :lines, through: :ledgers
@@ -6,9 +9,10 @@ class Subcategory < ApplicationRecord
   has_one :budget, through: :category
 
   validates :name, presence: true
+  validates :order, uniqueness: { scope: :category_id }
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "category_id", "name" ]
+    [ "name" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -18,5 +22,12 @@ class Subcategory < ApplicationRecord
 
   def full_name
     "#{category.name}: #{name}"
+  end
+
+  # Add a method to initialize order values if needed
+  def self.initialize_orders(category_id)
+    where(category_id: category_id).order(:created_at).each_with_index do |subcategory, index|
+      subcategory.update_column(:order, index + 1) if subcategory.order.nil?
+    end
   end
 end

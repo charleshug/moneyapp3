@@ -58,6 +58,20 @@ class SubcategoriesController < ApplicationController
     end
   end
 
+  def sort
+    subcategory = Subcategory.find(params[:id])
+
+    if params[:direction] == "up"
+      swap_with_previous(subcategory)
+    elsif params[:direction] == "down"
+      swap_with_next(subcategory)
+    else
+      Subcategory.sort_by_order(params[:subcategory])
+    end
+
+    redirect_to categories_path
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_subcategory
@@ -67,5 +81,43 @@ class SubcategoriesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def subcategory_params
       params.require(:subcategory).permit(:name, :hidden, :category_id)
+    end
+
+    def swap_with_previous(subcategory)
+      previous_subcategory = subcategory.category.subcategories
+        .where("subcategories.order < ?", subcategory.order)
+        .order(order: :desc)
+        .first
+
+      if previous_subcategory
+        Subcategory.transaction do
+          temp_order = -1
+          current_order = subcategory.order
+          prev_order = previous_subcategory.order
+
+          subcategory.update_column(:order, temp_order)
+          previous_subcategory.update_column(:order, current_order)
+          subcategory.update_column(:order, prev_order)
+        end
+      end
+    end
+
+    def swap_with_next(subcategory)
+      next_subcategory = subcategory.category.subcategories
+        .where("subcategories.order > ?", subcategory.order)
+        .order(:order)
+        .first
+
+      if next_subcategory
+        Subcategory.transaction do
+          temp_order = -1
+          current_order = subcategory.order
+          next_order = next_subcategory.order
+
+          subcategory.update_column(:order, temp_order)
+          next_subcategory.update_column(:order, current_order)
+          subcategory.update_column(:order, next_order)
+        end
+      end
     end
 end

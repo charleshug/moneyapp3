@@ -44,7 +44,11 @@ Rails.application.routes.draw do
       post :sort
     end
   end
-  resources :subcategories
+  resources :subcategories do
+    collection do
+      post :sort
+    end
+  end
 
   resources :budgets do
     member do
