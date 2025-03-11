@@ -39,7 +39,11 @@ Rails.application.routes.draw do
     end
   end
   resources :vendors
-  resources :categories
+  resources :categories do
+    collection do
+      post :sort
+    end
+  end
   resources :subcategories
 
   resources :budgets do

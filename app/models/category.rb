@@ -1,4 +1,7 @@
 class Category < ApplicationRecord
+  include RailsSortable::Model
+  set_sortable :order
+
   belongs_to :budget
   has_many :subcategories, dependent: :destroy
   # has_many :trxes, through: :subcategories
@@ -6,6 +9,7 @@ class Category < ApplicationRecord
   has_many :ledgers, through: :subcategories
 
   validates :name, presence: true
+  validates :order, uniqueness: { scope: :budget_id }
 
   scope :income,  -> { where(normal_balance: "INCOME") }
   scope :expense, -> { where(normal_balance: "EXPENSE") }
@@ -33,5 +37,12 @@ class Category < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     # note: these match belongs_to (no plurals)
     [ "subcategories", "trxes", "ledgers", "name" ]
+  end
+
+  # Add a method to initialize order values if needed
+  def self.initialize_orders(budget_id)
+    where(budget_id: budget_id).order(:created_at).each_with_index do |category, index|
+      category.update_column(:order, index + 1) if category.order.nil?
+    end
   end
 end

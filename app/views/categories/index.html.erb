@@ -3,13 +3,65 @@
 
 <%= link_to 'New', new_category_path %>
 
-<% @categories.each do |category| %>
-  <h2><%= link_to category.name, edit_category_path(category) %></h2>
-  <% if category.subcategories.any? %>
-    <ul>
-      <% category.subcategories.each do |subcategory| %>
-        <li><%= link_to subcategory.name, edit_subcategory_path(subcategory) %></li>
+<div class="sortable">
+  <% @categories.each do |category| %>
+    <%= content_tag :div, class: "item", data: { model_name: category.class.name.underscore, update_url: sort_categories_path } do %>
+      <h2>
+        <%= link_to category.name, edit_category_path(category) %>
+        <span class="order-controls">
+          <%= link_to '↑', sort_categories_path(id: category.id, direction: 'up'), 
+              method: :post, 
+              class: "order-arrow",
+              data: { 
+                turbo_method: :post,
+                turbo_frame: "_top"
+              } unless category.order == @categories.minimum(:order) %>
+          <%= link_to '↓', sort_categories_path(id: category.id, direction: 'down'), 
+              method: :post, 
+              class: "order-arrow",
+              data: { 
+                turbo_method: :post,
+                turbo_frame: "_top"
+              } unless category.order == @categories.maximum(:order) %>
+        </span>
+      </h2>
+      <% if category.subcategories.any? %>
+        <ul>
+          <% category.subcategories.each do |subcategory| %>
+            <li><%= link_to subcategory.name, edit_subcategory_path(subcategory) %></li>
+          <% end %>
+        </ul>
       <% end %>
-    </ul>
+    <% end %>
   <% end %>
+</div>
+
+<% content_for :head do %>
+  <style>
+    .sortable .item {
+      padding: 10px;
+      margin: 5px 0;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .handle {
+      cursor: move;
+      float: right;
+      padding: 5px;
+      color: #666;
+    }
+    .order-controls {
+      margin-left: 10px;
+    }
+    .order-arrow {
+      text-decoration: none;
+      color: #666;
+      font-size: 1.2em;
+      padding: 0 3px;
+    }
+    .order-arrow:hover {
+      color: #333;
+    }
+  </style>
 <% end %>
