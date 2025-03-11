@@ -38,10 +38,10 @@ class BudgetService
         balance = 0
         carry_forward = false
         if current_ledger
-                    balance = current_ledger.balance
+                    balance = current_ledger.rolling_balance
                     carry_forward = current_ledger.carry_forward_negative_balance
         elsif previous_ledger
-                    balance = previous_ledger.balance
+                    balance = previous_ledger.rolling_balance
                     carry_forward = previous_ledger.carry_forward_negative_balance
         end
 
