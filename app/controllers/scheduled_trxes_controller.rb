@@ -2,7 +2,20 @@ class ScheduledTrxesController < ApplicationController
   before_action :set_scheduled_trx, only: [ :edit, :update, :destroy ]
 
   def index
-    @scheduled_trxes = @current_budget.scheduled_trxes.where(active: true)
+    @scheduled_trxes = @current_budget.scheduled_trxes
+      .includes(:account, :vendor, scheduled_lines: { subcategory: :category })
+      .where(active: true)
+
+    # Preload line counts and sums to avoid N+1 queries
+    @line_counts = ScheduledLine
+      .where(scheduled_trx_id: @scheduled_trxes.map(&:id))
+      .group(:scheduled_trx_id)
+      .count
+
+    @line_sums = ScheduledLine
+      .where(scheduled_trx_id: @scheduled_trxes.map(&:id))
+      .group(:scheduled_trx_id)
+      .sum(:amount)
   end
 
   def new

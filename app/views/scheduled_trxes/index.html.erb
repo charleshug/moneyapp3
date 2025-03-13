@@ -31,7 +31,7 @@
 
       <tbody>
         <% @scheduled_trxes.each do |scheduled_trx| %>
-          <% is_split = scheduled_trx.scheduled_lines.size > 1 %>
+          <% is_split = @line_counts[scheduled_trx.id].to_i > 1 %>
           
           <%# Main transaction row %>
           <tr class="<%= 'multi-line-parent' if is_split %>">
@@ -41,7 +41,7 @@
             <td><%= scheduled_trx.account.name %></td>
             <td><%= scheduled_trx.vendor.name %></td>
             <td class="amount <%= 'total-amount' if is_split %>">
-              <%= number_to_currency(scheduled_trx.scheduled_lines.sum(:amount) / 100.0) %>
+              <%= number_to_currency(@line_sums[scheduled_trx.id].to_i / 100.0) %>
             </td>
             <td>
               <% if is_split %>
