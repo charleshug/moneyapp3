@@ -1,7 +1,8 @@
 <% provide(:title, "Categories") %>
 <h1>All Categories</h1>
 
-<%= link_to 'New', new_category_path %>
+<%= link_to 'New Category', new_category_path %>
+<%= link_to 'New Subcategory', new_subcategory_path %>
 
 <div class="sortable">
   <% @categories.each do |category| %>
