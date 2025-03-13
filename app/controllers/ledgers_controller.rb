@@ -7,10 +7,12 @@ class LedgersController < ApplicationController
     @current_budget = Budget.includes(:categories, subcategories: :category)
                            .find(@current_budget.id)
 
-    # Load collections for filter dropdowns
-    @categories = @current_budget.categories.order(:name)
-    @subcategories = @current_budget.subcategories.order(:name)
+    # Load collections for filter dropdowns - eager load subcategories with their categories
+    @categories = @current_budget.categories.includes(:subcategories).order(:name)
 
+    # No need to load subcategories separately as they're included with categories
+
+    # Build the base query with proper joins and includes
     base_query = @current_budget.ledgers
                                .select("ledgers.*, subcategories.name as subcategory_name, categories.name as category_name")
                                .joins(subcategory: :category)
@@ -21,12 +23,11 @@ class LedgersController < ApplicationController
     # Use Ransack's sort or fall back to default sort
     @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
 
-    # Get filtered results and paginate
-    @filtered_results = @q.result
-    @filtered_count = @filtered_results.count("DISTINCT ledgers.id")
+    # Get filtered count with a more efficient query
+    @filtered_count = @q.result.count(:id)
 
     # Get paginated results
-    @pagy, @ledgers = pagy(@filtered_results)
+    @pagy, @ledgers = pagy(@q.result(distinct: true))
   end
 
   def rebuild_chains
