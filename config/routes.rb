@@ -44,7 +44,9 @@ Rails.application.routes.draw do
       post :sort
     end
   end
-  resources :subcategories do
+
+  get "subcategories", to: redirect("/categories")
+  resources :subcategories, except: [ :index ] do
     collection do
       post :sort
     end

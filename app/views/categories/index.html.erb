@@ -17,37 +17,39 @@
               data: { 
                 turbo_method: :post,
                 turbo_frame: "_top"
-              } unless category.order == @categories.minimum('"order"') %>
+              } unless category.order == @category_orders[0] %>
           <%= link_to '↓', sort_categories_path(id: category.id, direction: 'down'), 
               method: :post, 
               class: "order-arrow",
               data: { 
                 turbo_method: :post,
                 turbo_frame: "_top"
-              } unless category.order == @categories.maximum('"order"') %>
+              } unless category.order == @category_orders[1] %>
         </span>
       </h2>
       <% if category.subcategories.any? %>
         <ul>
-          <% category.subcategories.order('"order"').each do |subcategory| %>
+          <% category.subcategories.each do |subcategory| %>
             <li>
               <%= link_to subcategory.name, edit_subcategory_path(subcategory) %>
-              <span class="order-controls">
-                <%= link_to '↑', sort_subcategories_path(id: subcategory.id, direction: 'up'), 
-                    method: :post, 
-                    class: "order-arrow",
-                    data: { 
-                      turbo_method: :post,
-                      turbo_frame: "_top"
-                    } unless subcategory.order == category.subcategories.minimum('"order"') %>
-                <%= link_to '↓', sort_subcategories_path(id: subcategory.id, direction: 'down'), 
-                    method: :post, 
-                    class: "order-arrow",
-                    data: { 
-                      turbo_method: :post,
-                      turbo_frame: "_top"
-                    } unless subcategory.order == category.subcategories.maximum('"order"') %>
-              </span>
+              <% if orders = @subcategory_orders[category.id] %>
+                <span class="order-controls">
+                  <%= link_to '↑', sort_subcategories_path(id: subcategory.id, direction: 'up'), 
+                      method: :post, 
+                      class: "order-arrow",
+                      data: { 
+                        turbo_method: :post,
+                        turbo_frame: "_top"
+                      } unless subcategory.order == orders.min_order %>
+                  <%= link_to '↓', sort_subcategories_path(id: subcategory.id, direction: 'down'), 
+                      method: :post, 
+                      class: "order-arrow",
+                      data: { 
+                        turbo_method: :post,
+                        turbo_frame: "_top"
+                      } unless subcategory.order == orders.max_order %>
+                </span>
+              <% end %>
             </li>
           <% end %>
         </ul>
