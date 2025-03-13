@@ -17,14 +17,14 @@
               data: { 
                 turbo_method: :post,
                 turbo_frame: "_top"
-              } unless category.order == @category_orders[0] %>
+              }  unless category.order == 1 %>
           <%= link_to '↓', sort_categories_path(id: category.id, direction: 'down'), 
               method: :post, 
               class: "order-arrow",
               data: { 
                 turbo_method: :post,
                 turbo_frame: "_top"
-              } unless category.order == @category_orders[1] %>
+              }  unless category.order == @categories.size %>
         </span>
       </h2>
       <% if category.subcategories.any? %>
@@ -32,7 +32,6 @@
           <% category.subcategories.each do |subcategory| %>
             <li>
               <%= link_to subcategory.name, edit_subcategory_path(subcategory) %>
-              <% if orders = @subcategory_orders[category.id] %>
                 <span class="order-controls">
                   <%= link_to '↑', sort_subcategories_path(id: subcategory.id, direction: 'up'), 
                       method: :post, 
@@ -40,16 +39,15 @@
                       data: { 
                         turbo_method: :post,
                         turbo_frame: "_top"
-                      } unless subcategory.order == orders.min_order %>
+                      } unless subcategory.order == 1 %>
                   <%= link_to '↓', sort_subcategories_path(id: subcategory.id, direction: 'down'), 
                       method: :post, 
                       class: "order-arrow",
                       data: { 
                         turbo_method: :post,
                         turbo_frame: "_top"
-                      } unless subcategory.order == orders.max_order %>
+                      } unless subcategory.order == category.subcategories.size %>
                 </span>
-              <% end %>
             </li>
           <% end %>
         </ul>

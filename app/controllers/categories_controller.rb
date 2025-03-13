@@ -2,26 +2,7 @@ class CategoriesController < ApplicationController
   before_action :set_category, only: [ :edit, :update, :destroy ]
 
   def index
-    @categories = @current_budget.categories
-      .includes(:subcategories)
-      .order(:order)
-
-    # Get min/max orders in a single query for categories
-    @category_orders = @current_budget.categories
-      .pluck("MIN(categories.order), MAX(categories.order)")
-      .first
-
-    # Get min/max orders for subcategories in a single query
-    @subcategory_orders = Subcategory
-      .joins(:category)
-      .where(categories: { budget_id: @current_budget.id })
-      .group(:category_id)
-      .pluck("category_id, MIN(subcategories.order), MAX(subcategories.order)")
-      .each_with_object({}) do |(category_id, min_order, max_order), hash|
-        hash[category_id] = OpenStruct.new(min_order: min_order, max_order: max_order)
-      end
-
-    Category.initialize_orders(@current_budget.id) if @categories.any? { |c| c.order.nil? }
+    @categories = @current_budget.categories.includes(:subcategories)
   end
 
   def new
@@ -80,12 +61,12 @@ class CategoriesController < ApplicationController
   def sort
     category = @current_budget.categories.find(params[:id])
 
-    if params[:direction] == "up"
+    if params[:direction] == "up" && category.order > 1
       swap_with_previous(category)
-    elsif params[:direction] == "down"
+    elsif params[:direction] == "down" && category.order < @current_budget.categories.size
       swap_with_next(category)
     else
-      Category.sort_by_order(params[:category])
+      # Do nothing if already at the top or bottom
     end
 
     redirect_to categories_path
@@ -102,37 +83,31 @@ class CategoriesController < ApplicationController
   end
 
   def swap_with_previous(category)
+    previous_order = category.order - 1
     previous_category = @current_budget.categories
-      .where("categories.order < ?", category.order)
-      .order(order: :desc)
+      .where("categories.order = ?", previous_order)
       .first
 
     if previous_category
       Category.transaction do
-        temp_order = -1
         current_order = category.order
-        prev_order = previous_category.order
-
-        category.update_column(:order, temp_order)
+        category.update_column(:order, 0)
         previous_category.update_column(:order, current_order)
-        category.update_column(:order, prev_order)
+        category.update_column(:order, previous_order)
       end
     end
   end
 
   def swap_with_next(category)
+    next_order = category.order + 1
     next_category = @current_budget.categories
-      .where("categories.order > ?", category.order)
-      .order(:order)
+      .where("categories.order = ?", next_order)
       .first
 
     if next_category
       Category.transaction do
-        temp_order = -1
         current_order = category.order
-        next_order = next_category.order
-
-        category.update_column(:order, temp_order)
+        category.update_column(:order, 0)
         next_category.update_column(:order, current_order)
         category.update_column(:order, next_order)
       end

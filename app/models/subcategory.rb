@@ -11,6 +11,9 @@ class Subcategory < ApplicationRecord
   validates :name, presence: true
   validates :order, uniqueness: { scope: :category_id }
 
+  # Add default ordering with table name
+  default_scope { order("subcategories.order") }
+
   def self.ransackable_attributes(auth_object = nil)
     [ "name" ]
   end

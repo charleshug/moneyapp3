@@ -11,6 +11,9 @@ class Category < ApplicationRecord
   validates :name, presence: true
   validates :order, uniqueness: { scope: :budget_id }
 
+  # Add default ordering with table name and eager load subcategories
+  default_scope { order("categories.order") }
+
   scope :income,  -> { where(normal_balance: "INCOME") }
   scope :expense, -> { where(normal_balance: "EXPENSE") }
 

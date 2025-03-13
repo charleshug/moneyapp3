@@ -61,12 +61,12 @@ class SubcategoriesController < ApplicationController
   def sort
     subcategory = Subcategory.find(params[:id])
 
-    if params[:direction] == "up"
+    if params[:direction] == "up" && subcategory.order > 1
       swap_with_previous(subcategory)
-    elsif params[:direction] == "down"
+    elsif params[:direction] == "down" && subcategory.order < subcategory.category.subcategories.size
       swap_with_next(subcategory)
     else
-      Subcategory.sort_by_order(params[:subcategory])
+      # Do nothing if already at the top or bottom
     end
 
     redirect_to categories_path
@@ -84,37 +84,31 @@ class SubcategoriesController < ApplicationController
     end
 
     def swap_with_previous(subcategory)
+      previous_order = subcategory.order - 1
       previous_subcategory = subcategory.category.subcategories
-        .where("subcategories.order < ?", subcategory.order)
-        .order(order: :desc)
+        .where("subcategories.order = ?", previous_order)
         .first
 
       if previous_subcategory
         Subcategory.transaction do
-          temp_order = -1
           current_order = subcategory.order
-          prev_order = previous_subcategory.order
-
-          subcategory.update_column(:order, temp_order)
+          subcategory.update_column(:order, 0)
           previous_subcategory.update_column(:order, current_order)
-          subcategory.update_column(:order, prev_order)
+          subcategory.update_column(:order, previous_order)
         end
       end
     end
 
     def swap_with_next(subcategory)
+      next_order = subcategory.order + 1
       next_subcategory = subcategory.category.subcategories
-        .where("subcategories.order > ?", subcategory.order)
-        .order(:order)
+        .where("subcategories.order = ?", next_order)
         .first
 
       if next_subcategory
         Subcategory.transaction do
-          temp_order = -1
           current_order = subcategory.order
-          next_order = next_subcategory.order
-
-          subcategory.update_column(:order, temp_order)
+          subcategory.update_column(:order, 0)
           next_subcategory.update_column(:order, current_order)
           subcategory.update_column(:order, next_order)
         end
