@@ -39,8 +39,10 @@
   <div class="filter-group">
     <div class="filter-field">
       <%= f.label :subcategory_id_in, "Subcategories" %>
-      <%= f.collection_select :subcategory_id_in,
-          @subcategories,
+      <%= f.grouped_collection_select :subcategory_id_in,
+          @categories,
+          :subcategories,
+          :name,
           :id,
           :name,
           { selected: params.dig(:q, :subcategory_id_in)&.reject(&:blank?) },

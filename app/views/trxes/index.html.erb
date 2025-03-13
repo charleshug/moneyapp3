@@ -63,8 +63,10 @@
   <div class="filter-group">
     <div class="filter-field">
       <%= f.label :lines_ledger_subcategory_id_in, "Subcategories" %>
-      <%= f.collection_select :lines_ledger_subcategory_id_in,
-          @subcategories,
+      <%= f.grouped_collection_select :lines_ledger_subcategory_id_in,
+          @categories,
+          :subcategories,
+          :name,
           :id,
           :name,
           { include_blank: true },
