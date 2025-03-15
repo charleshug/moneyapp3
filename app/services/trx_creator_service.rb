@@ -17,7 +17,7 @@ class TrxCreatorService
       end
       @trx_params.delete(:vendor_custom_text)
 
-      @trx = @budget.trxes.build(trx_params)
+      @trx = @budget.trxes.build(@trx_params)
       set_ledger
       @trx.set_amount
       @trx.save
