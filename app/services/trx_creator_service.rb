@@ -10,12 +10,7 @@ class TrxCreatorService
   def create_trx
     ActiveRecord::Base.transaction do
       convert_amount_to_cents
-
-      unless @trx_params[:vendor_custom_text].blank?
-        vendor = @budget.vendors.find_or_create_by(name: @trx_params[:vendor_custom_text])
-        @trx_params[:vendor_id] = vendor.id
-      end
-      @trx_params.delete(:vendor_custom_text)
+      handle_vendor_custom_text
 
       @trx = @budget.trxes.build(@trx_params)
       set_ledger
@@ -38,6 +33,14 @@ class TrxCreatorService
   end
 
   private
+
+  def handle_vendor_custom_text
+    unless @trx_params[:vendor_custom_text].blank?
+      vendor = @budget.vendors.find_or_create_by(name: @trx_params[:vendor_custom_text])
+      @trx_params[:vendor_id] = vendor.id
+    end
+    @trx_params.delete(:vendor_custom_text)
+  end
 
   def set_ledger
     @trx.lines.each do |line|
