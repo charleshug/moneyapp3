@@ -29,11 +29,6 @@ class TrxCreatorService
     end
   end
 
-  def set_amount(trx)
-    amount = trx.lines.sum(:amount)
-    trx.update(amount: amount)
-  end
-
   def set_ledger(trx)
     trx.lines.each do |line|
       subcategory_id = line.subcategory_form_id.presence || line.subcategory
