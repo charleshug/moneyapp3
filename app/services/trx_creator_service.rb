@@ -47,10 +47,11 @@ class TrxCreatorService
   def set_ledger
     @trx.lines.each do |line|
       subcategory_id = line.subcategory_form_id.presence || line.subcategory
+      subcategory = @budget.subcategories.find(subcategory_id)
 
       ledger = Ledger.find_or_create_by(
         date: @trx.date.end_of_month,
-        subcategory: Subcategory.find(subcategory_id)
+        subcategory: subcategory
       )
       line.ledger = ledger
     end
