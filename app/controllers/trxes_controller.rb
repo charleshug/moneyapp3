@@ -9,8 +9,8 @@ class TrxesController < ApplicationController
     # Load collections for filter dropdowns
     @accounts = @current_budget.accounts.order(:name)
     @vendors = @current_budget.vendors.order("LOWER(name)")
-    @categories = @current_budget.categories.order(:name)
-    @subcategories = @current_budget.subcategories.order(:name)
+    @categories = @current_budget.categories
+    @subcategories = @current_budget.subcategories
 
     base_query = @current_budget.trxes
                                .select("trxes.*, accounts.name as account_name, vendors.name as vendor_name")
