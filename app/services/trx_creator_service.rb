@@ -29,6 +29,8 @@ class TrxCreatorService
     end
   end
 
+  private
+
   def set_ledger(trx)
     trx.lines.each do |line|
       subcategory_id = line.subcategory_form_id.presence || line.subcategory
