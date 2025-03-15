@@ -19,7 +19,7 @@ class TrxCreatorService
 
       @trx = @budget.trxes.build(@trx_params)
       set_ledger
-      @trx.set_amount
+      set_amount
       @trx.save
 
       # Only proceed with updates if the transaction is valid
@@ -51,8 +51,8 @@ class TrxCreatorService
     end
   end
 
-  def set_amount(trx)
-    trx.amount = trx.lines.sum(:amount)
+  def set_amount
+    @trx.amount = @trx.lines.map(&:amount).sum
   end
 
   def convert_amount_to_cents
