@@ -18,21 +18,23 @@ class TrxCreatorService
       @trx.save
 
       # Only proceed with updates if the transaction is valid
-      if @trx.valid?
-        ledgers_to_update = Set.new
-        @trx.lines.each { |line| ledgers_to_update << line.ledger }
-        ledgers_to_update.each do |ledger|
-          LedgerService.recalculate_forward_ledgers(ledger)
-        end
-
-        @trx.account.calculate_balance! if @trx.account.present?
-      end
+      update_ledgers_and_account if @trx.valid?
 
       @trx
     end
   end
 
   private
+
+  def update_ledgers_and_account
+    ledgers_to_update = Set.new
+    @trx.lines.each { |line| ledgers_to_update << line.ledger }
+    ledgers_to_update.each do |ledger|
+      LedgerService.recalculate_forward_ledgers(ledger)
+    end
+
+    @trx.account.calculate_balance! if @trx.account.present?
+  end
 
   def handle_vendor_custom_text
     unless @trx_params[:vendor_custom_text].blank?
