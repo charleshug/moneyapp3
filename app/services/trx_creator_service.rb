@@ -3,7 +3,7 @@ class TrxCreatorService
     ActiveRecord::Base.transaction do
       convert_amount_to_cents(trx_params)
 
-      unless trx_params[:vendor_custom_text].empty?
+      unless trx_params[:vendor_custom_text].blank?
         vendor = budget.vendors.find_or_create_by(name: trx_params[:vendor_custom_text])
         trx_params[:vendor_id] = vendor.id
       end
