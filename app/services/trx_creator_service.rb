@@ -14,13 +14,16 @@ class TrxCreatorService
       trx.set_amount
       trx.save
 
-      ledgers_to_update = Set.new
-      trx.lines.each { |line| ledgers_to_update << line.ledger }
-      ledgers_to_update.each do |ledger|
-        LedgerService.recalculate_forward_ledgers(ledger)
-      end
+      # Only proceed with updates if the transaction is valid
+      if trx.valid?
+        ledgers_to_update = Set.new
+        trx.lines.each { |line| ledgers_to_update << line.ledger }
+        ledgers_to_update.each do |ledger|
+          LedgerService.recalculate_forward_ledgers(ledger)
+        end
 
-      trx.account.calculate_balance!
+        trx.account.calculate_balance! if trx.account.present?
+      end
 
       trx
     end
