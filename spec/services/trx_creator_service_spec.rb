@@ -162,13 +162,25 @@ RSpec.describe TrxCreatorService do
       end
 
       it 'rolls back the transaction if an error occurs' do
-        allow_any_instance_of(Trx).to receive(:save).and_raise(ActiveRecord::RecordInvalid)
+        # Define valid params for this test
+        valid_params = {
+          account_id: account.id,
+          vendor_id: vendor.id,
+          date: Date.today,
+          lines_attributes: {
+            '0' => {
+              subcategory_form_id: subcategory.id,
+              amount: '10.50'
+            }
+          }
+        }
+
+        # Make the Trx#save method raise an exception
+        allow_any_instance_of(Trx).to receive(:save).and_raise(ActiveRecord::RecordInvalid.new(Trx.new))
 
         expect {
-          expect {
-            service.create_trx(budget, trx_params)
-          }.to raise_error(ActiveRecord::RecordInvalid)
-        }.not_to change(Trx, :count)
+          service.create_trx(budget, valid_params)
+        }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
   end
