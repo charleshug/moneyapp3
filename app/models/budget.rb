@@ -27,8 +27,13 @@ class Budget < ApplicationRecord
     default_categories = load_default_categories
 
     # Batch insert categories
-    category_data = default_categories.keys.map do |category_name|
-      { name: category_name, budget_id: id, created_at: Time.current, updated_at: Time.current }
+    category_data = default_categories.keys.each_with_index.map do |category_name, index|
+      { name: category_name,
+        budget_id: id,
+        created_at: Time.current,
+        updated_at: Time.current,
+        order: index + 1
+      }
     end
     inserted_categories = Category.insert_all(category_data, returning: %w[id name])
 
@@ -37,8 +42,13 @@ class Budget < ApplicationRecord
 
     # Prepare batch insert for subcategories
     subcategory_data = default_categories.flat_map do |category_name, subcategories|
-      subcategories.map do |subcategory_name|
-        { name: subcategory_name, category_id: category_ids[category_name]["id"], created_at: Time.current, updated_at: Time.current }
+      subcategories.each_with_index.map do |subcategory_name, index|
+        { name: subcategory_name,
+          category_id: category_ids[category_name]["id"],
+          created_at: Time.current,
+          updated_at: Time.current,
+          order: index + 1
+        }
       end
     end
     Subcategory.insert_all(subcategory_data)
