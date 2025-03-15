@@ -84,10 +84,9 @@ RSpec.describe TrxCreatorService do
       it 'creates a new vendor if it does not exist' do
         expect {
           service.create_trx(budget, trx_params)
-        }.to change(Vendor, :count).by(1)
+        }.to change { budget.vendors.count }.by(1)
 
-        expect(Vendor.last.name).to eq('New Vendor')
-        expect(Vendor.last.budget).to eq(budget)
+        expect(budget.vendors.last.name).to eq('New Vendor')
       end
 
       it 'uses an existing vendor if it exists' do
@@ -96,7 +95,7 @@ RSpec.describe TrxCreatorService do
         expect {
           trx = service.create_trx(budget, trx_params)
           expect(trx.vendor).to eq(existing_vendor)
-        }.not_to change(Vendor, :count)
+        }.not_to change { budget.vendors.count }
       end
     end
 
