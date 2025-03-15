@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe TrxCreatorService do
-  let(:service) { TrxCreatorService.new }
   let(:budget) { create(:budget) }
   let(:account) { create(:account, budget: budget) }
   let(:vendor) { create(:vendor, budget: budget) }
@@ -25,9 +24,10 @@ RSpec.describe TrxCreatorService do
           }
         }
       end
+      let(:service) { TrxCreatorService.new(budget, trx_params) }
 
       it 'creates a transaction with the correct attributes' do
-        trx = service.create_trx(budget, trx_params)
+        trx = service.create_trx
 
         expect(trx).to be_persisted
         expect(trx.account).to eq(account)
@@ -38,7 +38,7 @@ RSpec.describe TrxCreatorService do
       end
 
       it 'creates transaction lines with the correct attributes' do
-        trx = service.create_trx(budget, trx_params)
+        trx = service.create_trx
         line = trx.lines.first
 
         expect(line).to be_persisted
@@ -47,7 +47,7 @@ RSpec.describe TrxCreatorService do
       end
 
       it 'associates lines with the correct ledger' do
-        trx = service.create_trx(budget, trx_params)
+        trx = service.create_trx
         line = trx.lines.first
 
         expect(line.ledger).to be_present
@@ -57,12 +57,12 @@ RSpec.describe TrxCreatorService do
 
       it 'updates the account balance' do
         expect_any_instance_of(Account).to receive(:calculate_balance!)
-        service.create_trx(budget, trx_params)
+        service.create_trx
       end
 
       it 'recalculates ledgers' do
         expect(LedgerService).to receive(:recalculate_forward_ledgers).once
-        service.create_trx(budget, trx_params)
+        service.create_trx
       end
     end
 
@@ -80,10 +80,11 @@ RSpec.describe TrxCreatorService do
           }
         }
       end
+      let(:service) { TrxCreatorService.new(budget, trx_params) }
 
       it 'creates a new vendor if it does not exist' do
         expect {
-          service.create_trx(budget, trx_params)
+          service.create_trx
         }.to change { budget.vendors.count }.by(1)
 
         expect(budget.vendors.last.name).to eq('New Vendor')
@@ -93,7 +94,7 @@ RSpec.describe TrxCreatorService do
         existing_vendor = create(:vendor, name: 'New Vendor', budget: budget)
 
         expect {
-          trx = service.create_trx(budget, trx_params)
+          trx = service.create_trx
           expect(trx.vendor).to eq(existing_vendor)
         }.not_to change { budget.vendors.count }
       end
@@ -118,16 +119,17 @@ RSpec.describe TrxCreatorService do
           }
         }
       end
+      let(:service) { TrxCreatorService.new(budget, trx_params) }
 
       it 'creates all lines' do
-        trx = service.create_trx(budget, trx_params)
+        trx = service.create_trx
 
         expect(trx.lines.count).to eq(2)
         expect(trx.amount).to eq(1575) # Sum of both lines in cents
       end
 
       it 'creates appropriate ledgers for each line' do
-        trx = service.create_trx(budget, trx_params)
+        trx = service.create_trx
 
         expect(trx.lines[0].ledger.subcategory).to eq(subcategory)
         expect(trx.lines[1].ledger.subcategory).to eq(subcategory2)
@@ -135,7 +137,7 @@ RSpec.describe TrxCreatorService do
 
       it 'recalculates all affected ledgers' do
         expect(LedgerService).to receive(:recalculate_forward_ledgers).twice
-        service.create_trx(budget, trx_params)
+        service.create_trx
       end
     end
 
@@ -153,10 +155,11 @@ RSpec.describe TrxCreatorService do
           }
         }
       end
+      let(:service) { TrxCreatorService.new(budget, invalid_trx_params) }
 
       it 'does not create a transaction if validation fails' do
         expect {
-          trx = service.create_trx(budget, invalid_trx_params)
+          trx = service.create_trx
           expect(trx).not_to be_valid
         }.not_to change(Trx, :count)
       end
@@ -175,11 +178,13 @@ RSpec.describe TrxCreatorService do
           }
         }
 
+        service = TrxCreatorService.new(budget, valid_params)
+
         # Make the Trx#save method raise an exception
         allow_any_instance_of(Trx).to receive(:save).and_raise(ActiveRecord::RecordInvalid.new(Trx.new))
 
         expect {
-          service.create_trx(budget, valid_params)
+          service.create_trx
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end

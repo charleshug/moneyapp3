@@ -50,8 +50,7 @@ class TrxesController < ApplicationController
 
   # POST /trxes or /trxes.json
   def create
-    @trx = @current_budget.trxes.build
-    @trx = TrxCreatorService.new.create_trx(@current_budget, trx_params)
+    @trx = TrxCreatorService.new(@current_budget, trx_params).create_trx
 
     respond_to do |format|
       if @trx.valid?
