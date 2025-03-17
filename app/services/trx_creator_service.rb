@@ -15,12 +15,9 @@ class TrxCreatorService
       @trx = @budget.trxes.build(@trx_params)
       set_ledger
       set_amount
-      @trx.save!
-
-      if @trx.valid?
-        update_ledgers_and_account
-        TransferService.new(@trx).process if transfer?
-      end
+      @trx.save
+      update_ledgers_and_account if @trx.valid?
+      TransferService.new(@trx).process if transfer?
 
       @trx
     end
@@ -37,15 +34,22 @@ class TrxCreatorService
   end
 
   def line_transfer?
-    @trx.lines.any? { |line| get_transfer_account(line).present? }
+    @trx.lines.any? do |line|
+      # Check both transfer_account_id and transfer_line_id
+      line.transfer_account_id.present? ||
+      (line.respond_to?(:transfer_line_id) && line.transfer_line_id.present?)
+    end
   end
 
   def get_transfer_account(line)
-    # If line already has a transfer_account set, use it
+    # If line has a transfer_account_id, find the account
+    return Account.find_by(id: line.transfer_account_id) if line.transfer_account_id.present?
+
+    # If line already has a transfer_account object set, use it
     return line.transfer_account if line.respond_to?(:transfer_account) && line.transfer_account.present?
 
     # Otherwise, try to find it through the transfer_line_id
-    if line.transfer_line_id.present?
+    if line.respond_to?(:transfer_line_id) && line.transfer_line_id.present?
       transfer_line = Line.find_by(id: line.transfer_line_id)
       return transfer_line&.trx&.account
     end
