@@ -140,6 +140,7 @@ class TrxesController < ApplicationController
           :subcategory_form_id,
           :amount,
           :memo,
+          :transfer_account_id,
           :_destroy
         ]
       )
