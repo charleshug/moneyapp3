@@ -89,6 +89,7 @@
       <th><%= sort_link(@q, :lines_ledger_subcategory_category_name, "Category") %></th>
       <th><%= sort_link(@q, :lines_ledger_subcategory_name, "Subcategory") %></th>
       <th><%= sort_link(@q, :memo, "Memo") %></th>
+      <th>Transfer</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -118,6 +119,12 @@
           <% end %>
         </td>
         <td><%= trx.memo %></td>
+        <td>
+          <% if trx.lines.any? { |line| line.transfer_line.present? } %>
+            <% transfer_line = trx.lines.find { |line| line.transfer_line.present? } %>
+            <%= link_to transfer_line.transfer_line.trx.id, edit_trx_path(transfer_line.transfer_line.trx) %>
+          <% end %>
+        </td>
         <td class="actions">
           <%= link_to edit_trx_path(trx), class: "button" do %>
             <i class="fas fa-edit"></i>
@@ -141,7 +148,13 @@
             </td>
             <td><%= line.ledger&.subcategory&.category&.name %></td>
             <td><%= line.ledger&.subcategory&.name %></td>
-            <td colspan="2"></td>
+            <td></td>
+            <td>
+              <% if line.transfer_line.present? %>
+                <%= link_to line.transfer_line.trx.id, edit_trx_path(line.transfer_line.trx) %>
+              <% end %>
+            </td>
+            <td></td>
           </tr>
         <% end %>
       <% end %>
