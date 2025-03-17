@@ -36,6 +36,23 @@ class Line < ApplicationRecord
     end
   end
 
+  # Initialize transfer_account_id from the transfer line's transaction account
+  def transfer_account_id
+    # Return the stored value if it's already set
+    return @transfer_account_id if defined?(@transfer_account_id) && @transfer_account_id.present?
+
+    # Try to get it from the transfer line
+    if transfer_line.present?
+      @transfer_account_id = transfer_line.trx.account_id
+    end
+
+    @transfer_account_id
+  end
+
+  def transfer_account_id=(value)
+    @transfer_account_id = value
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     # [ "id", "amount", "ledger_id", "transfer_line_id" ]
     [ "id", "amount", "ledger_id", "transfer_line_id", "ledger_subcategory_category_id" ]
