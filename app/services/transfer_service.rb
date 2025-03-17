@@ -1,51 +1,36 @@
 class TransferService
-  attr_reader :trx
+  attr_reader :line
 
-  def initialize(trx)
-    @trx = trx
+  def initialize(line)
+    @line = line
   end
 
   def process
-    return if trx.is_transfer # Prevent recursive transfers
-
-    transfer_account = determine_transfer_account
+    # ensure the transfer account exists
+    transfer_account = line.budget.accounts.find_by(id: line.transfer_account_id)
     return unless transfer_account
 
-    create_transfer_trx(transfer_account)
+    create_transfer_trx(line)
   end
 
   private
 
-  def determine_transfer_account
-    return trx.vendor.account if vendor_transfer?
-
-    line_with_transfer = trx.lines.find { |line| line.transfer_account.present? }
-    line_with_transfer&.transfer_account
-  end
-
-  def vendor_transfer?
-    trx.vendor&.account?
-  end
-
-  def create_transfer_trx(transfer_account)
+  def create_transfer_trx(line)
     transfer_trx_params = {
-      account_id: transfer_account.id,
-      vendor_id: trx.vendor_id,
-      date: trx.date,
-      lines_attributes: build_transfer_lines,
-      is_transfer: true # Flag to prevent infinite recursion
+      account_id: line.transfer_account_id,
+      vendor_id: line.trx.account.vendor.id,
+      date: line.trx.date,
+      amount: -line.amount,
+      memo: line.trx.memo,
+      lines_attributes: [ {
+        ledger_id: line.ledger_id,
+        amount: -line.amount,
+        transfer_line_id: line.id
+      } ]
     }
+    trx = line.budget.trxes.build(transfer_trx_params)
 
-    TrxCreatorService.new(trx.budget, transfer_trx_params).create_trx
-  end
-
-  def build_transfer_lines
-    trx.lines.map do |line|
-      {
-        subcategory_id: line.subcategory_id,
-        amount: -line.amount, # Reverse the amount
-        transfer_account_id: trx.account_id # Set original account as the counter transfer
-      }
-    end
+    trx.save!
+    trx
   end
 end
