@@ -17,46 +17,18 @@ class TrxCreatorService
       set_amount
       @trx.save
       update_ledgers_and_account if @trx.valid?
-      TransferService.new(@trx).process if transfer?
+      @trx.lines.each do |line|
+        if line.transfer_account_id.present?
+          transfer_trx = TransferService.new(line).process
+          line.update_column(:transfer_line_id, transfer_trx.lines.first.id)
+        end
+      end
 
       @trx
     end
   end
 
   private
-
-  def transfer?
-    vendor_transfer? || line_transfer?
-  end
-
-  def vendor_transfer?
-    @trx.vendor.present? && @trx.vendor.account_id.present?
-  end
-
-  def line_transfer?
-    @trx.lines.any? do |line|
-      # Check both transfer_account_id and transfer_line_id
-      line.transfer_account_id.present? ||
-      (line.respond_to?(:transfer_line_id) && line.transfer_line_id.present?)
-    end
-  end
-
-  def get_transfer_account(line)
-    # If line has a transfer_account_id, find the account
-    return Account.find_by(id: line.transfer_account_id) if line.transfer_account_id.present?
-
-    # If line already has a transfer_account object set, use it
-    return line.transfer_account if line.respond_to?(:transfer_account) && line.transfer_account.present?
-
-    # Otherwise, try to find it through the transfer_line_id
-    if line.respond_to?(:transfer_line_id) && line.transfer_line_id.present?
-      transfer_line = Line.find_by(id: line.transfer_line_id)
-      return transfer_line&.trx&.account
-    end
-
-    # Return nil if no transfer account found
-    nil
-  end
 
   def update_ledgers_and_account
     ledgers_to_update = Set.new
