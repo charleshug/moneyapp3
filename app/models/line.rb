@@ -6,6 +6,7 @@ class Line < ApplicationRecord
   delegate :vendor, to: :trx
   delegate :account, to: :trx
   delegate :date, to: :trx
+  delegate :budget, to: :trx
   belongs_to :transfer_line, class_name: "Line", optional: true
 
   validates :amount, presence: true
