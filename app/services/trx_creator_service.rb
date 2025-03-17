@@ -1,9 +1,9 @@
 class TrxCreatorService
-  attr_reader :budget, :trx_params
+  attr_reader :budget, :trx_params, :trx
 
   def initialize(budget, trx_params)
     @budget = budget
-    @trx_params = trx_params.dup # Create a copy to avoid modifying the original
+    @trx_params = trx_params.dup
     @trx = nil
   end
 
@@ -15,10 +15,12 @@ class TrxCreatorService
       @trx = @budget.trxes.build(@trx_params)
       set_ledger
       set_amount
-      @trx.save
+      @trx.save!
 
-      # Only proceed with updates if the transaction is valid
-      update_ledgers_and_account if @trx.valid?
+      if @trx.valid?
+        update_ledgers_and_account
+        TransferService.new(@trx).process if transfer?
+      end
 
       @trx
     end
@@ -26,9 +28,36 @@ class TrxCreatorService
 
   private
 
+  def transfer?
+    vendor_transfer? || line_transfer?
+  end
+
+  def vendor_transfer?
+    @trx.vendor.present? && @trx.vendor.account_id.present?
+  end
+
+  def line_transfer?
+    @trx.lines.any? { |line| get_transfer_account(line).present? }
+  end
+
+  def get_transfer_account(line)
+    # If line already has a transfer_account set, use it
+    return line.transfer_account if line.respond_to?(:transfer_account) && line.transfer_account.present?
+
+    # Otherwise, try to find it through the transfer_line_id
+    if line.transfer_line_id.present?
+      transfer_line = Line.find_by(id: line.transfer_line_id)
+      return transfer_line&.trx&.account
+    end
+
+    # Return nil if no transfer account found
+    nil
+  end
+
   def update_ledgers_and_account
     ledgers_to_update = Set.new
     @trx.lines.each { |line| ledgers_to_update << line.ledger }
+
     ledgers_to_update.each do |ledger|
       LedgerService.recalculate_forward_ledgers(ledger)
     end
@@ -58,16 +87,16 @@ class TrxCreatorService
   end
 
   def set_amount
-    @trx.amount = @trx.lines.map(&:amount).sum
+    @trx.amount = @trx.lines.sum(&:amount)
   end
 
   def convert_amount_to_cents
     return unless @trx_params[:lines_attributes].present?
 
-    @trx_params[:lines_attributes].each do |_, line_params|  # Keep index key (_ ignored)
-      if line_params[:amount].present?
-        line_params[:amount] = (line_params[:amount].to_d * 100).to_i
-      end
+    @trx_params[:lines_attributes].each do |_, line_params|
+      next unless line_params[:amount].present?
+
+      line_params[:amount] = (line_params[:amount].to_d * 100).to_i
     end
   end
 end
