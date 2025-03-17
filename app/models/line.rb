@@ -13,6 +13,7 @@ class Line < ApplicationRecord
   # has_one :transferee_line, class_name: "Line", foreign_key: "transfer_line_id"
   # has_one :transfer_vendor, through: :transfer_line
   attr_accessor :subcategory_form_id
+  attr_accessor :transfer_account_id
 
   scope :income, -> {
     joins(ledger: { subcategory: :category })
