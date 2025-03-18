@@ -69,7 +69,7 @@ class TrxesController < ApplicationController
       return
     end
 
-    @trx = TrxEditingService.new.edit_trx(@trx, trx_params)
+    @trx = TrxEditingService.new(@trx, trx_params).edit_trx
     respond_to do |format|
       if @trx.valid?
         format.html { redirect_to trxes_path(q: { account_id_in: @trx.account.id }), notice: "Trx was successfully updated." }
