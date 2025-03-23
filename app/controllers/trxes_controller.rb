@@ -72,7 +72,7 @@ class TrxesController < ApplicationController
     @trx = TrxEditingService.new(@trx, trx_params).edit_trx
     respond_to do |format|
       if @trx.valid?
-        format.html { redirect_to trxes_path(q: { account_id_in: @trx.account.id }), notice: "Trx was successfully updated." }
+        format.html { redirect_to edit_trx_path(@trx), notice: "Trx was successfully updated." }
       else
         format.html { render :edit, status: :unprocessable_entity }
       end
