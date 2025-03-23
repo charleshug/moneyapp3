@@ -13,6 +13,8 @@ class TrxEditingService
       save_trx_state
 
       update_trx_state
+      handle_deleted_lines
+      @trx.set_amount
       @trx.save
       unless @trx.valid?
         # trx failed, do something
@@ -204,6 +206,22 @@ class TrxEditingService
     @trx_params[:lines_attributes].each do |_, line_params|  # Keep index key (_ ignored)
       if line_params[:amount].present?
         line_params[:amount] = (line_params[:amount].to_d * 100).to_i
+      end
+    end
+  end
+
+  def handle_deleted_lines
+    return unless @trx_params[:lines_attributes]
+
+    @trx_params[:lines_attributes].each do |_, line_params|
+      if line_params[:_destroy] == "1" && line_params[:id].present?
+        line = @trx.lines.find(line_params[:id])
+        if line.transfer_line_id.present?
+          transfer_trx = line.transfer_line.trx
+          @accounts_to_update << transfer_trx.account
+          line.update_column(:transfer_line_id, nil)
+          transfer_trx.destroy
+        end
       end
     end
   end
