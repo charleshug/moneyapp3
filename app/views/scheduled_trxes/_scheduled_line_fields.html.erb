@@ -14,6 +14,15 @@
                       value: (BigDecimal(f.object.amount.to_s) / BigDecimal("100")).round(2),
                       step: "0.01" %>
   </div>
+  <div class="field">
+    <%= f.label :transfer_account_id, "Transfer Account" %>
+    <%= f.collection_select :transfer_account_id, 
+                          @current_budget.accounts, 
+                          :id, 
+                          :name, 
+                          { include_blank: true, prompt: "Transfer Account" },
+                          { class: "form-control" } %>
+  </div>
   <%= f.check_box :_destroy unless f.object.new_record? %>
   <%= f.label :_destroy, "Remove" unless f.object.new_record? %>
 </div> 
