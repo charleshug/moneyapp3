@@ -1,6 +1,7 @@
 class TrxesController < ApplicationController
   include Pagy::Backend
   before_action :set_trx, only: %i[ edit update destroy ]
+  before_action :check_transfer_child, only: %i[ update destroy ]
 
   def index
     @current_budget = Budget.includes(:accounts, :vendors, :categories, subcategories: :category)
@@ -158,5 +159,18 @@ class TrxesController < ApplicationController
       lines_ledger_subcategory_category_id_in: [],
       lines_ledger_subcategory_id_in: []
     )
+  end
+
+  # Check if the transaction is a transfer child and redirect if necessary
+  def check_transfer_child
+    if @trx.transfer_child?
+      parent_trx = @trx.parent_transaction
+      if parent_trx
+        redirect_to edit_trx_path(parent_trx), alert: "This is a transfer transaction. Please make changes to the original transaction instead."
+      else
+        redirect_to trxes_path, alert: "This is a transfer transaction and cannot be modified directly."
+      end
+      false
+    end
   end
 end
