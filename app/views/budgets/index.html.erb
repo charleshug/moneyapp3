@@ -52,6 +52,25 @@
     </tr>
   </thead>
   <tbody>
+    <!-- Summary row at the top -->
+    <tr class="table-summary-row">
+      <td></td>
+      <td style="text-align: right;">
+        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
+      </td>
+      <td style="text-align: right;">
+        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
+      </td>
+      <td style="text-align: right;">
+        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:balance] } / 100.0) %></strong>
+      </td>
+    </tr>
+    
+    <!-- Separator row -->
+    <tr class="table-divider">
+      <td colspan="4"></td>
+    </tr>
+    
     <% @budget_table_data.each do |parent| %>
       <tr>
         <td><strong><%= parent[:name] %></strong></td>
