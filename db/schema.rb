@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_11_051942) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_23_022530) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -136,7 +136,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_11_051942) do
     t.boolean "cleared", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "transfer_child", default: false, null: false
     t.index ["account_id"], name: "index_trxes_on_account_id"
+    t.index ["transfer_child"], name: "index_trxes_on_transfer_child"
     t.index ["vendor_id"], name: "index_trxes_on_vendor_id"
   end
 
