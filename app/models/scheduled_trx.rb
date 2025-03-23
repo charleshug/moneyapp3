@@ -34,6 +34,8 @@ class ScheduledTrx < ApplicationRecord
     trx = nil
 
     ActiveRecord::Base.transaction do
+      accounts_to_update = Set.new
+      ledgers_to_update = Set.new
       # Build the transaction first without saving
       trx = account.trxes.build(
         date: next_date,
@@ -45,7 +47,7 @@ class ScheduledTrx < ApplicationRecord
       scheduled_lines.each do |scheduled_line|
         ledger = find_or_create_ledger(scheduled_line.subcategory)
 
-        line = trx.lines.build(
+        trx.lines.build(
           amount: scheduled_line.amount,
           memo: scheduled_line.memo,
           ledger: ledger
@@ -53,15 +55,23 @@ class ScheduledTrx < ApplicationRecord
       end
 
       # Now save the transaction with its lines
+      trx.set_amount
       trx.save!
+      accounts_to_update << trx.account
+      trx.lines.each { |line| ledgers_to_update << line.ledger }
 
       # Create transfers after saving the transaction
       trx.lines.each_with_index do |line, index|
         scheduled_line = scheduled_lines[index]
         if scheduled_line.transfer_account
-          line.create_transfer!(scheduled_line.transfer_account)
+          transfer_trx = create_transfer_from_line(line, scheduled_line.transfer_account)
+          line.update_column(:transfer_line_id, transfer_trx.lines.first.id)
+          accounts_to_update << scheduled_line.transfer_account
+          transfer_trx.lines.each { |line| ledgers_to_update << line.ledger }
         end
       end
+      accounts_to_update.each { |account| account.calculate_balance! }
+      ledgers_to_update.each { |ledger| LedgerService.recalculate_forward_ledgers(ledger) }
 
       # Update next_date based on frequency
       if frequency == "once"
@@ -79,6 +89,25 @@ class ScheduledTrx < ApplicationRecord
   end
 
   private
+
+  def create_transfer_from_line(line, transfer_account)
+    budget = line.budget
+    trx = line.trx
+    transfer_trx = budget.trxes.build(
+      date: trx.date,
+      memo: trx.memo,
+      account: transfer_account,
+      vendor: trx.account.vendor
+    )
+    transfer_trx.lines.build(
+      transfer_line_id: line.id,
+      amount: -line.amount,
+      ledger: line.ledger
+    )
+    transfer_trx.set_amount
+    transfer_trx.save!
+    transfer_trx
+  end
 
   def calculate_next_date
     case frequency
