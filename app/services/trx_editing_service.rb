@@ -18,10 +18,116 @@ class TrxEditingService
         # trx failed, do something
       end
 
-      save_trx_state
-      update_impacted_ledgers_and_accounts
+      # Process each line for transfer logic
+      @trx.lines.each do |line|
+        handle_transfer_logic(line)
+      end
 
+      update_impacted_ledgers_and_accounts
       @trx
+    end
+  end
+
+  private
+
+  def handle_transfer_logic(line)
+    if line.transfer_line_id.present?
+      if line.ledger.subcategory.name != "Transfer"
+        delete_transfer(line)
+      else
+        update_transfer(line)
+      end
+    elsif line.transfer_account_id.present?
+      create_transfer(line)
+    end
+    # No action needed if transfer_line_id == nil and subcategory is not Transfer
+  end
+
+
+  def delete_transfer(line)
+    transfer_trx = line.transfer_line.trx
+    @accounts_to_update << transfer_trx.account
+    @ledgers_to_update << transfer_trx.lines.first.ledger
+
+
+    # Update the original line
+    subcategory = line.ledger.subcategory
+    case subcategory.name
+    when "Transfer"
+      subcategory = line.budget.subcategories.find_or_create_by(name: "Uncategorized")
+    when "" # empty
+      subcategory = line.budget.subcategories.find_or_create_by(name: "Uncategorized")
+    else
+      # no action
+    end
+
+    ledger = Ledger.find_or_create_by(date: line.date.end_of_month, subcategory: subcategory)
+    line.update_columns(
+      transfer_line_id: nil,
+      ledger_id: ledger.id
+    )
+    @ledgers_to_update << line.ledger
+
+    # Update the original transaction if needed
+    if @trx.lines.count == 1
+      vendor = line.budget.vendors.find_or_create_by(name: "Other")
+      @trx.update_column(:vendor_id, vendor.id)
+    end
+
+    # Delete the transfer transaction
+    transfer_trx.destroy
+  end
+
+  def update_transfer(line)
+    transfer_trx = line.transfer_line.trx
+    # Update transfer transaction attributes
+    transfer_trx.account = line.budget.accounts.find_by(id: line.transfer_account_id)
+    transfer_trx.date = @trx.date
+    transfer_trx.vendor = @trx.account.vendor
+    transfer_trx.memo = @trx.memo
+
+    # Update transfer line attributes
+    transfer_line = transfer_trx.lines.first
+    transfer_line.update_columns(amount: -line.amount, ledger_id: line.ledger_id)
+
+    @accounts_to_update << transfer_trx.account
+    @ledgers_to_update << line.ledger
+    transfer_trx.set_amount
+    transfer_trx.save!
+
+    # Update the original transaction vendor if single line
+    if @trx.lines.count == 1
+      vendor = line.budget.vendors.find_by(account: transfer_line.trx.account)
+      @trx.update_column(:vendor_id, vendor.id)
+    end
+  end
+
+  def create_transfer(line)
+    budget = line.budget
+    transfer_trx = budget.trxes.build(
+      account: budget.accounts.find_by(id: line.transfer_account_id),
+      date: @trx.date,
+      vendor: @trx.account.vendor,
+      memo: @trx.memo
+    )
+
+    transfer_line = transfer_trx.lines.build(
+      amount: -line.amount,
+      ledger: line.ledger,
+      transfer_line_id: line.id
+    )
+
+    @accounts_to_update << transfer_trx.account
+    @ledgers_to_update << line.ledger
+    transfer_trx.set_amount
+    transfer_trx.save!
+
+    # Update original line with transfer reference
+    line.update_column(:transfer_line_id, transfer_line.id)
+
+    # Update original transaction vendor if single line
+    if @trx.lines.count == 1
+      @trx.update_column(:vendor_id, transfer_trx.account.vendor.id)
     end
   end
 
@@ -66,16 +172,17 @@ class TrxEditingService
   end
 
   def set_ledger
+    budget = @trx.budget
     @trx.lines.each do |line|
       subcategory = if line.subcategory_form_id.present?
-        @trx.budget.subcategories.find(line.subcategory_form_id)
+        budget.subcategories.find(line.subcategory_form_id)
       else
         line.ledger&.subcategory
       end
 
       next unless subcategory  # Skip if no subcategory found
 
-      ledger = @trx.budget.ledgers.find_or_create_by(
+      ledger = Ledger.find_or_create_by(
         date: @trx.date.end_of_month,
         subcategory: subcategory
       )
