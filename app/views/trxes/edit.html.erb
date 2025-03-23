@@ -1,6 +1,20 @@
 <% provide(:title, "Edit Trx") %>
 <h1>Editing trx</h1>
 
+<% if @trx.transfer_child? %>
+  <div class="alert alert-warning">
+    <p>
+      <strong>This is a transfer transaction.</strong> 
+      Changes must be made to the original transaction instead.
+    </p>
+    <% if parent_trx = @trx.parent_transaction %>
+      <%= link_to "Edit Original Transaction", edit_trx_path(parent_trx), class: "btn btn-primary" %>
+    <% else %>
+      <p>The original transaction could not be found.</p>
+    <% end %>
+  </div>
+<% end %>
+
 <%= render "form", trx: @trx %>
 
 <div>

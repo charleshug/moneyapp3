@@ -44,6 +44,13 @@ class TrxesController < ApplicationController
       redirect_to trxes_path, alert: "You are not authorized to edit this transaction."
       nil
     end
+
+    # Render a different template for transfer child transactions
+    if @trx.transfer_child?
+      render "show_transfer_child"
+    end
+    # If not a transfer child, it will render the default 'edit' template
+
     @trx.lines.each do |line|
       line.subcategory_form_id = line.ledger.subcategory_id
     end

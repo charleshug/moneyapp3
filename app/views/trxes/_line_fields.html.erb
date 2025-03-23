@@ -23,6 +23,17 @@
                           :name, 
                           { include_blank: true, prompt: "Transfer Account" },
                           { class: "form-control" } %>
+    
+    <% if f.object.transfer_line_id.present? %>
+      <% if transfer_line = Line.find_by(id: f.object.transfer_line_id) %>
+        <% if transfer_trx = transfer_line.trx %>
+          <div class="mt-2">
+            <span class="badge bg-info">Transfer</span>
+            <%= link_to "View Transfer Transaction", edit_trx_path(transfer_trx), class: "btn btn-sm btn-outline-primary" %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
   </div>
   <%= f.check_box :_destroy unless f.object.new_record? %>
   <%= f.label :_destroy, "Remove" unless f.object.new_record? %>

@@ -1,0 +1,84 @@
+<% provide(:title, "View Transfer Transaction") %>
+<h1>Transfer Transaction</h1>
+
+<div class="alert alert-warning">
+  <p>
+    <strong>This is a transfer transaction.</strong> 
+    Changes must be made to the original transaction instead.
+  </p>
+  <% if parent_trx = @trx.parent_transaction %>
+    <%= link_to "Edit Original Transaction", edit_trx_path(parent_trx), class: "btn btn-primary" %>
+  <% else %>
+    <p>The original transaction could not be found.</p>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Transaction Details (Read Only)</h3>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-3"><strong>Account:</strong></div>
+      <div class="col-md-9"><%= @trx.account.name %></div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-3"><strong>Vendor:</strong></div>
+      <div class="col-md-9"><%= @trx.vendor.name %></div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-3"><strong>Date:</strong></div>
+      <div class="col-md-9"><%= @trx.date.strftime("%B %d, %Y") %></div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-3"><strong>Memo:</strong></div>
+      <div class="col-md-9"><%= @trx.memo.presence || "None" %></div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-3"><strong>Cleared:</strong></div>
+      <div class="col-md-9"><%= @trx.cleared? ? "Yes" : "No" %></div>
+    </div>
+    
+    <h4 class="mt-4">Lines</h4>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Memo</th>
+          <th>Transfer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @trx.lines.each do |line| %>
+          <tr>
+            <td><%= line.ledger.subcategory.full_name rescue "Unknown" %></td>
+            <td><%= number_to_currency(line.amount.to_f / 100) %></td>
+            <td><%= line.memo.presence || "None" %></td>
+            <td>
+              <% if line.transfer_line_id.present? %>
+                <% if transfer_line = Line.find_by(id: line.transfer_line_id) %>
+                  <% if transfer_trx = transfer_line.trx %>
+                    <%= link_to "View Original Transaction", edit_trx_path(transfer_trx), class: "btn btn-sm btn-outline-primary" %>
+                  <% end %>
+                <% end %>
+              <% else %>
+                None
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<br>
+
+<div>
+  <%= link_to "Back", request.referer || trxes_path %>
+</div> 
