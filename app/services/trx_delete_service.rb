@@ -10,6 +10,7 @@ class TrxDeleteService
     collect_trxes
     collect_accounts
     collect_ledgers
+    clear_transfer_lines
     delete_transactions
     update_accounts
     update_ledgers
@@ -34,6 +35,14 @@ class TrxDeleteService
     @trxes.each do |trx|
       trx.lines.each do |line|
         @ledgers << line.ledger if line.ledger
+      end
+    end
+  end
+
+  def clear_transfer_lines
+    @trxes.each do |trx|
+      trx.lines.each do |line|
+        line.update_column(:transfer_line_id, nil)
       end
     end
   end
