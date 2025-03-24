@@ -10,8 +10,14 @@ class TrxImportService
     raise ImportError, "No file provided" unless file
     raise ImportError, "Invalid file type" unless valid_file_type?(file)
 
-    csv_text = file.read
-    csv = CSV.parse(csv_text, headers: true)
+    # Read file content and handle encoding issues
+    csv_text = read_with_encoding(file)
+
+    begin
+      csv = CSV.parse(csv_text, headers: true)
+    rescue CSV::MalformedCSVError => e
+      raise ImportError, "CSV parsing error: #{e.message}"
+    end
 
     Rails.logger.debug "CSV Headers: #{csv.headers.inspect}"
     validate_headers!(csv.headers)
@@ -156,6 +162,36 @@ class TrxImportService
   end
 
   private
+
+  # New method to handle different encodings
+  def self.read_with_encoding(file)
+    # Try to read with UTF-8 first
+    content = file.read
+
+    # Check if content is valid UTF-8
+    unless content.force_encoding("UTF-8").valid_encoding?
+      # If not valid UTF-8, try other common encodings
+      [ "Windows-1252", "ISO-8859-1", "CP1252" ].each do |encoding|
+        begin
+          Rails.logger.debug "Trying #{encoding} encoding"
+          converted_content = content.force_encoding(encoding).encode("UTF-8")
+          if converted_content.valid_encoding?
+            Rails.logger.debug "Successfully converted from #{encoding} to UTF-8"
+            return converted_content
+          end
+        rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError => e
+          Rails.logger.debug "Conversion from #{encoding} failed: #{e.message}"
+          next
+        end
+      end
+
+      # If we get here, none of our encoding attempts worked
+      raise ImportError, "Unable to determine file encoding. Please save your CSV as UTF-8."
+    end
+
+    # Return the content if it's already valid UTF-8
+    content
+  end
 
   def self.valid_file_type?(file)
     File.extname(file.original_filename).downcase == ".csv"
