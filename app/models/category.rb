@@ -34,12 +34,11 @@ class Category < ApplicationRecord
   ]
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "name" ]
+    [ "budget_id", "created_at", "hidden", "id", "name", "normal_balance", "order", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # note: these match belongs_to (no plurals)
-    [ "subcategories", "trxes", "ledgers", "name" ]
+    [ "budget", "subcategories" ]
   end
 
   # Add a method to initialize order values if needed

@@ -54,13 +54,11 @@ class Line < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    # [ "id", "amount", "ledger_id", "transfer_line_id" ]
-    [ "id", "amount", "ledger_id", "transfer_line_id", "ledger_subcategory_category_id" ]
+    [ "amount", "created_at", "id", "ledger_id", "memo", "transfer_line_id", "trx_id", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # [ "ledger", "transfer_line", "transfer_vendor", "transferee_line", "trx" ]
-    [ "ledger", "transfer_line", "transfer_vendor", "transferee_line", "trx", "ledger.subcategory", "ledger.subcategory.category" ]
+    [ "ledger", "trx", "transfer_line" ]
   end
 
   def set_ledger

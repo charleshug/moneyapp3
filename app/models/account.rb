@@ -13,7 +13,11 @@ class Account < ApplicationRecord
   before_destroy :ensure_no_trxes
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "name", "balance", "on_budget", "closed" ]
+    [ "balance", "budget_id", "closed", "created_at", "id", "name", "on_budget", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "budget", "trxes", "vendors" ]
   end
 
   def calculate_balance

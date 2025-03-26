@@ -15,12 +15,11 @@ class Subcategory < ApplicationRecord
   default_scope { order("subcategories.order") }
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "name" ]
+    [ "category_id", "created_at", "hidden", "id", "name", "order", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # note: these match belongs_to (no plurals)
-    [ "category", "lines", "ledgers", "name" ]
+    [ "category", "ledgers" ]
   end
 
   def full_name

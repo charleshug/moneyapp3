@@ -10,12 +10,11 @@ class Ledger < ApplicationRecord
   # has_many :trxes
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "subcategory_id", "date", "id", "prev_id", "user_changed", "budget", "actual", "balance", "rolling_balance", "carry_forward_negative_balance" ]
+    [ "actual", "balance", "budget", "carry_forward_negative_balance", "created_at", "date", "id", "next_id", "prev_id", "rolling_balance", "subcategory_id", "updated_at", "user_changed" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # note: these match belongs_to (no plurals)
-    [ "subcategory" ]
+    [ "subcategory", "next", "prev", "lines" ]
   end
 
   validates :date, presence: true

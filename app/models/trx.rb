@@ -25,14 +25,11 @@ class Trx < ApplicationRecord
   scope :within_dates, ->(start_date, end_date) { where(date: start_date..end_date) }
 
   def self.ransackable_attributes(auth_object = nil)
-    # [ "account_id", "amount", "category_id", "subcategory_id", "cleared", "created_at", "date", "id", "id_value", "memo", "transfer_id", "updated_at", "vendor_id" ]
-    [ "account_id", "amount", "category_id", "subcategory_id", "cleared", "created_at", "date", "id", "id_value", "memo", "transfer_id", "updated_at", "vendor_id", "lines_ledger_subcategory_category_id", "transfer_child" ]
+    [ "account_id", "amount", "cleared", "created_at", "date", "id", "memo", "updated_at", "vendor_id", "transfer_child" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # note: these match belongs_to (no plurals)
-    #   [ "account", "category", "subcategory", "vendor", "lines" ]
-    [ "account", "vendor", "lines", "lines.ledger", "lines.ledger.subcategory", "lines.ledger.subcategory.category" ]
+    [ "account", "vendor", "lines" ]
   end
 
   def set_amount
