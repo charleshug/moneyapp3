@@ -4,6 +4,7 @@ gem "groupdate"
 gem "pagy"
 gem "devise"
 gem "ransack"
+gem "tailwindcss-rails"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.2.0"

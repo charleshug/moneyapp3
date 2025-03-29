@@ -36,3 +36,6 @@
 
 # Ignore .gem files in the
 path/ruby/
+
+/app/assets/builds/*
+!/app/assets/builds/.keep
