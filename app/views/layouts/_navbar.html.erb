@@ -1,16 +1,19 @@
-<nav>
-    <div class="">
-        <%= link_to "MoneyApp", root_path %>
+<nav class="bg-white shadow-md w-full">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
         <% unless current_user %>
-            <%= link_to "Sign In", new_user_session_path %>
-            <%= link_to "Sign Up", new_user_registration_path %>
+            <div class="flex justify-between w-full mx-8">
+                <%= link_to "Sign In", new_user_session_path %>
+                <%= link_to "Sign Up", new_user_registration_path %>
+            </div>
         <% else %>
-            <%= link_to "Budgets", budgets_path %>
-            <%#= link_to "All Transactions", trxes_path %>
-            <%= link_to "Accounts", accounts_path %>
-            <%= link_to "Reports", reports_path %>
-            <%= link_to 'Edit profile', edit_user_registration_path %>
-            <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete } %>
+            <div class="flex justify-between w-full mx-8">
+                <%= link_to "Budgets", class: "px-4 py-2 text-gray-700 hover:bg-slate-200 rounded text-center flex-1" %>
+                <%= link_to "Accounts", accounts_path %>
+                <%= link_to "Reports", reports_path %>
+                <%= link_to 'Edit profile', edit_user_registration_path %>
+                <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete } %>
+            </div>
         <% if request.path.starts_with?('/reports') %>
         <hr>
         <div>
@@ -42,5 +45,6 @@
                 <%= link_to "Scheduled Transactions", scheduled_trxes_path %>
             </p>
         <% end %>
+        </div>
     </div>
 </nav>

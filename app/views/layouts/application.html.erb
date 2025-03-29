@@ -11,15 +11,30 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="bg-[#2992c2] min-h-screen">
     <header>
       <%= render "layouts/navbar" %>
     </header>
     <hr>
 
-    <p class="notice"><%= notice %></p>
-    <p class="alert"><%= alert %></p>
+    <% if notice %>
+      <div class="container mx-auto px-4 mt-4">
+        <p class="notice bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+          <%= notice %>
+        </p>
+      </div>
+    <% end %>
     
-    <%= yield %>
+    <% if alert %>
+      <div class="container mx-auto px-4 mt-4">
+        <p class="alert bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          <%= alert %>
+        </p>
+      </div>
+    <% end %>
+    
+    <div class="container mx-auto px-4 py-6">
+      <%= yield %>
+    </div>
   </body>
 </html>
