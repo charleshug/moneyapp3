@@ -14,7 +14,9 @@
   <div class="bg-white py-3 px-4 mb-2 flex justify-between items-center flex-shrink-0">
     <h2 class="text-lg font-semibold">All Accounts</h2>
     <div>
-      <%= number_to_currency((@balances[:total]/100.0), unit: "$", separator: ".", delimiter: ",") %>
+      <%= link_to trxes_path do %>
+        <%= number_to_currency((@balances[:total]/100.0), unit: "$", separator: ".", delimiter: ",") %>
+      <% end %>
     </div>
   </div>
   

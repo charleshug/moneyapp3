@@ -2,9 +2,11 @@
   <div id="<%= id %>" class="mb-6">
     <div class="flex justify-between items-center bg-gray-200 p-3 rounded-t-lg">
       <strong class="text-gray-700"><%= title %></strong>
-      <strong>
-        <%= number_to_currency((balance/100.0), unit: "$", separator: ".", delimiter: ",") %>
-      </strong>
+      <%= link_to trxes_path(q: { account_id_in: accounts.map(&:id) }) do %>
+        <strong>
+          <%= number_to_currency((balance/100.0), unit: "$", separator: ".", delimiter: ",") %>
+        </strong>
+      <% end %> 
     </div>
     
     <div class="bg-white rounded-b-lg shadow">
