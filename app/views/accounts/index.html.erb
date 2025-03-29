@@ -1,49 +1,31 @@
 <% provide(:title, "Accounts") %>
-<h1>All Accounts</h1>
 
-<div id="accounts">
-  <% unless @on_budget_accounts.empty? %>
-    <div id="budget_accounts">
-      <div>
-        <strong>Budget Accounts</strong>
-        <strong><%= number_to_currency((@on_budget_balance/100.0), unit: "$", separator: ".", delimiter: ",") %></strong>
-      </div>
-      <% @on_budget_accounts.each do |account| %>
-        <p>
-          <%= render account %>
-        </p>
-      <% end %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Accounts</h1>
+    <div class="w-1/3 text-right">
+      <%= link_to "New", new_account_path, class: "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm" %>
     </div>
-  <% end %>
-  <% unless @off_budget_accounts.empty? %>
-    <div id="off_budget_accounts">
-      <div>
-        <strong>Off-Budget Accounts</strong>
-        <strong><%= number_to_currency(@off_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></strong>
-      </div>
-      <% @off_budget_accounts.each do |account| %>
-        <p>
-          <%= render account %>
-        </p>
-      <% end %>
+  </div>
+  
+  <!-- Subheader with total amount -->
+  <div class="bg-white py-3 px-4 flex justify-between items-center">
+    <h2 class="text-lg font-semibold">All Accounts</h2>
+    <div class="<%= @balances[:total] >= 0 ? 'text-green-600' : 'text-red-600' %> font-semibold">
+      <%= number_to_currency((@balances[:total]/100.0), unit: "$", separator: ".", delimiter: ",") %>
     </div>
-  <% end %>
-  <% unless @closed_accounts.empty? %>
-    <div id="closed_accounts">
-      <div>
-        <strong>Closed Accounts</strong>
-        <strong><%= number_to_currency(@closed_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></strong>
-      </div>
-      <% @closed_accounts.each do |account| %>
-        <p>
-          <%= render account %>
-        </p>
-      <% end %>
-    </div>
-  <% end %>
-</div>
-
-<div>
-  <%= link_to "New Account", new_account_path %>
+  </div>
+  
+  <div class="p-4">
+    <% @account_groups.each do |title, group| %>
+      <%= render 'account_group', 
+                 title: title, 
+                 accounts: group[:accounts], 
+                 balance: @balances[title], 
+                 id: group[:id] %>
+    <% end %>
+  </div>
 </div>
 

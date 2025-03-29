@@ -2,16 +2,33 @@ class AccountsController < ApplicationController
   before_action :set_account, only: %i[ edit update destroy ]
 
   def index
-    session[:page]="Accounts"
-    @accounts = @current_budget.accounts.all.order(:id)
+    session[:page] = "Accounts"
 
-    @on_budget_accounts = @accounts.where(closed: false, on_budget: true)
-    @on_budget_balance = @on_budget_accounts.sum(:balance)
-    @off_budget_accounts = @accounts.where(closed: false, on_budget: false)
-    @off_budget_balance = @off_budget_accounts.sum(:balance)
-    @closed_accounts = @accounts.where(closed: true)
-    @closed_balance = @closed_accounts.sum(:balance)
-    @total_balance = @on_budget_balance + @off_budget_balance + @closed_balance
+    # Group accounts by type
+    @account_groups = {
+      "Budget Accounts" => {
+        accounts: @current_budget.accounts.where(closed: false, on_budget: true).order(:name),
+        id: "budget_accounts"
+      },
+      "Off-Budget Accounts" => {
+        accounts: @current_budget.accounts.where(closed: false, on_budget: false).order(:name),
+        id: "off_budget_accounts"
+      },
+      "Closed Accounts" => {
+        accounts: @current_budget.accounts.where(closed: true).order(:name),
+        id: "closed_accounts"
+      }
+    }
+
+    # Calculate balances
+    @balances = {}
+    @balances[:total] = 0
+
+    @account_groups.each do |name, group|
+      balance = group[:accounts].sum(:balance)
+      @balances[name] = balance
+      @balances[:total] += balance
+    end
   end
 
   def show

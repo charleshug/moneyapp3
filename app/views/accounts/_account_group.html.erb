@@ -1,0 +1,21 @@
+ <% unless accounts.empty? %>
+  <div id="<%= id %>" class="mb-6">
+    <div class="flex justify-between items-center bg-gray-200 p-3 rounded-t-lg">
+      <strong class="text-gray-700"><%= title %></strong>
+      <strong class="<%= balance >= 0 ? 'text-green-600' : 'text-red-600' %>">
+        <%= number_to_currency((balance/100.0), unit: "$", separator: ".", delimiter: ",") %>
+      </strong>
+    </div>
+    
+    <div class="bg-white rounded-b-lg shadow">
+      <% accounts.each do |account| %>
+        <div class="p-3 flex justify-between items-center">
+          <div><%= link_to account.name, edit_account_path(account), class: "text-blue-600 hover:text-blue-800" %></div>
+          <div class="<%= account.balance >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= number_to_currency((account.balance/100.0), unit: "$", separator: ".", delimiter: ",") %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
