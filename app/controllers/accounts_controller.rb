@@ -11,6 +11,7 @@ class AccountsController < ApplicationController
     @off_budget_balance = @off_budget_accounts.sum(:balance)
     @closed_accounts = @accounts.where(closed: true)
     @closed_balance = @closed_accounts.sum(:balance)
+    @total_balance = @on_budget_balance + @off_budget_balance + @closed_balance
   end
 
   def show
