@@ -11,9 +11,9 @@
   </div>
   
   <!-- Subheader with total amount -->
-  <div class="bg-white py-3 px-4 flex justify-between items-center">
-    <h2 class="text-lg font-semibold">All Accounts</h2>
-    <div class="<%= @balances[:total] >= 0 ? 'text-green-600' : 'text-red-600' %> font-semibold">
+  <div class="bg-white py-3 px-4 flex justify-between items-center font-semibold">
+    <h2 class="text-lg">All Accounts</h2>
+    <div>
       <%= number_to_currency((@balances[:total]/100.0), unit: "$", separator: ".", delimiter: ",") %>
     </div>
   </div>
