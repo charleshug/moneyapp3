@@ -7,7 +7,6 @@
 <div class="sortable">
   <% @categories.each do |category| %>
     <%= content_tag :div, class: "item", data: { model_name: category.class.name.underscore, update_url: sort_categories_path } do %>
-      <div class="handle">☰</div>
       <h2>
         <%= link_to category.name, edit_category_path(category) %>
         <span class="order-controls">
