@@ -21,14 +21,14 @@ module ApplicationHelper
     if pagy.pages > 1  # Only show arrows if more than one page
       # Previous link
       html << if pagy.prev
-        %(<span class="prev">#{link_to '<', pagy_url_for(pagy, pagy.prev), rel: 'prev', aria: { label: 'previous' }}</span>)
+        %(<span class="prev">#{link_to '<', pagy_url_for(pagy, pagy.prev), rel: 'prev', aria: { label: 'previous' }, class: 'px-3 py-2 rounded hover:bg-gray-200'}</span>)
       else
         %(<span class="prev disabled"><</span>)
       end
 
       # Next link
       html << if pagy.next
-        %(<span class="next">#{link_to '>', pagy_url_for(pagy, pagy.next), rel: 'next', aria: { label: 'next' }}</span>)
+        %(<span class="next">#{link_to '>', pagy_url_for(pagy, pagy.next), rel: 'next', aria: { label: 'next' }, class: 'px-3 py-2 rounded hover:bg-gray-200'}</span>)
       else
         %(<span class="next disabled">></span>)
       end
