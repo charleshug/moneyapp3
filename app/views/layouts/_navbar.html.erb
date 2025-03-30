@@ -1,61 +1,69 @@
-<nav class="bg-white shadow-md w-full">
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-        <% unless current_user %>
-            <div class="flex justify-between w-full mx-8">
-                <%= link_to "Sign In", new_user_session_path, class: "px-3 py-1 hover:text-blue-600" %>
-                <%= link_to "Sign Up", new_user_registration_path, class: "px-3 py-1 hover:text-blue-600" %>
-            </div>
+<% if current_user %>
+  <div class="bg-gray-200 w-full border-b border-gray-300">
+    <div class="container mx-auto px-4 py-1 flex justify-between items-center">
+      <div class="text-sm">
+        User: <strong><%= current_user.email %></strong>
+        <% if current_user.last_viewed_budget_id && budget= Budget.find(current_user.last_viewed_budget_id) %>
+          | Budget: <strong><%= budget.name %></strong>
         <% else %>
-            <div class="flex justify-between w-full mx-8">
-                <%= link_to "Budgets", budgets_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
-                <%= link_to "Accounts", accounts_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
-                <%= link_to "Reports", reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
-                <%= link_to 'Settings', edit_user_registration_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/users/edit') ? 'font-bold text-blue-600' : ''}" %>
-                <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "px-3 py-1 hover:text-blue-600" %>
-            </div>
+          | No current budget
         <% end %>
-        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <%= link_to 'Settings', edit_user_registration_path, class: "text-sm px-3 py-0.5 hover:text-blue-600 #{request.path.starts_with?('/users/edit') ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "text-sm px-3 py-0.5 hover:text-blue-600" %>
+      </div>
     </div>
+  </div>
+<% end %>
+
+<nav class="bg-white shadow-md w-full">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <% unless current_user %>
+        <div class="flex justify-between w-full mx-8">
+          <div></div>
+          <div class="flex items-center space-x-2">
+            <%= link_to "Sign In", new_user_session_path, class: "px-3 py-1 hover:text-blue-600" %>
+            <%= link_to "Sign Up", new_user_registration_path, class: "px-3 py-1 hover:text-blue-600" %>
+          </div>
+        </div>
+      <% else %>
+        <div class="flex justify-between w-full mx-8">
+          <div class="flex items-center space-x-4">
+            <%= link_to "Budgets", budgets_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
+            <%= link_to "Accounts", accounts_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
+            <%= link_to "Reports", reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
+          </div>
+          <div>
+            <%= link_to "Add Transaction", new_trx_path, class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </nav>
 
 <% if current_user %>
-    <% if request.path.starts_with?('/reports') %>
+  <% if request.path.starts_with?('/reports') %>
     <div class="bg-gray-100 w-full border-b border-gray-200">
-        <div class="container mx-auto px-4 py-2 flex space-x-4">
-            <%= link_to 'Net Worth', net_worth_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == net_worth_reports_path ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to 'Spending By Vendor', vendor_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == vendor_reports_path ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to 'Spending By Category', category_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == category_reports_path ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to 'Income v Expense', income_expense_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == income_expense_reports_path ? 'font-bold text-blue-600' : ''}" %>
-        </div>
+      <div class="container mx-auto px-4 py-2 flex space-x-4">
+        <%= link_to 'Net Worth', net_worth_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == net_worth_reports_path ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to 'Spending By Vendor', vendor_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == vendor_reports_path ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to 'Spending By Category', category_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == category_reports_path ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to 'Income v Expense', income_expense_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == income_expense_reports_path ? 'font-bold text-blue-600' : ''}" %>
+      </div>
     </div>
-    <% end %>
-    
-    <% if request.path.starts_with?('/users/edit') || request.path.starts_with?('/vendors') || request.path.starts_with?('/categories') || request.path.starts_with?('/ledgers') %>
+  <% end %>
+  
+  <% if request.path.starts_with?('/users/edit') || request.path.starts_with?('/vendors') || request.path.starts_with?('/categories') || request.path.starts_with?('/ledgers') %>
     <div class="bg-gray-100 w-full border-b border-gray-200">
-        <div class="container mx-auto px-4 py-2 flex space-x-4">
-            <%= link_to "Vendors", vendors_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/vendors') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Categories", categories_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/categories') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to 'Ledgers', ledgers_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/ledgers') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Transactions", trxes_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/trxes') ? 'font-bold text-blue-600' : ''}" %>
-        </div>
+      <div class="container mx-auto px-4 py-2 flex space-x-4">
+        <%= link_to "Vendors", vendors_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/vendors') ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to "Categories", categories_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/categories') ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to 'Ledgers', ledgers_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/ledgers') ? 'font-bold text-blue-600' : ''}" %>
+        <%= link_to "Transactions", trxes_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/trxes') ? 'font-bold text-blue-600' : ''}" %>
+      </div>
     </div>
-    <% end %>
-    
-    <div class="bg-gray-200 w-full border-b border-gray-300">
-        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
-            <div>
-                User: <strong><%= current_user.email %></strong>
-                <% if current_user.last_viewed_budget_id && budget= Budget.find(current_user.last_viewed_budget_id) %>
-                    | Budget: <strong><%= budget.name %></strong>
-                <% else %>
-                    | No current budget
-                <% end %>
-            </div>
-            <div>
-                <%= link_to "Add Transaction", new_trx_path, class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md mr-2" %>
-                <%= link_to "Scheduled Transactions", scheduled_trxes_path, class: "px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-md" %>
-            </div>
-        </div>
-    </div>
+  <% end %>
 <% end %>
