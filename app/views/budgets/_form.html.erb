@@ -1,33 +1,44 @@
 <%= form_with(model: budget) do |f| %>
   <% if budget.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(budget.errors.count, "error") %> prohibited this budget from being saved:</h2>
-
-      <ul>
-        <% budget.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= pluralize(budget.errors.count, "error") %> prohibited this budget from being saved:</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% budget.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
   
-  <div>
-    <%= f.label :name %>
-    <%= f.text_field :name, placeholder: "Enter a name..." %>
-  </div>
-  <div>
-    <%= f.label :description %>
-    <%= f.text_field :description, placeholder: "Enter a description..." %>
-  </div>
+  <div class="space-y-4">
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :name, placeholder: "Enter a name...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    </div>
+    
+    <div>
+      <%= f.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :description, placeholder: "Enter a description...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    </div>
 
-  <div>
-    <%= f.label :budget_type, style: "display: block" %>
-    <%= f.select :budget_type, Budget::BUDGET_TYPES %>
-  </div>
+    <div>
+      <%= f.label :budget_type, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :budget_type, Budget::BUDGET_TYPES, {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+    </div>
 
-  <br>
-
-  <div>
-    <%= f.submit %>
+    <div class="pt-4">
+      <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+    </div>
   </div>
 <% end %>
