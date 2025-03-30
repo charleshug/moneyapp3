@@ -8,10 +8,10 @@
             </div>
         <% else %>
             <div class="flex justify-between w-full mx-8">
-                <%= link_to "Budgets", class: "px-4 py-2 text-gray-700 hover:bg-slate-200 rounded text-center flex-1" %>
+                <%= link_to "Budgets", budgets_path %>
                 <%= link_to "Accounts", accounts_path %>
                 <%= link_to "Reports", reports_path %>
-                <%= link_to 'Edit profile', edit_user_registration_path %>
+                <%= link_to 'Settings', edit_user_registration_path %>
                 <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete } %>
             </div>
         <% if request.path.starts_with?('/reports') %>

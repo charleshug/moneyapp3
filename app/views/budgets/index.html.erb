@@ -1,108 +1,121 @@
 <% provide(:title, "Budgets") %>
 
-<div style="display: inline-block;">
-  <%= link_to "<", budgets_path(date: { month: @selected_month.prev_month.month, year: @selected_month.prev_month.year }), method: :get, style: "margin-right: 10px; font-size: 24px;" %>
-</div>
-<div style="display: inline-block;">
-  <%= form_tag budgets_path, method: :get do %>
-    <%= select_month(@selected_month, {}, class: "form-control", style: "font-size: 24px;") %>
-    <%= select_year(@selected_month, {start_year: Date.current.year - 5, end_year: Date.current.year + 5}, {class: "form-control", style: "font-size: 24px;"}) %>
-    <%= submit_tag "Select" %>
-  <% end %>
-</div>
-<div style="display: inline-block;">
-  <%= link_to ">", budgets_path(date: { month: @selected_month.next_month.month, year: @selected_month.next_month.year }), method: :get, style: "margin-right: 10px; font-size: 24px;" %>
-</div>
-<div style="display: inline-block;">
-  <%= link_to "Today", budgets_path(date: { month: Date.today.month, year: Date.today.year }), method: :get %>
-</div>
-
-<table>
-  <tr>
-    <td style="text-align: right;"><%= number_to_currency((@budget_available_previously / 100.0)) %></td>
-    <td>Not budgeted in Prev</td>
-  </tr>
-  <tr>
-    <td style="text-align: right;"><%= number_to_currency((@overspent_prev / 100.0)) %></td>
-    <td>Overspent in Prev</td>
-  </tr>
-  <tr>
-    <td style="text-align: right;"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: @current_budget.categories.income.first.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
-    <td>Income for Current</td>
-  </tr>
-  <tr>
-    <td style="text-align: right;"><%= number_to_currency(-(@budget_current / 100.0)) %></td>
-    <td>Budgeted in Current</td>
-  </tr>
-  <tr>
-    <td style="text-align: right;"><%= number_to_currency((@budget_available_current / 100.0)) %></td>
-    <td>Available to budget in Current</td>
-  </tr>
-</table>
-
-<br>
-
-<table>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Budget</th>
-      <th>Actual</th>
-      <th>Balance</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Summary row at the top -->
-    <tr class="table-summary-row">
-      <td></td>
-      <td style="text-align: right;">
-        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
-      </td>
-      <td style="text-align: right;">
-        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
-      </td>
-      <td style="text-align: right;">
-        <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:balance] } / 100.0) %></strong>
-      </td>
-    </tr>
-    
-    <!-- Separator row -->
-    <tr class="table-divider">
-      <td colspan="4"></td>
-    </tr>
-    
-    <% @budget_table_data.each do |parent| %>
-      <tr>
-        <td><strong><%= parent[:name] %></strong></td>
-        <td style="text-align: right;"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
-        <td style="text-align: right;"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
-        <td style="text-align: right;"><strong><%= number_to_currency(parent[:balance] / 100.0) %></strong></td>
-      </tr>
-      <% parent[:subcategories].each do |subcategory| %>
-        <tr>
-          <td><%= subcategory[:name] %></td>
-          <% if subcategory[:ledger] %>
-            <td style="text-align: right;"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]) %></td>
-            <td style="text-align: right;"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
-          <% else %>
-            <td style="text-align: right;"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }) %></td>
-            <td style="text-align: right;"><%= number_to_currency(0 / 100.0) %></td>
+<div class="container mx-auto max-w-6xl px-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="md:col-start-2 bg-white rounded-lg shadow p-4">
+      <div id="budget-header" class="flex items-center space-x-4 mb-4">
+        <div>
+          <%= link_to "<", budgets_path(date: { month: @selected_month.prev_month.month, year: @selected_month.prev_month.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md text-2xl hover:bg-gray-300" %>
+        </div>
+        <div>
+          <%= form_tag budgets_path, method: :get, class: "flex items-center space-x-2" do %>
+            <%= select_month(@selected_month, {}, class: "form-control text-2xl") %>
+            <%= select_year(@selected_month, {start_year: Date.current.year - 5, end_year: Date.current.year + 5}, {class: "form-control text-2xl"}) %>
+            <%= submit_tag "Select", class: "px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600" %>
           <% end %>
-            <td style="text-align: right;">
-              <%= number_to_currency(subcategory[:balance] / 100.0) %>
-              <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
-                ->
-              <% end %>
-            </td>
+        </div>
+        <div>
+          <%= link_to ">", budgets_path(date: { month: @selected_month.next_month.month, year: @selected_month.next_month.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md text-2xl hover:bg-gray-300" %>
+        </div>
+        <div>
+          <%= link_to "Today", budgets_path(date: { month: Date.today.month, year: Date.today.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
+        </div>
+      </div>
+      <table class="w-full">
+        <tr>
+          <td class="text-right"><%= number_to_currency((@budget_available_previously / 100.0)) %></td>
+          <td>Not budgeted in Prev</td>
         </tr>
-      <% end %>
-    <% end %>
-  </tbody>
-</table>
+        <tr>
+          <td class="text-right"><%= number_to_currency((@overspent_prev / 100.0)) %></td>
+          <td>Overspent in Prev</td>
+        </tr>
+        <tr>
+          <td class="text-right"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: @current_budget.categories.income.first.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+          <td>Income for Current</td>
+        </tr>
+        <tr>
+          <td class="text-right"><%= number_to_currency(-(@budget_current / 100.0)) %></td>
+          <td>Budgeted in Current</td>
+        </tr>
+        <tr>
+          <td class="text-right"><%= number_to_currency((@budget_available_current / 100.0)) %></td>
+          <td>Available to budget in Current</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 
-<br>
-<%= form_tag update_budget_values_path, method: :post do %>
-  <%= hidden_field_tag :date, @selected_month %>
-  <%= select_tag :option, options_for_select(["Zero all budgeted amounts", "Budget values used last month", "Last month outflows", "Balance to zero"]), include_blank: true, prompt: "Auto-fill budget values", class: "form-control", style: "font-size: 16px;" %>
-  <%= submit_tag "Apply", class: "btn btn-primary" %>
-<% end %>
+  <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left">Category</th>
+          <th class="px-4 py-2 text-right w-1/6">Budget</th>
+          <th class="px-4 py-2 text-right w-1/6">Actual</th>
+          <th class="px-4 py-2 text-right w-1/6">Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Summary row at the top -->
+        <tr class="bg-gray-100">
+          <td class="px-4 py-2"></td>
+          <td class="px-4 py-2 text-right">
+            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
+          </td>
+          <td class="px-4 py-2 text-right">
+            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
+          </td>
+          <td class="px-4 py-2 text-right">
+            <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
+            <strong class="<%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
+          </td>
+        </tr>
+        
+        <!-- Separator row -->
+        <tr class="border-t border-b border-gray-200">
+          <td colspan="4" class="py-1"></td>
+        </tr>
+        
+        <% @budget_table_data.each do |parent| %>
+          <tr class="bg-gray-50">
+            <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
+            <td class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
+            <td class="px-4 py-2 text-right"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
+            <td class="px-4 py-2 text-right">
+              <strong class="<%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
+            </td>
+          </tr>
+          <% parent[:subcategories].each do |subcategory| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 pl-8"><%= subcategory[:name] %></td>
+              <% if subcategory[:ledger] %>
+                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]) %></td>
+                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+              <% else %>
+                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }) %></td>
+                <td class="px-4 py-2 text-right"><%= number_to_currency(0 / 100.0) %></td>
+              <% end %>
+                <td class="px-4 py-2 text-right">
+                  <span class="<%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
+                    <%= number_to_currency(subcategory[:balance] / 100.0) %>
+                    <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
+                      ->
+                    <% end %>
+                  </span>
+                </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4 max-w-lg">
+    <%= form_tag update_budget_values_path, method: :post, class: "flex items-center space-x-2" do %>
+      <%= hidden_field_tag :date, @selected_month %>
+      <%= select_tag :option, options_for_select(["Zero all budgeted amounts", "Budget values used last month", "Last month outflows", "Balance to zero"]), include_blank: true, prompt: "Auto-fill budget values", class: "form-control text-base" %>
+      <%= submit_tag "Apply", class: "px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600" %>
+    <% end %>
+  </div>
+</div>
