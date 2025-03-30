@@ -1,42 +1,79 @@
 <% provide(:title, "Import Transactions") %>
-<h1>Review Transactions</h1>
-<%= form_with url: submit_import_import_trxes_path, method: :post do %>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Account</th>
-        <th>Vendor</th>
-        <th>Subcategory</th>
-        <th>Memo</th>
-        <th>Amount</th>
-        <th>Include</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @trxes.each_with_index do |trx, index| %>
-        <tr>
-          <td><%= date_field_tag "trx[#{index}][date]", trx["Date"] %></td>
-          <td><%= select_tag "trx[#{index}][account_id]", options_from_collection_for_select(@accounts, :id, :name, selected: @accounts.find_by(name: trx["Account"]).id) %></td>
-          <td><%= select_tag "trx[#{index}][vendor_id]", options_from_collection_for_select(@vendors, :id, :name, selected: @vendors.find_or_create_by(name: trx["Vendor"]).id) %></td>
-          <td><%= select_tag "trx[#{index}][lines_attributes][0][subcategory_id]", 
-                  grouped_options_for_select(
-                    @categories.map { |category| 
-                      [category.name, category.subcategories.map { |sub| [sub.name, sub.id] }] 
-                    }, 
-                    selected: @subcategories.find_by(name: trx["Subcategory"])&.id || @subcategories.find_or_create_by(name: "Uncategorized").id
-                  ) 
-            %>
-          <td><%= text_field_tag "trx[#{index}][memo]", trx["Memo"] %></td>
-          </td>          
-          <td><%= number_field_tag "trx[#{index}][lines_attributes][0][amount]", trx["Amount"].to_f*100/100, step: '0.01' %></td>
-          <td><%= check_box_tag "trx[#{index}][include]", '1', true %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
 
-  <%= submit_tag "Submit Transactions" %>
-<% end %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", trxes_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Review Transactions</h1>
+    <div class="w-1/3 text-right"></div>
+  </div>
 
-<%= link_to 'Cancel', trxes_path %>
+  <!-- Content section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <%= form_with url: submit_import_import_trxes_path, method: :post do %>
+      <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategory</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memo</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Include</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @trxes.each_with_index do |trx, index| %>
+              <tr>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= date_field_tag "trx[#{index}][date]", trx["Date"], class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= select_tag "trx[#{index}][account_id]", 
+                      options_from_collection_for_select(@accounts, :id, :name, selected: @accounts.find_by(name: trx["Account"]).id),
+                      class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= select_tag "trx[#{index}][vendor_id]", 
+                      options_from_collection_for_select(@vendors, :id, :name, selected: @vendors.find_or_create_by(name: trx["Vendor"]).id),
+                      class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= select_tag "trx[#{index}][lines_attributes][0][subcategory_id]", 
+                      grouped_options_for_select(
+                        @categories.map { |category| 
+                          [category.name, category.subcategories.map { |sub| [sub.name, sub.id] }] 
+                        }, 
+                        selected: @subcategories.find_by(name: trx["Subcategory"])&.id || @subcategories.find_or_create_by(name: "Uncategorized").id
+                      ),
+                      class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= text_field_tag "trx[#{index}][memo]", trx["Memo"], class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= number_field_tag "trx[#{index}][lines_attributes][0][amount]", 
+                      trx["Amount"].to_f*100/100, 
+                      step: '0.01', 
+                      class: "w-full text-right rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap text-center">
+                  <%= check_box_tag "trx[#{index}][include]", '1', true, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 flex space-x-3">
+        <%= submit_tag "Submit Transactions", class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+        <%= link_to 'Cancel', trxes_path, class: "px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md" %>
+      </div>
+    <% end %>
+  </div>
+</div>

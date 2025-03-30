@@ -1,114 +1,146 @@
 <% provide(:title, "Import Preview") %>
-<h1>Import Preview</h1>
 
-<% if @import_warnings.present? %>
-  <div class="alert alert-warning">
-    <h4>Import Warnings:</h4>
-    <ul>
-      <% @import_warnings.each do |warning| %>
-        <li><%= warning %></li>
-      <% end %>
-    </ul>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", import_trxes_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Import Preview</h1>
+    <div class="w-1/3 text-right"></div>
   </div>
-<% end %>
 
-<%= form_with(url: submit_import_import_trxes_path, local: true, data: { turbo: false }) do |f| %>
-  <table class="import-preview">
-    <thead>
-      <tr>
-        <th>Include</th>
-        <th>Date</th>
-        <th>Vendor</th>
-        <th>Account</th>
-        <th>Amount</th>
-        <th>Category</th>
-        <th>Memo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @trxes.each_with_index do |trx, index| %>
-        <% is_multi_line = trx['lines_attributes'].size > 1 %>
-        <% total_amount = trx['lines_attributes'].values.sum { |line| line['amount'].to_i } %>
-        
-        <%# Main transaction row %>
-        <tr class="<%= is_multi_line ? 'multi-line-parent' : '' %>">
-          <td>
-            <%= f.check_box "trx[#{index}][include]", checked: true %>
-          </td>
-          <td>
-            <%= f.date_field "trx[#{index}][date]", value: trx['date'] %>
-          </td>
-          <td>
-            <%= f.select "trx[#{index}][vendor_id]",
-                options_from_collection_for_select(@current_budget.vendors.order('LOWER(name)'), :id, :name, trx['vendor_id']) %>
-          </td>
-          <td>
-            <%= f.select "trx[#{index}][account_id]",
-                options_from_collection_for_select(@current_budget.accounts, :id, :name, trx['account_id']) %>
-          </td>
-          <td class="amount <%= 'total-amount' if is_multi_line %>">
-            <% if is_multi_line %>
-              <%= number_to_currency(total_amount / 100.0) %>
-            <% else %>
-              <% amount_in_dollars = BigDecimal(trx['lines_attributes']['0']['amount'].to_s) / BigDecimal('100') %>
-              <%= f.number_field "trx[#{index}][lines_attributes][0][amount]",
-                  value: sprintf('%.2f', amount_in_dollars),
-                  step: '0.01',
-                  class: 'amount-field' %>
-            <% end %>
-          </td>
-          <td>
-            <% if is_multi_line %>
-              <span class="split-indicator">Split</span>
-            <% else %>
-              <%= f.select "trx[#{index}][lines_attributes][0][subcategory_id]",
-                  grouped_options_for_select(
-                    @current_budget.categories.includes(:subcategories).map { |c|
-                      [c.name, c.subcategories.map { |s| [s.name, s.id] }]
-                    },
-                    trx['lines_attributes']['0']['subcategory_id']
-                  ) %>
-            <% end %>
-          </td>
-          <td>
-            <%= f.text_field "trx[#{index}][memo]", value: trx['memo'] %>
-          </td>
-        </tr>
+  <!-- Content section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <% if @import_warnings.present? %>
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-md">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-800">Import Warnings:</h3>
+            <div class="mt-2 text-sm text-yellow-700">
+              <ul class="list-disc pl-5 space-y-1">
+                <% @import_warnings.each do |warning| %>
+                  <li><%= warning %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
-        <%# Split lines for multi-line transactions %>
-        <% if is_multi_line %>
-          <% trx['lines_attributes'].each do |key, line| %>
-            <tr class="split-line">
-              <td colspan="4"></td>
-              <td>
-                <% amount_in_dollars = BigDecimal(line['amount'].to_s) / BigDecimal('100') %>
-                <%= f.number_field "trx[#{index}][lines_attributes][#{key}][amount]",
-                    value: sprintf('%.2f', amount_in_dollars),
-                    step: '0.01',
-                    class: 'amount-field' %>
-              </td>
-              <td>
-                <%= f.select "trx[#{index}][lines_attributes][#{key}][subcategory_id]",
-                    grouped_options_for_select(
-                      @current_budget.categories.includes(:subcategories).map { |c|
-                        [c.name, c.subcategories.map { |s| [s.name, s.id] }]
-                      },
-                      line['subcategory_id']
-                    ) %>
-              </td>
-              <td></td>
+    <%= form_with(url: submit_import_import_trxes_path, local: true, data: { turbo: false }) do |f| %>
+      <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Include</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memo</th>
             </tr>
-          <% end %>
-        <% end %>
-      <% end %>
-    </tbody>
-  </table>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @trxes.each_with_index do |trx, index| %>
+              <% is_multi_line = trx['lines_attributes'].size > 1 %>
+              <% total_amount = trx['lines_attributes'].values.sum { |line| line['amount'].to_i } %>
+              
+              <%# Main transaction row %>
+              <tr class="<%= is_multi_line ? 'border-b-0' : '' %>">
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= f.check_box "trx[#{index}][include]", checked: true, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= f.date_field "trx[#{index}][date]", value: trx['date'], class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= f.select "trx[#{index}][vendor_id]",
+                      options_from_collection_for_select(@current_budget.vendors.order('LOWER(name)'), :id, :name, trx['vendor_id']),
+                      {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= f.select "trx[#{index}][account_id]",
+                      options_from_collection_for_select(@current_budget.accounts, :id, :name, trx['account_id']),
+                      {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap <%= 'text-gray-500 italic' if is_multi_line %>">
+                  <% if is_multi_line %>
+                    <%= number_to_currency(total_amount / 100.0) %>
+                  <% else %>
+                    <% amount_in_dollars = BigDecimal(trx['lines_attributes']['0']['amount'].to_s) / BigDecimal('100') %>
+                    <%= f.number_field "trx[#{index}][lines_attributes][0][amount]",
+                        value: sprintf('%.2f', amount_in_dollars),
+                        step: '0.01',
+                        class: "w-full text-right rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <% if is_multi_line %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Split
+                    </span>
+                  <% else %>
+                    <%= f.select "trx[#{index}][lines_attributes][0][subcategory_id]",
+                        grouped_options_for_select(
+                          @current_budget.categories.includes(:subcategories).map { |c|
+                            [c.name, c.subcategories.map { |s| [s.name, s.id] }]
+                          },
+                          trx['lines_attributes']['0']['subcategory_id']
+                        ),
+                        {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2 whitespace-nowrap">
+                  <%= f.text_field "trx[#{index}][memo]", value: trx['memo'], class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                </td>
+              </tr>
 
-  <div class="actions">
-    <%= f.submit "Import Selected", class: "button" %>
-    <%= link_to "Cancel", import_trxes_path, class: "button" %>
+              <%# Split lines for multi-line transactions %>
+              <% if is_multi_line %>
+                <% trx['lines_attributes'].each do |key, line| %>
+                  <tr class="bg-gray-50">
+                    <td colspan="4" class="px-4 py-2"></td>
+                    <td class="px-4 py-2 whitespace-nowrap">
+                      <% amount_in_dollars = BigDecimal(line['amount'].to_s) / BigDecimal('100') %>
+                      <%= f.number_field "trx[#{index}][lines_attributes][#{key}][amount]",
+                          value: sprintf('%.2f', amount_in_dollars),
+                          step: '0.01',
+                          class: "w-full text-right rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+                    </td>
+                    <td class="px-4 py-2 whitespace-nowrap">
+                      <%= f.select "trx[#{index}][lines_attributes][#{key}][subcategory_id]",
+                          grouped_options_for_select(
+                            @current_budget.categories.includes(:subcategories).map { |c|
+                              [c.name, c.subcategories.map { |s| [s.name, s.id] }]
+                            },
+                            line['subcategory_id']
+                          ),
+                          {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+                    </td>
+                    <td class="px-4 py-2"></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 flex space-x-3">
+        <%= f.submit "Import Selected", class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+        <%= link_to "Cancel", import_trxes_path, class: "px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md" %>
+      </div>
+    <% end %>
   </div>
-<% end %>
+</div>
 
 <% content_for :styles do %>
   <style>
