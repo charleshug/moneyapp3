@@ -1,28 +1,40 @@
-<div class="nested-fields">
-  <div class="field">
-    <%= f.label :subcategory_id, "Category" %>
-    <%= f.grouped_collection_select :subcategory_id,
-                                  @current_budget.categories,
-                                  :subcategories,
-                                  :name,
-                                  :id,
-                                  :name %>
+<div class="nested-fields bg-gray-50 p-4 rounded-md">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <%= f.label :subcategory_id, "Category", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.grouped_collection_select :subcategory_id,
+                                    @current_budget.categories,
+                                    :subcategories,
+                                    :name,
+                                    :id,
+                                    :name,
+                                    {},
+                                    {class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"} %>
+    </div>
+    
+    <div>
+      <%= f.label :amount, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :amount, 
+                        value: (BigDecimal(f.object.amount.to_s) / BigDecimal("100")).round(2),
+                        step: "0.01",
+                        class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    </div>
+    
+    <div>
+      <%= f.label :transfer_account_id, "Transfer Account", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.collection_select :transfer_account_id, 
+                            @current_budget.accounts, 
+                            :id, 
+                            :name, 
+                            { include_blank: true, prompt: "Transfer Account" },
+                            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+    </div>
   </div>
-  <div class="field">
-    <%= f.label :amount %>
-    <%= f.number_field :amount, 
-                      value: (BigDecimal(f.object.amount.to_s) / BigDecimal("100")).round(2),
-                      step: "0.01" %>
-  </div>
-  <div class="field">
-    <%= f.label :transfer_account_id, "Transfer Account" %>
-    <%= f.collection_select :transfer_account_id, 
-                          @current_budget.accounts, 
-                          :id, 
-                          :name, 
-                          { include_blank: true, prompt: "Transfer Account" },
-                          { class: "form-control" } %>
-  </div>
-  <%= f.check_box :_destroy unless f.object.new_record? %>
-  <%= f.label :_destroy, "Remove" unless f.object.new_record? %>
+  
+  <% unless f.object.new_record? %>
+    <div class="mt-3 flex items-center">
+      <%= f.check_box :_destroy, class: "rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50" %>
+      <%= f.label :_destroy, "Remove this line", class: "ml-2 block text-sm text-gray-700" %>
+    </div>
+  <% end %>
 </div> 

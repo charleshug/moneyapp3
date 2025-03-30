@@ -1,16 +1,30 @@
-<h1>New Scheduled Transaction</h1>
+<% provide(:title, "New Scheduled Transaction") %>
 
-<% if @scheduled_trx.errors.any? %>
-  <div id="error_explanation">
-    <h2><%= pluralize(@scheduled_trx.errors.count, "error") %> prohibited this scheduled transaction from being saved:</h2>
-    <ul>
-      <% @scheduled_trx.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-    </ul>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", scheduled_trxes_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">New Scheduled Transaction</h1>
+    <div class="w-1/3 text-right"></div>
   </div>
-<% end %>
+  
+  <!-- Form section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <% if @scheduled_trx.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@scheduled_trx.errors.count, "error") %> prohibited this scheduled transaction from being saved:</h2>
+          <ul>
+            <% @scheduled_trx.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-<%= render "form", scheduled_trx: @scheduled_trx %>
-
-<%= link_to 'Back', scheduled_trxes_path %> 
+      <%= render "form", scheduled_trx: @scheduled_trx %>
+    </div>
+  </div>
+</div> 
