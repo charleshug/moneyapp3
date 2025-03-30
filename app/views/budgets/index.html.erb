@@ -21,34 +21,37 @@
           <%= link_to "Today", budgets_path(date: { month: Date.today.month, year: Date.today.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
         </div>
       </div>
-      <table class="w-full">
-        <tr>
-          <td class="text-right"><%= number_to_currency((@budget_available_previously / 100.0)) %></td>
-          <td>Not budgeted in Prev</td>
-        </tr>
-        <tr>
-          <td class="text-right"><%= number_to_currency((@overspent_prev / 100.0)) %></td>
-          <td>Overspent in Prev</td>
-        </tr>
-        <tr>
-          <td class="text-right"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: @current_budget.categories.income.first.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
-          <td>Income for Current</td>
-        </tr>
-        <tr>
-          <td class="text-right"><%= number_to_currency(-(@budget_current / 100.0)) %></td>
-          <td>Budgeted in Current</td>
-        </tr>
-        <tr>
-          <td class="text-right"><%= number_to_currency((@budget_available_current / 100.0)) %></td>
-          <td>Available to budget in Current</td>
-        </tr>
-      </table>
+      
+      <div class="bg-gray-100 rounded-lg p-3 mx-auto max-w-md">
+        <table class="w-full">
+          <tr>
+            <td class="text-right px-3 py-1 w-1/2 <%= @budget_available_previously < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((@budget_available_previously / 100.0)) %></td>
+            <td class="px-3 py-1 w-1/2">Not budgeted in Prev</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1 <%= @overspent_prev < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((@overspent_prev / 100.0)) %></td>
+            <td class="px-3 py-1">Overspent in Prev</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1"><%= link_to number_to_currency(@income_current / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: @current_budget.categories.income.first.subcategories.pluck(:id), date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+            <td class="px-3 py-1">Income for Current</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1 <%= -@budget_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(-(@budget_current / 100.0)) %></td>
+            <td class="px-3 py-1">Budgeted in Current</td>
+          </tr>
+          <tr class="rounded-b-lg">
+            <td class="text-right px-3 py-1 <%= @budget_available_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((@budget_available_current / 100.0)) %></td>
+            <td class="px-3 py-1">Available to budget in Current</td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 
   <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
     <table class="w-full">
-      <thead class="bg-gray-50">
+      <thead class="bg-gray-100">
         <tr>
           <th class="px-4 py-2 text-left">Category</th>
           <th class="px-4 py-2 text-right w-1/6">Budget</th>
@@ -78,7 +81,7 @@
         </tr>
         
         <% @budget_table_data.each do |parent| %>
-          <tr class="bg-gray-50">
+          <tr class="bg-gray-100">
             <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
             <td class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
             <td class="px-4 py-2 text-right"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
