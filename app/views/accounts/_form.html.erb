@@ -1,43 +1,56 @@
 <%= form_with(model: account) do |f| %>
   <% if account.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(account.errors.count, "error") %> prohibited this trx from being saved:</h2>
-
-      <ul>
-        <% account.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= pluralize(account.errors.count, "error") %> prohibited this account from being saved:</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% account.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
   
-<div>
-  <%= f.label :name %>
-  <%= f.text_field :name, autofocus: true, placeholder: "Enter a name..." %>
-</div>
-<div>
-  <%= f.label :on_budget, "On Budget Account?" %>
-  <%= f.check_box :on_budget %>
-</div>
-<div>
-  <%= f.label :closed, "Closed?" %>
-  <%= f.check_box :closed %>
-</div>
+  <div class="space-y-4">
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :name, autofocus: true, placeholder: "Enter a name...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    </div>
+    
+    <div class="flex items-center">
+      <%= f.check_box :on_budget, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2" %>
+      <%= f.label :on_budget, "On Budget Account?", class: "text-sm font-medium text-gray-700" %>
+    </div>
+    
+    <div class="flex items-center">
+      <%= f.check_box :closed, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2" %>
+      <%= f.label :closed, "Closed?", class: "text-sm font-medium text-gray-700" %>
+    </div>
 
-<% unless account.persisted? %>
-  <div>
-    <%= f.label :starting_date %>
-    <%= f.date_field :starting_date, :value => Date.today %>
-  </div>
-  <div>
-    <%= f.label :starting_balance %>
-    <%= f.number_field :starting_balance, step: '0.01', placeholder: "Enter starting balance" %>
-  </div>
-<% end %>
-  
+    <% unless account.persisted? %>
+      <div>
+        <%= f.label :starting_date, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :starting_date, value: Date.today, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+      
+      <div>
+        <%= f.label :starting_balance, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.number_field :starting_balance, step: '0.01', placeholder: "Enter starting balance", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+    <% end %>
 
-
-  <div>
-    <%= f.submit %>
+    <div class="pt-4">
+      <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+    </div>
   </div>
 <% end %>
