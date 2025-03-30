@@ -19,24 +19,24 @@
 
 <nav class="bg-white shadow-md w-full">
   <div class="container mx-auto px-4">
-    <div class="flex justify-between items-center h-16">
+    <div class="flex justify-between items-center">
       <% unless current_user %>
-        <div class="flex justify-between w-full mx-8">
+        <div class="flex justify-between w-full">
           <div></div>
-          <div class="flex items-center space-x-2">
-            <%= link_to "Sign In", new_user_session_path, class: "px-3 py-1 hover:text-blue-600" %>
-            <%= link_to "Sign Up", new_user_registration_path, class: "px-3 py-1 hover:text-blue-600" %>
+          <div class="flex items-center">
+            <%= link_to "Sign In", new_user_session_path, class: "p-3 hover:text-blue-600" %>
+            <%= link_to "Sign Up", new_user_registration_path, class: "p-3 hover:text-blue-600" %>
           </div>
         </div>
       <% else %>
-        <div class="flex justify-between w-full mx-8">
-          <div class="flex items-center space-x-4">
-            <%= link_to "Budgets", budgets_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Accounts", accounts_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Reports", reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center">
+            <%= link_to "Budgets", budgets_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
+            <%= link_to "Accounts", accounts_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
+            <%= link_to "Reports", reports_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
           </div>
           <div>
-            <%= link_to "Add Transaction", new_trx_path, class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+            <%= link_to "Add Transaction", new_trx_path, class: "p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
           </div>
         </div>
       <% end %>
