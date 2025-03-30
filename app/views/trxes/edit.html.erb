@@ -1,36 +1,49 @@
-<% provide(:title, "Edit Trx") %>
-<h1>Editing trx</h1>
+<% provide(:title, "Edit Transaction") %>
 
-<% if @trx.transfer_child? %>
-  <div class="alert alert-warning">
-    <p>
-      <strong>This is a transfer transaction.</strong> 
-      Changes must be made to the original transaction instead.
-    </p>
-    <% if parent_trx = @trx.parent_transaction %>
-      <%= link_to "Edit Original Transaction", edit_trx_path(parent_trx), class: "btn btn-primary" %>
-    <% else %>
-      <p>The original transaction could not be found.</p>
-    <% end %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", request.referer || trxes_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Edit Transaction</h1>
+    <div class="w-1/3 text-right">
+      <%= link_to "Delete", trx_path(@trx), 
+          data: {turbo_method: :delete, turbo_confirm: "Are you sure?"}, 
+          class: "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm" %>
+    </div>
   </div>
-<% end %>
-
-<%= render "form", trx: @trx %>
-
-<div>
-  <%#= link_to "Delete Transaction", trx_path(@trx), method: :delete, data: { confirm: 'Are you sure?'} %>
-
-
-  <%= link_to "Delete Transaction", trx_path(@trx), data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %>
-</div>
-
-<br>
-<div>
-  <%= link_to "New Vendor", new_vendor_path %>
-</div>
-
-<br>
-
-<div>
-  <%= link_to "Back", request.referer || trxes_path %>
+  
+  <!-- Form section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <% if @trx.transfer_child? %>
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-md">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">
+              <strong>This is a transfer transaction.</strong> 
+              Changes must be made to the original transaction instead.
+            </p>
+            <% if parent_trx = @trx.parent_transaction %>
+              <div class="mt-2">
+                <%= link_to "Edit Original Transaction", edit_trx_path(parent_trx), class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm" %>
+              </div>
+            <% else %>
+              <p class="text-sm text-yellow-700 mt-2">The original transaction could not be found.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <%= render "form", trx: @trx %>
+      
+    </div>
+  </div>
 </div>

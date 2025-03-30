@@ -1,70 +1,76 @@
 <% provide(:title, "Spending by Vendor") %>
-<h2>Spending By Vendor</h2>
 
-<%= search_form_for @q, url: vendor_reports_path do |f| %>
-  <%= f.label :account_id_in, 'Account' %>
-  <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
-
-  <%#= f.label :category_id_in, 'Category' %>
-  <%#=.collection_select :category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Spending By Vendor</h1>
+    <div class="w-1/3 text-right"></div>
+  </div>
   
-  <%#= f.label :category_id_in, 'Subcategory' %>
-  <%#= f.grouped_collection_select(
-    :subcategory_id_in,
-    @current_budget.categories.expense.includes(:subcategories),
-    :subcategories,
-    :name,
-    :id,
-    :name,
-    {include_blank: true},
-    {multiple: true}
-  ) %>
-  
-  <%= f.label :vendor_id_in, 'Vendor' %>
-  <%= f.select :vendor_id_in, grouped_options_for_select({
-      "Vendors" => @current_budget.vendors.not_transfer.order('LOWER(name)').map { |v| [v.name, v.id] },
-      "Transfer" => @current_budget.vendors.transfer.order('LOWER(name)').map { |v| [v.name, v.id] }
-    }), { include_blank: true }, { multiple: true } %>
+  <!-- Filter section -->
+  <div class="bg-white py-3 px-4 mb-2 flex-shrink-0">
+    <%= search_form_for @q, url: vendor_reports_path, html: { class: "flex flex-wrap items-center gap-4" } do |f| %>
+      <div class="flex items-center">
+        <%= f.label :account_id_in, 'Account', class: "mr-2" %>
+        <%= f.collection_select :account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true, class: "form-control"} %>
+      </div>
+      
+      <div class="flex items-center">
+        <%= f.label :vendor_id_in, 'Vendor', class: "mr-2" %>
+        <%= f.select :vendor_id_in, grouped_options_for_select({
+            "Vendors" => @current_budget.vendors.not_transfer.order('LOWER(name)').map { |v| [v.name, v.id] },
+            "Transfer" => @current_budget.vendors.transfer.order('LOWER(name)').map { |v| [v.name, v.id] }
+          }), { include_blank: true }, { multiple: true, class: "form-control" } %>
+      </div>
 
-  <%= f.label :date_gteq, 'From Date' %>
-  <%= f.date_field :date_gteq %>
+      <div class="flex items-center">
+        <%= f.label :date_gteq, 'From', class: "mr-2" %>
+        <%= f.date_field :date_gteq, class: "form-control" %>
+      </div>
 
-  <%= f.label :date_lteq, 'To Date' %>
-  <%= f.date_field :date_lteq %>
+      <div class="flex items-center">
+        <%= f.label :date_lteq, 'To', class: "mr-2" %>
+        <%= f.date_field :date_lteq, class: "form-control" %>
+      </div>
 
-  <%= f.submit "Filter" %>
-<% end %>
-
-<%= button_to 'Clear Filters', vendor_reports_path, method: :get %>
-
-<table>
-  <thead>
-    <tr>
-      <th>Vendor</th>
-      <th>Amount</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @output.each do |(vendor_id, vendor_name), amount| %>
-      <tr>
-        <td><%= vendor_name.nil? ? "N/A" : vendor_name %></td>
-        <td style="text-align: right;">
-          <%= link_to number_to_currency((amount / 100.0), precision: 2), 
-              trxes_path(
-                q: {
-                  vendor_id_in: [vendor_id],
-                  date_gteq: params.dig(:q, :date_gteq),
-                  date_lteq: params.dig(:q, :date_lteq),
-                  account_id_in: params.dig(:q, :account_id_in)
-                }
-              ) 
-          %>
-        </td>
-      </tr>
+      <%= f.submit "Filter", class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+      <%= link_to "Clear", vendor_reports_path, class: "px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md ml-2" %>
     <% end %>
-    <tr>
-      <td>Total</td>
-      <td style="text-align: right;"><%= number_to_currency((@output.values.sum / 100.0), precision: 2)  %></td>
-    </tr>
-  </tbody>
-</table>
+  </div>
+  
+  <!-- Table section -->
+  <div class="p-2 overflow-y-auto flex-grow">
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left">Vendor</th>
+          <th class="px-4 py-2 text-right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @output.each do |(vendor_id, vendor_name), amount| %>
+          <tr class="hover:bg-gray-50 border-t border-gray-100">
+            <td class="px-4 py-2"><%= vendor_name.nil? ? "N/A" : vendor_name %></td>
+            <td class="px-4 py-2 text-right">
+              <%= link_to number_to_currency((amount / 100.0), precision: 2), 
+                  trxes_path(
+                    q: {
+                      vendor_id_in: [vendor_id],
+                      date_gteq: params.dig(:q, :date_gteq),
+                      date_lteq: params.dig(:q, :date_lteq),
+                      account_id_in: params.dig(:q, :account_id_in)
+                    }
+                  ) 
+              %>
+            </td>
+          </tr>
+        <% end %>
+        <tr class="bg-gray-100 font-bold">
+          <td class="px-4 py-2">Total</td>
+          <td class="px-4 py-2 text-right"><%= number_to_currency((@output.values.sum / 100.0), precision: 2) %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

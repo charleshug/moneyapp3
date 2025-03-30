@@ -1,64 +1,92 @@
 <%= form_with(model: trx) do |f| %>
   <% if trx.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(trx.errors.count, "error") %> prohibited this trx from being saved:</h2>
-
-      <ul>
-        <% trx.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= pluralize(trx.errors.count, "error") %> prohibited this transaction from being saved:</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% trx.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
   
-  <div>
-  <%= f.label :vendor %>
-  <br>
-  <%= f.select :vendor_id, grouped_options_for_select({
-      "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
-      "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
-    }, f.object.vendor_id), include_blank: "Select Vendor" %>
-</div>
-  <div>
-    <%= f.text_field :vendor_custom_text, placeholder: "Enter new vendor name..." %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <div class="mb-4">
+        <%= f.label :vendor, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :vendor_id, grouped_options_for_select({
+            "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
+            "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
+          }, f.object.vendor_id), {include_blank: "Select Vendor"}, {class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"} %>
+      </div>
+      
+      <div class="mb-4">
+        <%= f.text_field :vendor_custom_text, placeholder: "Enter new vendor name...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+    </div>
+    
+    <div>
+      <div class="mb-4">
+        <%= f.label :account, "Account", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select(
+          :account_id,
+          grouped_options_for_select(@current_budget.accounts.for_select, f.object.account_id),
+          {:prompt => 'Select Account'},
+          {class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"}
+        ) %>
+      </div>
+    </div>
+    
+    <div>
+      <div class="mb-4">
+        <%= f.label :date, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :date, :value => (f.object.date || Date.today), class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+    </div>
+    
+    <div>
+      <div class="mb-4">
+        <%= f.label :memo, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :memo, placeholder:"Enter a memo...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+    </div>
+    
+    <div class="flex items-center mb-4">
+      <%= f.check_box :cleared, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      <%= f.label :cleared, class: "ml-2 block text-sm text-gray-700" %>
+    </div>
   </div>
-<div>
-  <%= f.label :account, "Account" %>
-  <br>
-  <%= f.select(
-    :account_id,
-    grouped_options_for_select(@current_budget.accounts.for_select, f.object.account_id),
-    {:prompt => 'Select Account'}
-    ) %>
-</div>
-<div>
-  <%= f.label :date %>
-  <br>
-  <%= f.date_field :date, :value => (f.object.date || Date.today ) %>
-</div>
-<div>
-  <%= f.label :memo %>
-  <br>
-  <%= f.text_field :memo, placeholder:"Enter a memo..." %>
-</div>
-<div>
-  <%= f.label :cleared %>
-  <%= f.check_box :cleared %>
-</div>
 
-  <div id="trx-lines">
-    <%= f.fields_for :lines do |line_form| %>
-      <%= render 'line_fields', f: line_form %>
-    <% end %>
+  <div class="mt-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-3">Transaction Lines</h3>
+    
+    <div id="trx-lines" class="space-y-4 mb-4">
+      <%= f.fields_for :lines do |line_form| %>
+        <%= render 'line_fields', f: line_form %>
+      <% end %>
+    </div>
+    
+    <div class="button-group mb-6">
+      <% if @trx.persisted? %>
+        <%= link_to "Add Line", add_line_to_trx_trx_path(@trx), class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md", data: { turbo_method: :post, turbostream: true } %>
+      <% else %>
+        <%= link_to "Add Line", add_line_to_new_trx_trxes_path, class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md", data: { turbo_method: :post, turbostream: true } %>
+      <% end %>
+    </div>
   </div>
-  <div class="button-group">
-    <% if @trx.persisted? %>
-      <%= link_to "Add Line", add_line_to_trx_trx_path(@trx), class: "button", data: { turbo_method: :post, turbostream: true } %>
-    <% else %>
-      <%= link_to "Add Line", add_line_to_new_trx_trxes_path, class: "button", data: { turbo_method: :post, turbostream: true } %>
-    <% end %>
-  </div>
+
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
   </div>
 <% end %>

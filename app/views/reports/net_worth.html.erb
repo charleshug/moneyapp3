@@ -1,35 +1,55 @@
 <% provide(:title, "Net Worth") %>
-<h2>Net Worth</h2>
 
-<%= search_form_for @q, url: net_worth_reports_path do |f| %>
-  <%= f.label :trx_account_id_in, 'Account' %>
-  <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Net Worth</h1>
+    <div class="w-1/3 text-right"></div>
+  </div>
+  
+  <!-- Filter section -->
+  <div class="bg-white py-3 px-4 mb-2 flex-shrink-0">
+    <%= search_form_for @q, url: net_worth_reports_path, html: { class: "flex flex-wrap items-center gap-4" } do |f| %>
+      <div class="flex items-center">
+        <%= f.label :trx_account_id_in, 'Account', class: "mr-2" %>
+        <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true, class: "form-control"} %>
+      </div>
 
-  <%= f.label :trx_date_gteq, 'From Date' %>
-  <%= f.date_field :trx_date_gteq, value: @start_date %>
+      <div class="flex items-center">
+        <%= f.label :trx_date_gteq, 'From', class: "mr-2" %>
+        <%= f.date_field :trx_date_gteq, value: @start_date, class: "form-control" %>
+      </div>
 
-  <%= f.label :trx_date_lteq, 'To Date' %>
-  <%= f.date_field :trx_date_lteq, value: @end_date %>
+      <div class="flex items-center">
+        <%= f.label :trx_date_lteq, 'To', class: "mr-2" %>
+        <%= f.date_field :trx_date_lteq, value: @end_date, class: "form-control" %>
+      </div>
 
-  <%= f.submit "Filter" %>
-  <%= link_to "Clear Filters", net_worth_reports_path, class: "button" %>
-<% end %>
-
-<table>
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Amount</th>
-      <th>Running Balance</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @net_worth_data.each do |date, data| %>
-      <tr>
-        <td><%= date.strftime("%Y-%m") %></td>
-        <td style="text-align: right;"><%= number_to_currency(data[:amount] / 100.0, precision: 2) %></td>
-        <td style="text-align: right;"><%= number_to_currency(data[:running_balance] / 100.0, precision: 2) %></td>
-      </tr>
+      <%= f.submit "Filter", class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+      <%= link_to "Clear", net_worth_reports_path, class: "px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md ml-2" %>
     <% end %>
-  </tbody>
-</table>
+  </div>
+  
+  <!-- Table section -->
+  <div class="p-2 overflow-y-auto flex-grow">
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left">Date</th>
+          <th class="px-4 py-2 text-right">Amount</th>
+          <th class="px-4 py-2 text-right">Running Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @net_worth_data.each do |date, data| %>
+          <tr class="hover:bg-gray-50 border-t border-gray-100">
+            <td class="px-4 py-2"><%= date.strftime("%Y-%m") %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(data[:amount] / 100.0, precision: 2) %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(data[:running_balance] / 100.0, precision: 2) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

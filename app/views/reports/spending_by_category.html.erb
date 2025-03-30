@@ -1,81 +1,106 @@
 <% provide(:title, "Spending by Category") %>
-<h2>Spending By Category</h2>
 
-<%= search_form_for @q, url: category_reports_path do |f| %>
-  <%= f.label :account_id_in, 'Account' %>
-  <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true} %>
-
-  <%= f.label :category_id_in, 'Category' %>
-  <%= f.collection_select :ledger_subcategory_category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true} %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Spending By Category</h1>
+    <div class="w-1/3 text-right"></div>
+  </div>
   
-  <%= f.label :subcategory_id_in, 'SubCategory' %>
-  <%= f.grouped_collection_select(
-    :ledger_subcategory_id_in,
-    @current_budget.categories.expense.includes(:subcategories),
-    :subcategories,
-    :name,
-    :id,
-    :name,
-    {include_blank: true},
-    {multiple: true}
-  ) %>
+  <!-- Filter section -->
+  <div class="bg-white py-3 px-4 mb-2 flex-shrink-0">
+    <%= search_form_for @q, url: category_reports_path, html: { class: "flex flex-wrap items-center gap-4" } do |f| %>
+      <div class="flex items-center">
+        <%= f.label :account_id_in, 'Account', class: "mr-2" %>
+        <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name, {include_blank: true}, {multiple: true, class: "form-control"} %>
+      </div>
 
-  <%= f.label :date_gteq, 'From Date' %>
-  <%= f.date_field :trx_date_gteq %>
+      <div class="flex items-center">
+        <%= f.label :category_id_in, 'Category', class: "mr-2" %>
+        <%= f.collection_select :ledger_subcategory_category_id_in, @current_budget.categories.expense, :id, :name, {include_blank: true}, {multiple: true, class: "form-control"} %>
+      </div>
+      
+      <div class="flex items-center">
+        <%= f.label :subcategory_id_in, 'SubCategory', class: "mr-2" %>
+        <%= f.grouped_collection_select(
+          :ledger_subcategory_id_in,
+          @current_budget.categories.expense.includes(:subcategories),
+          :subcategories,
+          :name,
+          :id,
+          :name,
+          {include_blank: true},
+          {multiple: true, class: "form-control"}
+        ) %>
+      </div>
 
-  <%= f.label :date_lteq, 'To Date' %>
-  <%= f.date_field :trx_date_lteq %>
+      <div class="flex items-center">
+        <%= f.label :date_gteq, 'From', class: "mr-2" %>
+        <%= f.date_field :trx_date_gteq, class: "form-control" %>
+      </div>
 
-  <%= f.submit "Filter" %>
-<% end %>
+      <div class="flex items-center">
+        <%= f.label :date_lteq, 'To', class: "mr-2" %>
+        <%= f.date_field :trx_date_lteq, class: "form-control" %>
+      </div>
 
-<%= button_to 'Clear Filters', category_reports_path, method: :get %>
-
-<table>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Amount</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% total_amount = 0 %>
-    <% @output.each do |parent_id, data| %>
-      <% category = Category.find_by(id: parent_id) %>
-      <% total_amount += data[:total] %>
-      <tr>
-        <td><strong><%= category.name %></strong></td>
-        <td style="text-align: right;"><strong>
-          <%= link_to number_to_currency((data[:total] / 100.0), precision: 2), 
-              trxes_path(
-                q: { 
-                  lines_ledger_subcategory_category_id_eq: parent_id,
-                  trx_date_gteq: @q.trx_date_gteq,
-                  trx_date_lteq: @q.trx_date_lteq
-                }
-              ) 
-          %></strong></td>
-      </tr>
-      <% data[:subcategories].each do |subcategory_id, sub_amount| %>
-        <% subcategory = Subcategory.find_by(id: subcategory_id) %>
-        <tr>
-          <td style="padding-left: 20px;"><%= subcategory.name %></td>
-          <td style="text-align: right;">
-            <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
-                trxes_path(
-                  q: {
-                    lines_ledger_subcategory_id_eq: subcategory_id,
-                    trx_date_gteq: @q.trx_date_gteq,
-                    trx_date_lteq: @q.trx_date_lteq
-                  }
-                ) 
-            %></td>
-        </tr>
-      <% end %>
+      <%= f.submit "Filter", class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+      <%= link_to "Clear", category_reports_path, class: "px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md ml-2" %>
     <% end %>
-    <tr>
-      <td><strong>Total</strong></td>
-      <td style="text-align: right;"><strong><%= number_to_currency((total_amount / 100.0), precision: 2) %></strong></td>
-    </tr>
-  </tbody>
-</table>
+  </div>
+  
+  <!-- Table section -->
+  <div class="p-2 overflow-y-auto flex-grow">
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left">Category</th>
+          <th class="px-4 py-2 text-right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% total_amount = 0 %>
+        <% @output.each do |parent_id, data| %>
+          <% category = Category.find_by(id: parent_id) %>
+          <% total_amount += data[:total] %>
+          <tr class="bg-gray-50 font-bold">
+            <td class="px-4 py-2"><%= category.name %></td>
+            <td class="px-4 py-2 text-right">
+              <%= link_to number_to_currency((data[:total] / 100.0), precision: 2), 
+                  trxes_path(
+                    q: { 
+                      lines_ledger_subcategory_category_id_eq: parent_id,
+                      trx_date_gteq: @q.trx_date_gteq,
+                      trx_date_lteq: @q.trx_date_lteq
+                    }
+                  ) 
+              %>
+            </td>
+          </tr>
+          <% data[:subcategories].each do |subcategory_id, sub_amount| %>
+            <% subcategory = Subcategory.find_by(id: subcategory_id) %>
+            <tr class="hover:bg-gray-50 border-t border-gray-100">
+              <td class="px-4 py-2 pl-8"><%= subcategory.name %></td>
+              <td class="px-4 py-2 text-right">
+                <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
+                    trxes_path(
+                      q: {
+                        lines_ledger_subcategory_id_eq: subcategory_id,
+                        trx_date_gteq: @q.trx_date_gteq,
+                        trx_date_lteq: @q.trx_date_lteq
+                      }
+                    ) 
+                %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+        <tr class="bg-gray-100 font-bold">
+          <td class="px-4 py-2">Total</td>
+          <td class="px-4 py-2 text-right"><%= number_to_currency((total_amount / 100.0), precision: 2) %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

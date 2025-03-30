@@ -1,91 +1,106 @@
 <% provide(:title, "Scheduled Transactions") %>
 
-<div class="page-header">
-  <h1>Scheduled Transactions</h1>
-  <div class="actions">
-    <%= link_to new_scheduled_trx_path, class: "button" do %>
-      <i class="fas fa-plus"></i> New Scheduled Transaction
-    <% end %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Scheduled Transactions</h1>
+    <div class="w-1/3 text-right">
+      <%= link_to new_scheduled_trx_path, class: "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm" do %>
+        <i class="fas fa-plus"></i> New
+      <% end %>
+    </div>
   </div>
-</div>
 
-<% if @scheduled_trxes.any? %>
-  <form action="/scheduled_trxes/create_selected" method="post" data-turbo="false">
-    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-    
-    <table class="transactions">
-      <thead>
-        <tr>
-          <th>Select</th>
-          <th>Next Date</th>
-          <th>Frequency</th>
-          <th>Account</th>
-          <th>Vendor</th>
-          <th>Amount</th>
-          <th>Category</th>
-          <th>Subcategory</th>
-          <th>Memo</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+  <% if @scheduled_trxes.any? %>
+    <div class="p-2 overflow-y-auto flex-grow">
+      <form action="/scheduled_trxes/create_selected" method="post" data-turbo="false" class="h-full flex flex-col">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        
+        <table class="w-full bg-white rounded-lg overflow-hidden mb-4">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left">Select</th>
+              <th class="px-4 py-2 text-left">Next Date</th>
+              <th class="px-4 py-2 text-left">Frequency</th>
+              <th class="px-4 py-2 text-left">Account</th>
+              <th class="px-4 py-2 text-left">Vendor</th>
+              <th class="px-4 py-2 text-right">Amount</th>
+              <th class="px-4 py-2 text-left">Category</th>
+              <th class="px-4 py-2 text-left">Subcategory</th>
+              <th class="px-4 py-2 text-left">Memo</th>
+              <th class="px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
 
-      <tbody>
-        <% @scheduled_trxes.each do |scheduled_trx| %>
-          <% is_split = @line_counts[scheduled_trx.id].to_i > 1 %>
-          
-          <%# Main transaction row %>
-          <tr class="<%= 'multi-line-parent' if is_split %>">
-            <td><%= check_box_tag 'selected_ids[]', scheduled_trx.id %></td>
-            <td><%= scheduled_trx.next_date %></td>
-            <td><%= ScheduledTrx::FREQUENCIES[scheduled_trx.frequency] %></td>
-            <td><%= scheduled_trx.account.name %></td>
-            <td><%= scheduled_trx.vendor.name %></td>
-            <td class="amount <%= 'total-amount' if is_split %>">
-              <%= number_to_currency(@line_sums[scheduled_trx.id].to_i / 100.0) %>
-            </td>
-            <td>
-              <% if is_split %>
-                <span class="split-indicator">Split</span>
-              <% else %>
-                <%= scheduled_trx.scheduled_lines.first&.subcategory&.category&.name %>
-              <% end %>
-            </td>
-            <td>
-              <% unless is_split %>
-                <%= scheduled_trx.scheduled_lines.first&.subcategory&.name %>
-              <% end %>
-            </td>
-            <td><%= scheduled_trx.memo %></td>
-            <td class="actions">
-              <%= link_to "Edit", edit_scheduled_trx_path(scheduled_trx), class: "button" %>
-            </td>
-          </tr>
-
-          <%# Split lines %>
-          <% if is_split %>
-            <% scheduled_trx.scheduled_lines.each do |line| %>
-              <tr class="split-line">
-                <td colspan="5"></td>
-                <td class="amount">
-                  <%= number_to_currency(line.amount / 100.0) %>
+          <tbody>
+            <% @scheduled_trxes.each do |scheduled_trx| %>
+              <% is_split = @line_counts[scheduled_trx.id].to_i > 1 %>
+              
+              <%# Main transaction row %>
+              <tr class="<%= is_split ? 'border-b-0' : 'border-t border-gray-100' %> hover:bg-gray-50">
+                <td class="px-4 py-2"><%= check_box_tag 'selected_ids[]', scheduled_trx.id, false, class: "form-checkbox" %></td>
+                <td class="px-4 py-2"><%= scheduled_trx.next_date %></td>
+                <td class="px-4 py-2"><%= ScheduledTrx::FREQUENCIES[scheduled_trx.frequency] %></td>
+                <td class="px-4 py-2"><%= scheduled_trx.account.name %></td>
+                <td class="px-4 py-2"><%= scheduled_trx.vendor.name %></td>
+                <td class="px-4 py-2 text-right <%= 'font-semibold text-gray-600' if is_split %>">
+                  <%= number_to_currency(@line_sums[scheduled_trx.id].to_i / 100.0) %>
                 </td>
-                <td><%= line.subcategory&.category&.name %></td>
-                <td><%= line.subcategory&.name %></td>
-                <td colspan="2"></td>
+                <td class="px-4 py-2">
+                  <% if is_split %>
+                    <span class="text-gray-600 italic">Split</span>
+                  <% else %>
+                    <%= scheduled_trx.scheduled_lines.first&.subcategory&.category&.name %>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2">
+                  <% unless is_split %>
+                    <%= scheduled_trx.scheduled_lines.first&.subcategory&.name %>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2"><%= scheduled_trx.memo %></td>
+                <td class="px-4 py-2 text-center">
+                  <%= link_to "Edit", edit_scheduled_trx_path(scheduled_trx), class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm" %>
+                </td>
               </tr>
-            <% end %>
-          <% end %>
-        <% end %>
-      </tbody>
-    </table>
 
-    <button type="submit" class="button">Create Selected</button>
-  </form>
-<% else %>
-  <div class="empty-state">
-    <p>No scheduled transactions found.</p>
-  </div>
-<% end %>
+              <%# Split lines %>
+              <% if is_split %>
+                <% scheduled_trx.scheduled_lines.each do |line| %>
+                  <tr class="bg-gray-50 border-t-0">
+                    <td colspan="5" class="px-4 py-1"></td>
+                    <td class="px-4 py-1 text-right">
+                      <%= number_to_currency(line.amount / 100.0) %>
+                    </td>
+                    <td class="px-4 py-1"><%= line.subcategory&.category&.name %></td>
+                    <td class="px-4 py-1"><%= line.subcategory&.name %></td>
+                    <td colspan="2" class="px-4 py-1"></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+
+        <div class="mt-auto">
+          <button type="submit" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md">
+            Create Selected Transactions
+          </button>
+        </div>
+      </form>
+    </div>
+  <% else %>
+    <div class="flex-grow flex items-center justify-center">
+      <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
+        <p class="text-gray-600 mb-4">No scheduled transactions found.</p>
+        <%= link_to new_scheduled_trx_path, class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md inline-block" do %>
+          <i class="fas fa-plus mr-2"></i> Create Your First Scheduled Transaction
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <% content_for :styles do %>
   <style>
