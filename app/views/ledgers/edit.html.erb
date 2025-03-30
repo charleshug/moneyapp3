@@ -1,7 +1,24 @@
-<h1>Editing Ledger</h1>
+<% provide(:title, "Edit Ledger") %>
 
-<%= render "form", ledger: @ledger %>
-
-<div>
-  <%#= link_to "Back to Budget", budgets_path(year:ledger.date.year, month:ledger.date.month) %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", request.referer || ledgers_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Edit Ledger</h1>
+    <div class="w-1/3 text-right">
+      <%= button_to ledger_path(@ledger), 
+          method: :delete, 
+          class: "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm",
+          form: { data: { turbo_confirm: "Are you sure you want to delete this ledger?" } } %>
+    </div>
+  </div>
+  
+  <!-- Form section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <%= render "form", ledger: @ledger %>
+    </div>
+  </div>
 </div>

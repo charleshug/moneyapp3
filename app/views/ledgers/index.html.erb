@@ -1,132 +1,140 @@
 <% provide(:title, "Ledgers") %>
 
-<div class="page-header">
-  <h1>Ledgers</h1>
-  <div class="actions">
-    <%= button_to rebuild_chains_ledgers_path,
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Ledgers</h1>
+    <div class="w-1/3 text-right">
+      <%= button_to rebuild_chains_ledgers_path,
                   method: :post,
-                  class: "button",
-                  data: { confirm: "Rebuild all ledger chains?" } do %>
-      <i class="fas fa-link"></i> Rebuild Chains
+                  class: "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm",
+                  form: { data: { turbo_confirm: "Rebuild all ledger chains?" } } do %>
+        <i class="fas fa-link"></i> Rebuild Chains
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Filter section -->
+  <div class="bg-white p-4 border-b border-gray-200">
+    <%= search_form_for @q, class: 'space-y-4' do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="w-full md:w-1/2">
+              <%= f.label :date_gteq, "Date From", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.date_field :date_gteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+            </div>
+            <div class="w-full md:w-1/2">
+              <%= f.label :date_lteq, "Date To", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.date_field :date_lteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="w-full md:w-1/2">
+              <%= f.label :subcategory_category_id_in, "Categories", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.collection_select :subcategory_category_id_in,
+                  @categories,
+                  :id,
+                  :name,
+                  { selected: params.dig(:q, :subcategory_category_id_in)&.reject(&:blank?) },
+                  { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+            </div>
+            <div class="w-full md:w-1/2">
+              <%= f.label :subcategory_id_in, "Subcategories", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= f.grouped_collection_select :subcategory_id_in,
+                  @categories,
+                  :subcategories,
+                  :name,
+                  :id,
+                  :name,
+                  { selected: params.dig(:q, :subcategory_id_in)&.reject(&:blank?) },
+                  { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <%= f.submit "Filter", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+        <%= link_to "Clear", ledgers_path, class: "px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md" %>
+      </div>
     <% end %>
   </div>
-</div>
 
-<%= search_form_for @q, class: 'filter-form' do |f| %>
-  <div class="filter-group">
-    <div class="filter-field">
-      <%= f.label :date_gteq, "Date From" %>
-      <%= f.date_field :date_gteq %>
-    </div>
-    <div class="filter-field">
-      <%= f.label :date_lteq, "Date To" %>
-      <%= f.date_field :date_lteq %>
-    </div>
-  </div>
-
-  <div class="filter-group">
-    <div class="filter-field">
-      <%= f.label :subcategory_category_id_in, "Categories" %>
-      <%= f.collection_select :subcategory_category_id_in,
-          @categories,
-          :id,
-          :name,
-          { selected: params.dig(:q, :subcategory_category_id_in)&.reject(&:blank?) },
-          { multiple: true, class: 'select2' } %>
-    </div>
-  </div>
-
-  <div class="filter-group">
-    <div class="filter-field">
-      <%= f.label :subcategory_id_in, "Subcategories" %>
-      <%= f.grouped_collection_select :subcategory_id_in,
-          @categories,
-          :subcategories,
-          :name,
-          :id,
-          :name,
-          { selected: params.dig(:q, :subcategory_id_in)&.reject(&:blank?) },
-          { multiple: true, class: 'select2' } %>
-    </div>
-  </div>
-
-  <%= f.submit "Filter", class: "button" %>
-  <%= link_to "Clear", ledgers_path, class: "button" %>
-<% end %>
-
-<table class="ledgers">
-  <thead>
-    <tr>
-      <th><%= sort_link(@q, :id, "ID") %></th>
-      <th><%= sort_link(@q, :date, "Date") %></th>
-      <th><%= sort_link(@q, :subcategory_category_name, "Category") %></th>
-      <th><%= sort_link(@q, :subcategory_name, "Subcategory") %></th>
-      <th><%= sort_link(@q, :budget, "Budget") %></th>
-      <th><%= sort_link(@q, :actual, "Actual") %></th>
-      <th><%= sort_link(@q, :balance, "Balance") %></th>
-      <th><%= sort_link(@q, :rolling_balance, "Rolling Balance") %></th>
-      <th><%= sort_link(@q, :carry_forward_negative_balance, "Carry Negative") %></th>
-      <th><%= sort_link(@q, :user_changed, "User Changed") %></th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @ledgers.each do |ledger| %>
-      <tr>
-        <td><%= link_to ledger.id, edit_ledger_path(ledger) %></td>
-        <td><%= ledger.date %></td>
-        <td><%= ledger.subcategory.category.name %></td>
-        <td><%= ledger.subcategory.name %></td>
-        <td class="amount"><%= number_to_currency(ledger.budget / 100.0) %></td>
-        <td class="amount"><%= number_to_currency(ledger.actual / 100.0) %></td>
-        <td class="amount"><%= number_to_currency(ledger.balance / 100.0) %></td>
-        <td class="amount"><%= number_to_currency(ledger.rolling_balance / 100.0) %></td>
-        <td class="center">
-          <%= button_to toggle_carry_forward_ledger_path(ledger, 
-                  q: {
-                    date_gteq: params.dig(:q, :date_gteq),
-                    date_lteq: params.dig(:q, :date_lteq),
-                    s: params.dig(:q, :s),
-                    subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
-                    subcategory_id_in: params.dig(:q, :subcategory_id_in)
-                  }.compact_blank,
-                  page: params[:page]),
-                method: :post,
-                class: "toggle-carry-forward",
-                form_class: "inline-form",
-                data: { confirm: "Update carry forward setting for this and future ledgers?" } do %>
-            <%= ledger.carry_forward_negative_balance ? '✓' : '✗' %>
+  <!-- Table section -->
+  <div class="p-2 overflow-y-auto flex-grow flex flex-col">
+    <div class="overflow-x-auto flex-grow">
+      <table class="w-full bg-white rounded-lg overflow-hidden">
+        <thead class="bg-gray-50 sticky top-0 z-10">
+          <tr>
+            <th class="px-4 py-2 text-left"><%= sort_link(@q, :id, "ID") %></th>
+            <th class="px-4 py-2 text-left"><%= sort_link(@q, :date, "Date") %></th>
+            <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_category_name, "Category") %></th>
+            <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_name, "Subcategory") %></th>
+            <th class="px-4 py-2 text-right"><%= sort_link(@q, :budget, "Budget") %></th>
+            <th class="px-4 py-2 text-right"><%= sort_link(@q, :actual, "Actual") %></th>
+            <th class="px-4 py-2 text-right"><%= sort_link(@q, :balance, "Balance") %></th>
+            <th class="px-4 py-2 text-right"><%= sort_link(@q, :rolling_balance, "Rolling Balance") %></th>
+            <th class="px-4 py-2 text-center"><%= sort_link(@q, :carry_forward_negative_balance, "Carry Negative") %></th>
+            <th class="px-4 py-2 text-center"><%= sort_link(@q, :user_changed, "User Changed") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @ledgers.each do |ledger| %>
+            <tr class="border-t border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-2"><%= link_to ledger.id, edit_ledger_path(ledger), class: "text-blue-600 hover:text-blue-800" %></td>
+              <td class="px-4 py-2"><%= ledger.date %></td>
+              <td class="px-4 py-2"><%= ledger.subcategory.category.name %></td>
+              <td class="px-4 py-2"><%= ledger.subcategory.name %></td>
+              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.budget / 100.0) %></td>
+              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.actual / 100.0) %></td>
+              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.balance / 100.0) %></td>
+              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.rolling_balance / 100.0) %></td>
+              <td class="px-4 py-2 text-center">
+                <%= button_to toggle_carry_forward_ledger_path(ledger, 
+                        q: {
+                          date_gteq: params.dig(:q, :date_gteq),
+                          date_lteq: params.dig(:q, :date_lteq),
+                          s: params.dig(:q, :s),
+                          subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
+                          subcategory_id_in: params.dig(:q, :subcategory_id_in)
+                        }.compact_blank,
+                        page: params[:page]),
+                      method: :post,
+                      class: "w-full h-full flex items-center justify-center hover:bg-gray-100 transition-colors",
+                      form: { class: "w-full h-full", data: { turbo_confirm: "Update carry forward setting for this and future ledgers?" } } do %>
+                  <span class="<%= ledger.carry_forward_negative_balance ? 'text-green-600' : 'text-red-600' %>">
+                    <%= ledger.carry_forward_negative_balance ? '✓' : '✗' %>
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-4 py-2 text-center">
+                <span class="<%= ledger.user_changed ? 'text-green-600' : 'text-gray-400' %>">
+                  <%= ledger.user_changed ? '✓' : '✗' %>
+                </span>
+              </td>
+            </tr>
           <% end %>
-        </td>
-        <td class="center"><%= ledger.user_changed ? '✓' : '✗' %></td>
-        <td class="actions">
-          <%= link_to edit_ledger_path(ledger), class: "button" do %>
-            <i class="fas fa-edit"></i>
-          <% end %>
-          <%= link_to ledger_path(ledger),
-              method: :delete,
-              data: { confirm: 'Are you sure?' },
-              class: "button danger" do %>
-            <i class="fas fa-trash"></i>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+        </tbody>
+      </table>
+    </div>
 
-<div class="totals">
-  <div class="page-totals">
-    <strong>Page:</strong> 
-    <%= pluralize(@ledgers.size, 'ledger') %>
-  </div>
-  <div class="filtered-totals">
-    <strong>Total:</strong> 
-    <%= pluralize(@filtered_count, 'ledger') %>
+    <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2 z-10">
+      <div class="text-sm text-gray-600">
+        <strong>Page:</strong> <%= pluralize(@ledgers.size, 'ledger') %>
+        <span class="mx-2">|</span>
+        <strong>Total:</strong> <%= pluralize(@filtered_count, 'ledger') %>
+      </div>
+      <div>
+        <%= custom_pagy_nav(@pagy) %>
+      </div>
+    </div>
   </div>
 </div>
-
-<%= custom_pagy_nav(@pagy) %>
 
 <% content_for :styles do %>
   <style>

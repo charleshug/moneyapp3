@@ -1,9 +1,19 @@
-<h1>New Ledger</h1>
+<% provide(:title, "New Ledger") %>
 
-<%= render "form", ledger: @ledger %>
-
-<br>
-
-<div>
-  <%#= link_to "Back to Budget", budgets_path(year:ledger.date.year, month:ledger.date.month) %>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3">
+      <%= link_to "Back", request.referer || ledgers_path, class: "text-white hover:text-blue-200" %>
+    </div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">New Ledger</h1>
+    <div class="w-1/3 text-right"></div>
+  </div>
+  
+  <!-- Form section -->
+  <div class="p-4 overflow-y-auto flex-grow">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <%= render "form", ledger: @ledger %>
+    </div>
+  </div>
 </div>
