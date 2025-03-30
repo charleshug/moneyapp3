@@ -1,11 +1,47 @@
 <% provide(:title, "Vendors") %>
-<h1>Vendors</h1>
-<%= link_to 'New', new_vendor_path %>
 
-<ul>
-  <% @vendors.each do |vendor| %>
-    <li>
-      <%= link_to vendor.name, edit_vendor_path(vendor) %>
-    </li>
-  <% end %>
-</ul>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+  <!-- Header row -->
+  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+    <div class="w-1/3"></div>
+    <h1 class="text-white text-xl font-bold w-1/3 text-center">Vendors</h1>
+    <div class="w-1/3 text-right">
+      <%= link_to new_vendor_path, class: "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm" do %>
+        <i class="fas fa-plus"></i> New
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Vendors list -->
+  <div class="p-2 overflow-y-auto flex-grow">
+    <% if @vendors.any? %>
+      <table class="w-full bg-white rounded-lg overflow-hidden">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left">Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @vendors.each do |vendor| %>
+            <tr class="border-t border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-2">
+                <%= link_to edit_vendor_path(vendor), class: "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm" do %>
+                  <%= vendor.name %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="flex-grow flex items-center justify-center">
+        <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
+          <p class="text-gray-600 mb-4">No vendors found.</p>
+          <%= link_to new_vendor_path, class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md inline-block" do %>
+            <i class="fas fa-plus mr-2"></i> Create Your First Vendor
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
