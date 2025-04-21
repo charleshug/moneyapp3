@@ -1,32 +1,9 @@
-<% if current_user %>
-  <div class="bg-gray-200 w-full border-b border-gray-300">
-    <div class="container mx-auto px-4 py-1 flex justify-between items-center">
-      <div class="text-sm">
-        User: <strong><%= current_user.email %></strong>
-        <% if current_user.last_viewed_budget_id && budget= Budget.find(current_user.last_viewed_budget_id) %>
-          | Budget: <strong><%= budget.name %></strong>
-        <% else %>
-          | No current budget
-        <% end %>
-      </div>
-      <div class="flex items-center space-x-2">
-        <%= link_to 'Settings', edit_user_registration_path, class: "text-sm px-3 py-0.5 hover:text-blue-600 #{request.path.starts_with?('/users/edit') ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "text-sm px-3 py-0.5 hover:text-blue-600" %>
-      </div>
-    </div>
-  </div>
-<% end %>
-
 <nav class="bg-white shadow-md w-full">
   <div class="container mx-auto px-4">
     <div class="flex justify-between items-center">
       <% unless current_user %>
         <div class="flex justify-between w-full">
-          <div></div>
-          <div class="flex items-center">
-            <%= link_to "Sign In", new_user_session_path, class: "p-3 hover:text-blue-600" %>
-            <%= link_to "Sign Up", new_user_registration_path, class: "p-3 hover:text-blue-600" %>
-          </div>
+          <div>MoneyApp</div>
         </div>
       <% else %>
         <div class="flex items-center justify-between w-full">
@@ -34,6 +11,7 @@
             <%= link_to "Budgets", budgets_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
             <%= link_to "Accounts", accounts_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
             <%= link_to "Reports", reports_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
+            <%= link_to "Settings", edit_user_registration_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/users/edit') ? 'font-bold text-blue-600' : ''}" %>
           </div>
           <div>
             <%= link_to "Add Transaction", new_trx_path, class: "p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
