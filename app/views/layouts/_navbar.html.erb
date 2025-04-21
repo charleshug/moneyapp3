@@ -7,14 +7,13 @@
         </div>
       <% else %>
         <div class="flex items-center justify-between w-full">
-          <div class="flex items-center">
-            <%= link_to "Budgets", budgets_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/budgets') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Accounts", accounts_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/accounts') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Reports", reports_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/reports') ? 'font-bold text-blue-600' : ''}" %>
-            <%= link_to "Settings", edit_user_registration_path, class: "p-3 hover:bg-gray-100 hover:text-blue-600 #{request.path.starts_with?('/users/edit') ? 'font-bold text-blue-600' : ''}" %>
-          </div>
+          <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
           <div>
-            <%= link_to "Add Transaction", new_trx_path, class: "p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+            <%= link_to "Add Transaction", new_trx_path, class: "p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md whitespace-nowrap" %>
           </div>
         </div>
       <% end %>
@@ -23,25 +22,5 @@
 </nav>
 
 <% if current_user %>
-  <% if request.path.starts_with?('/reports') %>
-    <div class="bg-gray-100 w-full border-b border-gray-200">
-      <div class="container mx-auto px-4 py-2 flex space-x-4">
-        <%= link_to 'Net Worth', net_worth_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == net_worth_reports_path ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to 'Spending By Vendor', vendor_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == vendor_reports_path ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to 'Spending By Category', category_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == category_reports_path ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to 'Income v Expense', income_expense_reports_path, class: "px-3 py-1 hover:text-blue-600 #{request.path == income_expense_reports_path ? 'font-bold text-blue-600' : ''}" %>
-      </div>
-    </div>
-  <% end %>
-  
-  <% if request.path.starts_with?('/users/edit') || request.path.starts_with?('/vendors') || request.path.starts_with?('/categories') || request.path.starts_with?('/ledgers') %>
-    <div class="bg-gray-100 w-full border-b border-gray-200">
-      <div class="container mx-auto px-4 py-2 flex space-x-4">
-        <%= link_to "Vendors", vendors_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/vendors') ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to "Categories", categories_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/categories') ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to 'Ledgers', ledgers_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/ledgers') ? 'font-bold text-blue-600' : ''}" %>
-        <%= link_to "Transactions", trxes_path, class: "px-3 py-1 hover:text-blue-600 #{request.path.starts_with?('/trxes') ? 'font-bold text-blue-600' : ''}" %>
-      </div>
-    </div>
-  <% end %>
+  <%= render 'layouts/sidebar' %>
 <% end %>

@@ -1,0 +1,144 @@
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+  <div class="flex flex-col h-full">
+    <div class="p-4 border-b border-gray-200 flex items-center">
+      <button id="sidebar-close" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none mr-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <div class="flex-1">
+        <h2 class="text-xl font-semibold">
+          <%= current_user.budgets.find_by(id: current_user.last_viewed_budget_id)&.name || "No Budget Selected" %>
+        </h2>
+        <p class="text-xs text-gray-500"><%= current_user.email %></p>
+      </div>
+      <%= link_to edit_user_registration_path, class: "p-2 rounded-md hover:bg-gray-100 focus:outline-none" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+      <% end %>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4">
+      <nav class="space-y-2">
+        <%= link_to "Budgets", budgets_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/budgets') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
+        
+        <div class="relative">
+          <div class="flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer" id="reports-toggle">
+            <div class="<%= request.path.starts_with?('/reports') ? 'text-blue-600 font-medium' : '' %>">Reports</div>
+            <svg class="w-4 h-4 transform transition-transform duration-200" id="reports-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+          <div class="pl-4 mt-1 border-l-2 border-gray-200 space-y-1 hidden" id="reports-submenu">
+            <%= link_to 'Net Worth', net_worth_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == net_worth_reports_path ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to 'Spending By Vendor', vendor_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == vendor_reports_path ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to 'Spending By Category', category_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == category_reports_path ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to 'Income v Expense', income_expense_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == income_expense_reports_path ? 'text-blue-600 font-medium' : ''}" %>
+          </div>
+        </div>
+        
+        <% current_budget = current_user.budgets.find_by(id: current_user.last_viewed_budget_id) %>
+        <% total_balance = current_budget&.accounts&.sum(:balance) || 0 %>
+        
+        <div class="relative">
+          <%= link_to trxes_path, class: "flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/accounts') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" do %>
+            <div>Accounts</div>
+            <div class="text-sm <%= total_balance < 0 ? 'text-red-600' : '' %>">
+              <%= number_to_currency(total_balance/100.0, unit: "$", separator: ".", delimiter: ",") %>
+            </div>
+          <% end %>
+          
+          <div class="pl-4 mt-1 border-l-2 border-gray-200 space-y-2 max-h-[calc(100vh-350px)] overflow-y-auto">
+            <% if current_budget && current_budget.accounts.present? %>              
+              <% on_budget_accounts = current_budget.accounts.where(on_budget: true, closed: false).order(:name) %>
+              <% if on_budget_accounts.any? %>
+                <div class="mt-2 mb-1">
+                  <% on_budget_balance = on_budget_accounts.sum(:balance) %>
+                  <% on_budget_ids = on_budget_accounts.pluck(:id) %>
+                  <%= link_to trxes_path(q: {account_id_in: on_budget_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    On Budget <span class="float-right"><%= number_to_currency(on_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <% end %>
+                  <div class="space-y-1 mt-1">
+                    <% on_budget_accounts.each do |account| %>
+                      <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
+                        <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              
+              <% off_budget_accounts = current_budget.accounts.where(on_budget: false, closed: false).order(:name) %>
+              <% if off_budget_accounts.any? %>
+                <div class="mt-2 mb-1">
+                  <% off_budget_balance = off_budget_accounts.sum(:balance) %>
+                  <% off_budget_ids = off_budget_accounts.pluck(:id) %>
+                  <%= link_to trxes_path(q: {account_id_in: off_budget_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    Off Budget <span class="float-right"><%= number_to_currency(off_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <% end %>
+                  <div class="space-y-1 mt-1">
+                    <% off_budget_accounts.each do |account| %>
+                      <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
+                        <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              
+              <% closed_accounts = current_budget.accounts.where(closed: true).order(:name) %>
+              <% if closed_accounts.any? %>
+                <div class="mt-2 mb-1">
+                  <% closed_balance = closed_accounts.sum(:balance) %>
+                  <% closed_ids = closed_accounts.pluck(:id) %>
+                  <%= link_to trxes_path(q: {account_id_in: closed_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    Closed <span class="float-right"><%= number_to_currency(closed_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <% end %>
+                  <div class="space-y-1 mt-1">
+                    <% closed_accounts.each do |account| %>
+                      <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
+                        <%= link_to account.name, edit_account_path(account), class: "text-gray-500 #{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right text-gray-500" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+            
+            <%= link_to new_account_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 text-green-600 mt-2" do %>
+              <span class="flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Account
+              </span>
+            <% end %>
+          </div>
+        </div>
+        
+        <% if request.path.starts_with?('/users/edit') || request.path.starts_with?('/vendors') || request.path.starts_with?('/categories') || request.path.starts_with?('/ledgers') %>
+          <div class="pl-4 mt-2 border-l-2 border-gray-200 space-y-1">
+            <%= link_to "Vendors", vendors_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/vendors') ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to "Categories", categories_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/categories') ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to 'Ledgers', ledgers_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/ledgers') ? 'text-blue-600 font-medium' : ''}" %>
+            <%= link_to "Transactions", trxes_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/trxes') ? 'text-blue-600 font-medium' : ''}" %>
+          </div>
+        <% end %>
+      </nav>
+    </div>
+    <div class="p-4 border-t border-gray-200">
+      <%= link_to destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "flex items-center justify-center w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sign Out
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div id="sidebar-backdrop" class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out"></div>

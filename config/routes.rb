@@ -29,7 +29,7 @@ Rails.application.routes.draw do
 
   get "/trxes_export", to: "trxes_export#create"
 
-  resources :accounts
+  resources :accounts, except: [ :show ]
   resources :ledgers do
     member do
       post :toggle_carry_forward
