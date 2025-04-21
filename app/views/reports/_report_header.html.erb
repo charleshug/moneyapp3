@@ -1,0 +1,26 @@
+<div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+  <div class="w-1/3">
+    <button id="filter-toggle" class="text-white p-2 rounded hover:bg-gray-700 focus:outline-none">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="w-1/3 text-center flex items-center justify-center">
+    <h1 class="text-white text-xl font-bold"><%= title %></h1>
+    <div class="relative ml-2" data-controller="dropdown">
+      <button data-action="dropdown#toggle click@window->dropdown#hide" class="text-white p-1 rounded hover:bg-gray-700 focus:outline-none">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div data-dropdown-target="menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+        <%= link_to 'Net Worth', net_worth_reports_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{current_page?(net_worth_reports_path) ? 'bg-gray-100 font-medium' : ''}" %>
+        <%= link_to 'Spending By Vendor', vendor_reports_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{current_page?(vendor_reports_path) ? 'bg-gray-100 font-medium' : ''}" %>
+        <%= link_to 'Spending By Category', category_reports_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{current_page?(category_reports_path) ? 'bg-gray-100 font-medium' : ''}" %>
+        <%= link_to 'Income v Expense', income_expense_reports_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{current_page?(income_expense_reports_path) ? 'bg-gray-100 font-medium' : ''}" %>
+      </div>
+    </div>
+  </div>
+  <div class="w-1/3 text-right"></div>
+</div> 

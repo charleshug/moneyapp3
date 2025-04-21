@@ -17,6 +17,9 @@ class ReportsController < ApplicationController
     @q = service.build_ransack_query  # Make the ransack query available to the view
     @net_worth_data = service.call
 
+    # Sort the data in reverse chronological order (newest first)
+    @net_worth_data = @net_worth_data.sort_by { |date, _| date }.reverse.to_h
+
     # Set date range for form display
     if @net_worth_data.present?
       @start_date = @net_worth_data.keys.first
@@ -63,5 +66,9 @@ class ReportsController < ApplicationController
       date_gteq: [],
       date_lteq: []
     ).reverse_merge(default_params)
+  end
+
+  def calculate_net_worth_data
+    # ... existing calculation code ...
   end
 end
