@@ -22,21 +22,7 @@
     <div class="flex-1 overflow-y-auto p-4">
       <nav class="space-y-2">
         <%= link_to "Budgets", budgets_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/budgets') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
-        
-        <div class="relative">
-          <div class="flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer" id="reports-toggle">
-            <div class="<%= request.path.starts_with?('/reports') ? 'text-blue-600 font-medium' : '' %>">Reports</div>
-            <svg class="w-4 h-4 transform transition-transform duration-200" id="reports-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </div>
-          <div class="pl-4 mt-1 border-l-2 border-gray-200 space-y-1 hidden" id="reports-submenu">
-            <%= link_to 'Net Worth', net_worth_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == net_worth_reports_path ? 'text-blue-600 font-medium' : ''}" %>
-            <%= link_to 'Spending By Vendor', vendor_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == vendor_reports_path ? 'text-blue-600 font-medium' : ''}" %>
-            <%= link_to 'Spending By Category', category_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == category_reports_path ? 'text-blue-600 font-medium' : ''}" %>
-            <%= link_to 'Income v Expense', income_expense_reports_path, class: "block px-4 py-1 text-sm rounded-md hover:bg-gray-100 #{request.path == income_expense_reports_path ? 'text-blue-600 font-medium' : ''}" %>
-          </div>
-        </div>
+        <%= link_to "Reports", reports_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/reports') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
         
         <% current_budget = current_user.budgets.find_by(id: current_user.last_viewed_budget_id) %>
         <% total_balance = current_budget&.accounts&.sum(:balance) || 0 %>
