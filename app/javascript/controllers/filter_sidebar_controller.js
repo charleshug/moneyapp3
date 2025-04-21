@@ -2,10 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    this.setupFilterSidebar();
+    this.setupEventListeners();
   }
 
-  setupFilterSidebar() {
+  setupEventListeners() {
     const filterToggle = document.getElementById('filter-toggle');
     const filterClose = document.getElementById('filter-close');
     const filterSidebar = document.getElementById('filter-sidebar');
@@ -18,18 +18,14 @@ export default class extends Controller {
         filterBackdrop.classList.toggle('pointer-events-none');
         filterBackdrop.classList.toggle('opacity-50');
       });
-    }
-
-    if (filterClose && filterSidebar && filterBackdrop) {
+      
       filterClose.addEventListener('click', () => {
         filterSidebar.classList.add('-translate-x-full');
         filterBackdrop.classList.add('opacity-0');
         filterBackdrop.classList.add('pointer-events-none');
         filterBackdrop.classList.remove('opacity-50');
       });
-    }
-
-    if (filterBackdrop && filterSidebar) {
+      
       filterBackdrop.addEventListener('click', () => {
         filterSidebar.classList.add('-translate-x-full');
         filterBackdrop.classList.add('opacity-0');

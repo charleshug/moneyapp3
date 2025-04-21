@@ -1,92 +1,19 @@
 <% provide(:title, "Transactions") %>
 
-<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+<div data-controller="filter-sidebar" class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
   <!-- Header row -->
   <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
     <div class="w-1/3">
-      <button id="toggle-filters" class="text-white hover:text-blue-200 flex items-center">
-        <i class="fas fa-filter mr-1"></i> Filters
-        <i class="fas fa-chevron-down ml-1 transition-transform" id="filter-chevron"></i>
+      <button id="filter-toggle" class="text-white hover:text-blue-200 p-2 rounded hover:bg-gray-700 focus:outline-none">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
       </button>
     </div>
     <h1 class="text-white text-xl font-bold w-1/3 text-center">Transactions</h1>
     <div class="w-1/3 text-right">
-      <%= link_to new_trx_path, class: "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm mr-2" do %>
-        <i class="fas fa-plus"></i> New
-      <% end %>
-      <%= link_to import_trxes_path, class: "bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm" do %>
-        <i class="fas fa-file-import"></i> Import
-      <% end %>
+      <!-- Action buttons moved to sidebar -->
     </div>
-  </div>
-
-  <!-- Filter section -->
-  <div class="bg-white py-3 px-4 mb-2 flex-shrink-0">
-    <%= search_form_for @q, class: 'filter-form' do |f| %>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <div class="flex space-x-2">
-            <div class="w-1/2">
-              <%= f.label :date_gteq, "Date From", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <%= f.date_field :date_gteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
-            </div>
-            <div class="w-1/2">
-              <%= f.label :date_lteq, "Date To", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <%= f.date_field :date_lteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <%= f.label :account_id_in, "Accounts", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.collection_select :account_id_in,
-              @accounts,
-              :id,
-              :name,
-              { include_blank: true },
-              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
-        </div>
-
-        <div>
-          <%= f.label :vendor_id_in, "Vendors", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.collection_select :vendor_id_in,
-              @vendors.order('LOWER(name)'),
-              :id,
-              :name,
-              { include_blank: true },
-              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.collection_select :lines_ledger_subcategory_category_id_in,
-              @categories,
-              :id,
-              :name,
-              { include_blank: true },
-              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
-        </div>
-
-        <div>
-          <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.grouped_collection_select :lines_ledger_subcategory_id_in,
-              @categories,
-              :subcategories,
-              :name,
-              :id,
-              :name,
-              { include_blank: true },
-              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
-        </div>
-      </div>
-
-      <div class="mt-4 flex space-x-2">
-        <%= f.submit "Filter", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
-        <%= link_to "Clear", trxes_path, class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md" %>
-      </div>
-    <% end %>
   </div>
 
   <!-- Transactions table -->
@@ -94,7 +21,7 @@
     <% if @trxes.any? %>
       <div class="overflow-x-auto flex-grow">
         <table class="w-full bg-white rounded-lg overflow-hidden">
-          <thead class="bg-gray-50 sticky top-0 z-10">
+          <thead class="bg-gray-50 sticky top-0">
             <tr>
               <th class="px-4 py-2 text-left"><%= sort_link(@q, :id, "ID") %></th>
               <th class="px-4 py-2 text-left"><%= sort_link(@q, :date, "Date") %></th>
@@ -157,7 +84,6 @@
                         <%= link_to line.transfer_line.trx.id, edit_trx_path(line.transfer_line.trx), class: "text-blue-600 hover:text-blue-800" %>
                       <% end %>
                     </td>
-                    <td class="px-4 py-1"></td>
                   </tr>
                 <% end %>
               <% end %>
@@ -166,7 +92,7 @@
         </table>
       </div>
 
-      <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2 z-10">
+      <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2">
         <div class="text-sm text-gray-600">
           <strong>Page:</strong> <%= pluralize(@trxes.size, 'transaction') %>
           <span class="mx-2">|</span>
@@ -189,81 +115,4 @@
   </div>
 </div>
 
-<% content_for :styles do %>
-  <style>
-    .transactions td {
-      padding: 4px;
-      border: 1px solid #ddd;
-    }
-    
-    .amount {
-      text-align: right;
-    }
-    
-    .total-amount {
-      color: #666;
-      font-style: italic;
-    }
-    
-    .split-line {
-      background-color: #f9f9f9;
-    }
-    
-    .split-line td {
-      border-top: none;
-    }
-    
-    .multi-line-parent {
-      border-bottom: none;
-    }
-    
-    .multi-line-parent td {
-      border-bottom: none;
-    }
-    
-    .split-indicator {
-      color: #666;
-      font-style: italic;
-    }
-
-    .totals {
-      margin: 1rem 0;
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem;
-      background: #f5f5f5;
-      border-radius: 4px;
-    }
-
-    .page-totals, .filtered-totals {
-      padding: 0.5rem;
-    }
-
-    /* Sorting styles */
-    .transactions th a {
-      color: #333;
-      text-decoration: none;
-      display: block;
-      position: relative;
-      padding-right: 15px;
-    }
-
-    .transactions th a:hover {
-      color: #666;
-    }
-
-    .transactions th a.asc:after {
-      content: "▲";
-      position: absolute;
-      right: 0;
-      font-size: 0.8em;
-    }
-
-    .transactions th a.desc:after {
-      content: "▼";
-      position: absolute;
-      right: 0;
-      font-size: 0.8em;
-    }
-  </style>
-<% end %>
+<%= render 'trxes/filter_sidebar' %>

@@ -1,0 +1,90 @@
+<!-- Filter sidebar for Transactions -->
+<div id="filter-sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out">
+  <div class="flex flex-col h-full">
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+      <h2 class="text-lg font-semibold">Filters</h2>
+      <button id="filter-close" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Action buttons -->
+    <div class="p-4 border-b border-gray-200 flex justify-between">
+      <%= link_to new_trx_path, class: "flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center mr-2" do %>
+        <i class="fas fa-plus mr-1"></i> New Transaction
+      <% end %>
+      <%= link_to import_trxes_path, class: "flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center" do %>
+        <i class="fas fa-file-import mr-1"></i> Import
+      <% end %>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-4">
+      <%= search_form_for @q, class: 'space-y-4' do |f| %>
+        <div class="space-y-2">
+          <div class="flex space-x-2">
+            <div class="w-1/2">
+              <%= f.label :date_gteq, "Date From", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.date_field :date_gteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+            </div>
+            <div class="w-1/2">
+              <%= f.label :date_lteq, "Date To", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.date_field :date_lteq, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :account_id_in, "Accounts", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.collection_select :account_id_in,
+              @accounts,
+              :id,
+              :name,
+              { include_blank: true },
+              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :vendor_id_in, "Vendors", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.collection_select :vendor_id_in,
+              @vendors.order('LOWER(name)'),
+              :id,
+              :name,
+              { include_blank: true },
+              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.collection_select :lines_ledger_subcategory_category_id_in,
+              @categories,
+              :id,
+              :name,
+              { include_blank: true },
+              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.grouped_collection_select :lines_ledger_subcategory_id_in,
+              @categories,
+              :subcategories,
+              :name,
+              :id,
+              :name,
+              { include_blank: true },
+              { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+        </div>
+
+        <div class="flex space-x-2 pt-4">
+          <%= f.submit "Apply Filters", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+          <%= link_to "Clear", trxes_path, class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop for filter sidebar -->
+<div id="filter-backdrop" class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out"></div> 
