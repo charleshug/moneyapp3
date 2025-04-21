@@ -5,108 +5,111 @@
   <%= render 'reports/report_header', title: 'Income and Expense' %>
   
   <!-- Table section -->
-  <div class="p-2 overflow-auto flex-grow relative">
-    <table class="w-full bg-white rounded-lg overflow-hidden">
-      <thead class="bg-gray-50 sticky top-0 z-10">
-        <tr>
-          <th class="px-4 py-2 text-left sticky left-0 z-20 bg-gray-50"></th>
-          <th class="px-4 py-2 text-left sticky left-[57px] z-20 bg-gray-50"></th>
-          <% @report_data[:months].each do |month| %>
-            <% if month == 'average' || month == 'total' %>
-              <th class="px-4 py-2 text-right"><strong><%= month.titleize %></strong></th>
-            <% else %>
-              <th class="px-4 py-2 text-right"><%= Date.parse("#{month}-01").strftime("%b'%y") %></th>
-            <% end %>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="bg-gray-100 font-bold">
-          <td class="px-4 py-2 sticky left-0 z-10 bg-gray-100" colspan="2">Income</td>
-          <% @report_data[:months].each do |month| %>
-            <td class="px-4 py-2 text-right"></td>
-          <% end %>
-        </tr>
-        <tr>
-          <td class="px-4 py-2 sticky left-0 z-10 bg-white"></td>
-          <td class="px-4 py-2 font-semibold sticky left-[57px] z-10 bg-white">All Income Sources</td>
-          <% @report_data[:months].each do |month| %>
-            <td class="px-4 py-2 text-right"></td>
-          <% end %>
-        </tr>
-        <% @report_data[:income].each do |vendor_name, transactions| %>
-          <tr class="hover:bg-gray-50 border-t border-gray-100">
-            <td class="px-4 py-2 sticky left-0 z-10 bg-white hover:bg-gray-50"></td>
-            <td class="px-4 py-2 pl-8 sticky left-[57px] z-10 bg-white hover:bg-gray-50"><%= vendor_name %></td>
+  <div class="p-2 overflow-hidden flex-grow relative">
+    <div class="overflow-auto h-full">
+      <table class="w-full bg-white rounded-lg">
+        <thead class="bg-gray-50 sticky top-0">
+          <tr>
+            <th class="px-4 py-2 text-left sticky left-0 bg-gray-50"></th>
+            <th class="px-4 py-2 text-left sticky left-[57px] bg-gray-50"></th>
             <% @report_data[:months].each do |month| %>
-              <td class="px-4 py-2 text-right"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
+              <% if month == 'average' || month == 'total' %>
+                <th class="px-4 py-2 text-right"><strong><%= month.titleize %></strong></th>
+              <% else %>
+                <th class="px-4 py-2 text-right"><%= Date.parse("#{month}-01").strftime("%b'%y") %></th>
+              <% end %>
             <% end %>
           </tr>
-        <% end %>
-        
-        <tr class="bg-gray-100 font-bold">
-          <td class="px-4 py-2 sticky left-0 z-10 bg-gray-100" colspan="2">Expenses</td>
-          <% @report_data[:months].each do |month| %>
-            <td class="px-4 py-2 text-right"></td>
-          <% end %>
-        </tr>
-        
-        <% @report_data[:expenses].each do |parent_name, subcategories| %>
-          <tr class="bg-gray-50 font-semibold">
-            <td class="px-4 py-2 sticky left-0 z-10 bg-gray-50" colspan="2"><%= parent_name %></td>
+        </thead>
+        <tbody>
+          <tr class="bg-gray-100 font-bold">
+            <td class="px-4 py-2 sticky left-0 bg-gray-100" colspan="2">Income</td>
             <% @report_data[:months].each do |month| %>
               <td class="px-4 py-2 text-right"></td>
             <% end %>
           </tr>
-          <% subcategories.each do |subcategory_name, transactions| %>
+          <tr>
+            <td class="px-4 py-2 sticky left-0 bg-white"></td>
+            <td class="px-4 py-2 font-semibold sticky left-[57px] bg-white">All Income Sources</td>
+            <% @report_data[:months].each do |month| %>
+              <td class="px-4 py-2 text-right"></td>
+            <% end %>
+          </tr>
+          <% @report_data[:income].each do |vendor_name, transactions| %>
             <tr class="hover:bg-gray-50 border-t border-gray-100">
-              <td class="px-4 py-2 sticky left-0 z-10 bg-white hover:bg-gray-50"></td>
-              <td class="px-4 py-2 pl-8 sticky left-[57px] z-10 bg-white hover:bg-gray-50"><%= subcategory_name %></td>
+              <td class="px-4 py-2 sticky left-0 bg-white hover:bg-gray-50"></td>
+              <td class="px-4 py-2 pl-8 sticky left-[57px] bg-white hover:bg-gray-50"><%= vendor_name %></td>
               <% @report_data[:months].each do |month| %>
                 <td class="px-4 py-2 text-right"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
               <% end %>
             </tr>
           <% end %>
-          <tr class="border-t border-gray-200">
-            <td class="px-4 py-2 sticky left-0 z-10 bg-white"></td>
-            <td class="px-4 py-2 font-semibold sticky left-[57px] z-10 bg-white">Total <%= parent_name %></td>
+          
+          <tr class="bg-gray-100 font-bold">
+            <td class="px-4 py-2 sticky left-0 bg-gray-100" colspan="2">Expenses</td>
             <% @report_data[:months].each do |month| %>
-              <td class="px-4 py-2 text-right font-semibold">
-                <%= number_to_currency((subcategories.values.sum { |transactions| transactions[month] || 0 }) / 100.0) %>
+              <td class="px-4 py-2 text-right"></td>
+            <% end %>
+          </tr>
+          
+          <% @report_data[:expenses].each do |parent_name, subcategories| %>
+            <tr class="bg-gray-50 font-semibold">
+              <td class="px-4 py-2 sticky left-0 bg-gray-50" colspan="2"><%= parent_name %></td>
+              <% @report_data[:months].each do |month| %>
+                <td class="px-4 py-2 text-right"></td>
+              <% end %>
+            </tr>
+            <% subcategories.each do |subcategory_name, transactions| %>
+              <tr class="hover:bg-gray-50 border-t border-gray-100">
+                <td class="px-4 py-2 sticky left-0 bg-white hover:bg-gray-50"></td>
+                <td class="px-4 py-2 pl-8 sticky left-[57px] bg-white hover:bg-gray-50"><%= subcategory_name %></td>
+                <% @report_data[:months].each do |month| %>
+                  <td class="px-4 py-2 text-right"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
+                <% end %>
+              </tr>
+            <% end %>
+            <tr class="border-t border-gray-200">
+              <td class="px-4 py-2 sticky left-0 bg-white"></td>
+              <td class="px-4 py-2 font-semibold sticky left-[57px] bg-white">Total <%= parent_name %></td>
+              <% @report_data[:months].each do |month| %>
+                <td class="px-4 py-2 text-right font-semibold">
+                  <%= number_to_currency((subcategories.values.sum { |transactions| transactions[month] || 0 }) / 100.0) %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-200 font-bold sticky bottom-[38px]">
+            <td class="px-4 py-2 sticky left-0 bg-gray-200" colspan="2">Total Expenses</td>
+            <% @report_data[:months].each do |month| %>
+              <td class="px-4 py-2 text-right">
+                <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
+                  <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
+                <% end %>
+                <%= number_to_currency(total_expenses / 100.0) %>
               </td>
             <% end %>
           </tr>
-        <% end %>
-        
-        <tr class="bg-gray-200 font-bold">
-          <td class="px-4 py-2 sticky left-0 z-10 bg-gray-200" colspan="2">Total Expenses</td>
-          <% @report_data[:months].each do |month| %>
-            <td class="px-4 py-2 text-right">
-              <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
-                <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
-              <% end %>
-              <%= number_to_currency(total_expenses / 100.0) %>
-            </td>
-          <% end %>
-        </tr>
-        
-        <tr class="bg-gray-100 font-bold">
-          <td class="px-4 py-2 sticky left-0 z-10 bg-gray-100" colspan="2">Net Income</td>
-          <% @report_data[:months].each do |month| %>
-            <td class="px-4 py-2 text-right">
-              <% total_income = @report_data[:income]["All Income Sources"][month] || 0 %>
-              <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
-                <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
-              <% end %>
-              <% net_income = total_income + total_expenses %>
-              <span class="<%= net_income < 0 ? 'text-red-600' : '' %>">
-                <%= number_to_currency(net_income / 100.0) %>
-              </span>
-            </td>
-          <% end %>
-        </tr>
-      </tbody>
-    </table>
+          
+          <tr class="bg-gray-100 font-bold sticky bottom-0">
+            <td class="px-4 py-2 sticky left-0 bg-gray-100" colspan="2">Net Income</td>
+            <% @report_data[:months].each do |month| %>
+              <td class="px-4 py-2 text-right">
+                <% total_income = @report_data[:income]["All Income Sources"][month] || 0 %>
+                <% total_expenses = @report_data[:expenses].sum do |_, subcategories| %>
+                  <% subcategories.values.sum { |transactions| transactions[month] || 0 } %>
+                <% end %>
+                <% net_income = total_income + total_expenses %>
+                <span class="<%= net_income < 0 ? 'text-red-600' : '' %>">
+                  <%= number_to_currency(net_income / 100.0) %>
+                </span>
+              </td>
+            <% end %>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
 </div>
 
