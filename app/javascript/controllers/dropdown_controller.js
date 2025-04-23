@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ["menu"]
 
   connect() {
+    console.log("dropdown controller connected")
     // Initialize
   }
 
