@@ -32,7 +32,7 @@ export default class extends Controller {
       .sort((a, b) => b.value - a.value);
 
     this.renderChart(
-      `${categoryData.label} - Subcategories`,
+      `${categoryData.label}`,
       subcategoryData,
       false
     );
