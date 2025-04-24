@@ -5,12 +5,13 @@
   <%= render 'reports/report_header', title: 'Spending By Category' %>
   
   <!-- Add this after the header, before the table container -->
-  <div class="bg-white p-4 mb-4" style="height: 300px;">
+  <div class="bg-white p-4 mb-4 relative" style="height: 300px;">
     <canvas data-controller="category-spending-chart"
             data-chart-data="<%= @output.map { |parent_id, data| 
               { 
                 label: Category.find_by(id: parent_id)&.name || 'N/A', 
-                value: data[:total] / 100.0 
+                value: data[:total] / 100.0,
+                subcategories: data[:subcategories]
               } 
             }.to_json %>">
     </canvas>
@@ -47,7 +48,9 @@
           <% data[:subcategories].each do |subcategory_id, sub_amount| %>
             <% subcategory = Subcategory.find_by(id: subcategory_id) %>
             <tr class="hover:bg-gray-50 border-t border-gray-100">
-              <td class="px-4 py-2 pl-8"><%= subcategory.name %></td>
+              <td class="px-4 py-2 pl-8" data-subcategory-id="<%= subcategory_id %>">
+                <%= subcategory.name %>
+              </td>
               <td class="px-4 py-2 text-right">
                 <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
                     trxes_path(
