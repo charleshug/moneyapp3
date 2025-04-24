@@ -4,6 +4,18 @@
   <!-- Header row -->
   <%= render 'reports/report_header', title: 'Spending By Category' %>
   
+  <!-- Add this after the header, before the table container -->
+  <div class="bg-white p-4 mb-4" style="height: 300px;">
+    <canvas data-controller="category-spending-chart"
+            data-chart-data="<%= @output.map { |parent_id, data| 
+              { 
+                label: Category.find_by(id: parent_id)&.name || 'N/A', 
+                value: data[:total] / 100.0 
+              } 
+            }.to_json %>">
+    </canvas>
+  </div>
+  
   <!-- Table container with sticky header and footer -->
   <div class="flex-1 overflow-auto relative">
     <table class="w-full">
