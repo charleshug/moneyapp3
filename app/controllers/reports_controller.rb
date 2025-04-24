@@ -22,8 +22,8 @@ class ReportsController < ApplicationController
 
     # Set date range for form display
     if @net_worth_data.present?
-      @start_date = @net_worth_data.keys.first
-      @end_date = @net_worth_data.keys.last
+      @start_date = @net_worth_data.keys.min
+      @end_date = @net_worth_data.keys.max
     end
   end
 

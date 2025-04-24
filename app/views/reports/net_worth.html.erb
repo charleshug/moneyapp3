@@ -4,6 +4,18 @@
   <!-- Header row -->
   <%= render 'reports/report_header', title: 'Net Worth' %>
   
+  <!-- Add this right after the report header -->
+  <div class="bg-white p-4 mb-4" style="height: 300px;">
+    <canvas data-controller="net-worth-chart"
+            data-chart-data="<%= @net_worth_data.sort_by { |date, _| date }.to_h.map { |date, data| 
+              { 
+                x: date.strftime("%Y-%m"), 
+                y: data[:running_balance] / 100.0 
+              } 
+            }.to_json %>">
+    </canvas>
+  </div>
+  
   <!-- Table container with fixed header -->
   <div class="flex-1 overflow-hidden flex flex-col">
     <!-- Fixed table header -->

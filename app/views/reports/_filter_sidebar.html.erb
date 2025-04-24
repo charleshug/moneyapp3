@@ -17,12 +17,12 @@
         </div>
 
         <div class="space-y-2">
-          <%= f.label :trx_date_gteq, 'From', class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :trx_date_gteq, 'To', class: "block text-sm font-medium text-gray-700" %>
           <%= f.date_field :trx_date_gteq, value: @start_date, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
         </div>
 
         <div class="space-y-2">
-          <%= f.label :trx_date_lteq, 'To', class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :trx_date_lteq, 'From', class: "block text-sm font-medium text-gray-700" %>
           <%= f.date_field :trx_date_lteq, value: @end_date, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
         </div>
 
