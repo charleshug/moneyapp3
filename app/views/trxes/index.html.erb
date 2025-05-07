@@ -16,80 +16,55 @@
     </div>
   </div>
 
-  <!-- Transactions table -->
-  <div class="p-2 overflow-y-auto flex-grow flex flex-col">
+  <!-- Transactions list -->
+  <div class="p-2 overflow-y-auto flex-grow">
     <% if @trxes.any? %>
-      <div class="overflow-x-auto flex-grow">
-        <table class="w-full bg-white rounded-lg overflow-hidden">
-          <thead class="bg-gray-50 sticky top-0">
-            <tr>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :id, "ID") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :date, "Date") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :vendor_name, "Vendor") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :account_name, "Account") %></th>
-              <th class="px-4 py-2 text-right"><%= sort_link(@q, :amount, "Amount") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :lines_ledger_subcategory_category_name, "Category") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :lines_ledger_subcategory_name, "Subcategory") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :memo, "Memo") %></th>
-              <th class="px-4 py-2 text-left"><%= sort_link(@q, :lines_transfer_line_trx_id, "Transfer") %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @trxes.each do |trx| %>
-              <% is_split = trx.lines.size > 1 %>
-              
-              <%# Main transaction row %>
-              <tr class="<%= 'border-b-0' if is_split %> border-t border-gray-100 hover:bg-gray-50">
-                <td class="px-4 py-2"><%= link_to trx.id, edit_trx_path(trx), class: "text-blue-600 hover:text-blue-800" %></td>
-                <td class="px-4 py-2"><%= trx.date %></td>
-                <td class="px-4 py-2"><%= trx.vendor.name %></td>
-                <td class="px-4 py-2"><%= trx.account.name %></td>
-                <td class="px-4 py-2 text-right <%= 'text-gray-500 italic' if is_split %>">
-                  <%= number_to_currency(trx.amount / 100.0) %>
-                </td>
-                <td class="px-4 py-2">
-                  <% if is_split %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Split</span>
-                  <% else %>
-                    <%= trx.lines.first&.ledger&.subcategory&.category&.name %>
-                  <% end %>
-                </td>
-                <td class="px-4 py-2">
-                  <% unless is_split %>
-                    <%= trx.lines.first&.ledger&.subcategory&.name %>
-                  <% end %>
-                </td>
-                <td class="px-4 py-2"><%= trx.memo %></td>
-                <td class="px-4 py-2">
-                  <% if trx.lines.any? { |line| line.transfer_line.present? } %>
-                    <% transfer_line = trx.lines.find { |line| line.transfer_line.present? } %>
-                    <%= link_to transfer_line.transfer_line.trx.id, edit_trx_path(transfer_line.transfer_line.trx), class: "text-blue-600 hover:text-blue-800" %>
-                  <% end %>
-                </td>
-              </tr>
+      <div class="space-y-2">
+        <% @trxes.each do |trx| %>
+          <div class="bg-white rounded-lg shadow-sm p-4 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+              <!-- Main content -->
+              <div class="flex-grow">
+                <div class="flex justify-between items-start mb-2">
+                  <div class="text-blue-600 font-medium"><%= trx.vendor.name %></div>
+                  <div class="<%= trx.amount < 0 ? 'text-red-600' : 'text-green-600' %> font-medium">
+                    <%= number_to_currency(trx.amount / 100.0) %>
+                  </div>
+                </div>
+                <div class="flex flex-wrap justify-between items-start gap-x-4">
+                  <div class="text-sm text-gray-600 flex-grow min-w-[200px]">
+                    <span class="hidden md:inline text-gray-500"><%= trx.lines.first&.ledger&.subcategory&.category&.name %>: </span>
+                    <span><%= trx.lines.first&.ledger&.subcategory&.name %></span>
+                    <% if trx.memo.present? %>
+                      <span class="hidden md:inline text-gray-500 ml-2">Memo: </span>
+                      <span class="hidden md:inline text-gray-500 truncate max-w-[200px]"><%= trx.memo %></span>
+                    <% end %>
+                  </div>
+                  <div class="text-sm text-gray-600"><%= trx.account.name %></div>
+                </div>
+              </div>
 
-              <%# Split lines %>
-              <% if is_split %>
+              <!-- Status indicators -->
+              <div class="ml-4 flex flex-col items-center justify-between h-full">
+                <div class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mb-2"></div>
+                <div class="font-bold text-gray-700">
+                  <%= 'T' if trx.lines.any? { |line| line.transfer_line.present? } %>
+                </div>
+              </div>
+            </div>
+
+            <% if trx.lines.size > 1 %>
+              <div class="mt-2 pt-2 border-t border-gray-100">
                 <% trx.lines.each do |line| %>
-                  <tr class="bg-gray-50 border-t-0 border-gray-100">
-                    <td colspan="4" class="px-4 py-1 pl-8"></td>
-                    <td class="px-4 py-1 text-right">
-                      <%= number_to_currency(line.amount / 100.0) %>
-                    </td>
-                    <td class="px-4 py-1"><%= line.ledger&.subcategory&.category&.name %></td>
-                    <td class="px-4 py-1"><%= line.ledger&.subcategory&.name %></td>
-                    <td class="px-4 py-1"></td>
-                    <td class="px-4 py-1">
-                      <% if line.transfer_line.present? %>
-                        <%= link_to line.transfer_line.trx.id, edit_trx_path(line.transfer_line.trx), class: "text-blue-600 hover:text-blue-800" %>
-                      <% end %>
-                    </td>
-                  </tr>
+                  <div class="flex justify-between items-center text-sm">
+                    <div class="text-gray-600"><%= line.ledger&.subcategory&.name %></div>
+                    <div class="text-gray-600"><%= number_to_currency(line.amount / 100.0) %></div>
+                  </div>
                 <% end %>
-              <% end %>
+              </div>
             <% end %>
-          </tbody>
-        </table>
+          </div>
+        <% end %>
       </div>
 
       <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2">
