@@ -29,6 +29,9 @@ class TrxesController < ApplicationController
 
     # Get paginated results
     @pagy, @trxes = pagy(@filtered_results)
+
+    # Group transactions by date
+    @grouped_trxes = @trxes.group_by { |trx| trx.date }
   end
 
   # GET /trxes/new
