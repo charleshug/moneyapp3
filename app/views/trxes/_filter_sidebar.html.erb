@@ -77,6 +77,14 @@
               { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
         </div>
 
+        <div class="space-y-2">
+          <%= f.label :cleared_eq, "Cleared Status", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :cleared_eq,
+              [['All', ''], ['Cleared', true], ['Uncleared', false]],
+              {},
+              { class: 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50' } %>
+        </div>
+
         <div class="flex space-x-2 pt-4">
           <%= f.submit "Apply Filters", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
           <%= link_to "Clear", trxes_path, class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md" %>
