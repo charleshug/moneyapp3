@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :trxes, only: [ :index, :new, :create, :edit, :update, :destroy ] do
     member do
       post :add_line_to_trx
+      post :toggle_cleared
     end
     collection do
       post :add_line_to_new_trx

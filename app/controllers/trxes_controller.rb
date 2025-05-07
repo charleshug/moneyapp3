@@ -1,6 +1,6 @@
 class TrxesController < ApplicationController
   include Pagy::Backend
-  before_action :set_trx, only: %i[ edit update destroy ]
+  before_action :set_trx, only: %i[ edit update destroy toggle_cleared ]
   before_action :check_transfer_child, only: %i[ update destroy ]
 
   def index
@@ -125,6 +125,19 @@ class TrxesController < ApplicationController
 
   def import
     # Any setup needed for the import form
+  end
+
+  def toggle_cleared
+    if @trx.budget != @current_budget
+      render json: { error: "You are not authorized to edit this transaction." }, status: :unauthorized
+      return
+    end
+
+    @trx.update(cleared: !@trx.cleared)
+
+    respond_to do |format|
+      format.json { render json: { cleared: @trx.cleared } }
+    end
   end
 
   private

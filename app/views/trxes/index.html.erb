@@ -67,7 +67,15 @@
 
               <!-- Status indicators -->
               <div class="ml-4 flex flex-col items-center justify-between h-full">
-                <div class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mb-2"></div>
+                <div data-controller="cleared-toggle"
+                     data-cleared-toggle-trx-id-value="<%= trx.id %>"
+                     data-cleared-toggle-cleared-value="<%= trx.cleared %>">
+                  <button data-action="click->cleared-toggle#toggle" class="focus:outline-none">
+                    <div data-cleared-toggle-target="circle" 
+                         class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mb-2">
+                    </div>
+                  </button>
+                </div>
                 <div class="font-bold text-gray-700">
                   <%= 'T' if trx.lines.any? { |line| line.transfer_line.present? } %>
                 </div>
