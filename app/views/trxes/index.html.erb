@@ -25,16 +25,37 @@
             <div class="flex justify-between items-start">
               <!-- Main content -->
               <div class="flex-grow">
-                <div class="flex justify-between items-start mb-2">
-                  <div class="text-blue-600 font-medium"><%= trx.vendor.name %></div>
-                  <div class="<%= trx.amount < 0 ? 'text-red-600' : 'text-green-600' %> font-medium">
-                    <%= number_to_currency(trx.amount / 100.0) %>
+                <%= link_to edit_trx_path(trx), class: "block" do %>
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="text-blue-600 font-medium"><%= trx.vendor.name %></div>
+                    <div class="<%= trx.amount < 0 ? 'text-red-600' : 'text-green-600' %> font-medium">
+                      <%= number_to_currency(trx.amount / 100.0) %>
+                    </div>
                   </div>
-                </div>
+                <% end %>
                 <div class="flex flex-wrap justify-between items-start gap-x-4">
                   <div class="text-sm text-gray-600 flex-grow min-w-[200px]">
-                    <span class="hidden md:inline text-gray-500"><%= trx.lines.first&.ledger&.subcategory&.category&.name %>: </span>
-                    <span><%= trx.lines.first&.ledger&.subcategory&.name %></span>
+                    <% if trx.lines.size > 1 %>
+                      <div data-controller="split-toggle" class="flex flex-col">
+                        <button data-action="click->split-toggle#toggle" class="flex items-center gap-1 text-gray-500 hover:text-gray-700">
+                          <span>Split</span>
+                          <svg data-split-toggle-target="icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        <div data-split-toggle-target="content" class="mt-2 pt-2 border-t border-gray-100 hidden">
+                          <% trx.lines.each do |line| %>
+                            <div class="flex justify-between items-center text-sm">
+                              <div class="text-gray-600"><%= line.ledger&.subcategory&.name %></div>
+                              <div class="text-gray-600"><%= number_to_currency(line.amount / 100.0) %></div>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% else %>
+                      <span class="hidden md:inline text-gray-500"><%= trx.lines.first&.ledger&.subcategory&.category&.name %>: </span>
+                      <span><%= trx.lines.first&.ledger&.subcategory&.name %></span>
+                    <% end %>
                     <% if trx.memo.present? %>
                       <span class="hidden md:inline text-gray-500 ml-2">Memo: </span>
                       <span class="hidden md:inline text-gray-500 truncate max-w-[200px]"><%= trx.memo %></span>
@@ -52,17 +73,6 @@
                 </div>
               </div>
             </div>
-
-            <% if trx.lines.size > 1 %>
-              <div class="mt-2 pt-2 border-t border-gray-100">
-                <% trx.lines.each do |line| %>
-                  <div class="flex justify-between items-center text-sm">
-                    <div class="text-gray-600"><%= line.ledger&.subcategory&.name %></div>
-                    <div class="text-gray-600"><%= number_to_currency(line.amount / 100.0) %></div>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
           </div>
         <% end %>
       </div>
