@@ -94,4 +94,12 @@ Rails.application.routes.draw do
   end
 
   post "/budgets_export", to: "budgets_export#create"
+
+  resources :import_budgets, only: [] do
+    collection do
+      get "import_preview"   # Show import form
+      post "import_preview"  # Handle file upload and show preview
+      post "submit_import"   # Process the final import
+    end
+  end
 end
