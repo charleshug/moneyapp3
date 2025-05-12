@@ -28,7 +28,7 @@ Rails.application.routes.draw do
     end
   end
 
-  get "/trxes_export", to: "trxes_export#create"
+  post "/trxes_export", to: "trxes_export#create"
 
   resources :accounts, except: [ :show ]
   resources :ledgers do
