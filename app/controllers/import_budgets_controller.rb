@@ -63,16 +63,28 @@ class ImportBudgetsController < ApplicationController
           subcategory = subcategory_map[row["Subcategory"]]
           budget = (BigDecimal(row["Budget"]) * 100).to_i
 
+          # This will create a new ledger if one doesn't exist for this date/subcategory
           ledger = Ledger.find_or_initialize_by(
             date: date.end_of_month,
             subcategory_id: subcategory.id
-          )
+          ) do |l|
+            # These values will only be set for new ledgers
+            l.budget = 0
+            l.actual = 0
+            l.balance = 0
+            l.rolling_balance = 0
+            l.carry_forward_negative_balance = false
+            l.user_changed = false
+          end
 
+          # Update the budget amount
           ledger.budget = budget
+
           # Only update carry_forward if the field exists and has a value
           if row["Carry Forward Negative Balance"].present?
             ledger.carry_forward_negative_balance = row["Carry Forward Negative Balance"].downcase == "true"
           end
+
           ledger.user_changed = true
           ledger.save!
 
