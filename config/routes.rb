@@ -92,4 +92,6 @@ Rails.application.routes.draw do
       post "create_selected"
     end
   end
+
+  post "/budgets_export", to: "budgets_export#create"
 end
