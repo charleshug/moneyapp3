@@ -8,7 +8,7 @@ class BudgetsExportController < ApplicationController
     budget_name = @current_budget.name.gsub(/[^0-9A-Za-z]/, "_")
 
     csv_data = CSV.generate do |csv|
-      csv << [ "Date", "Category Name", "Subcategory Name", "Budgeted", "Actual", "Balance",
+      csv << [ "Date", "Category", "Subcategory", "Budgeted", "Actual", "Balance",
               "Rolling Balance", "Carry Forward Negative Balance", "User Changed", "ID", "Next ID", "Prev ID" ]
 
       base_query.each do |ledger|
