@@ -22,7 +22,7 @@
 
     <div class="p-4 border-b border-gray-200">
       <%= form_tag trxes_export_path(format: :csv), method: :post, data: { filter_sidebar_target: "exportForm" } do %>
-        <%= hidden_field_tag :q, params[:q].to_json if params[:q].present? %>
+        <%= hidden_field_tag :q, request.query_parameters[:q].to_json if request.query_parameters[:q].present? %>
         <%= button_tag type: 'submit', class: "w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-center" do %>
           <i class="fas fa-file-export mr-1"></i> Export Filtered Transactions
         <% end %>

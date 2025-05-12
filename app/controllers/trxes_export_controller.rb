@@ -6,7 +6,9 @@ class TrxesExportController < ApplicationController
                                .joins(:account, :vendor)
                                .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
 
-    @q = base_query.ransack(params[:q])
+    # Parse the JSON filter parameters
+    filter_params = JSON.parse(params[:q]) if params[:q].present?
+    @q = base_query.ransack(filter_params)
     @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
     @trxes = @q.result
 
