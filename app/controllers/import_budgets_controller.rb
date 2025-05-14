@@ -84,7 +84,7 @@ class ImportBudgetsController < ApplicationController
       imported_ledgers.each do |_, ledger_params|
         date = Date.parse(ledger_params["date"])
         subcategory = @current_budget.subcategories.find(ledger_params["subcategory_id"])
-        budget = (BigDecimal(ledger_params["budget"]) * 100).to_i
+        budget = ledger_params["budget"]
 
         ledger = Ledger.find_or_initialize_by(
           date: date.end_of_month,
