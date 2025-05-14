@@ -38,4 +38,32 @@ module ApplicationHelper
 
     html.html_safe
   end
+
+  def budget_year_range_for_select
+    current_year = Date.current.year
+    url_year = params.dig(:date, :year).to_i if params.dig(:date, :year).present?
+
+    # Get the earliest and latest years from ledgers in the current budget
+    ledger_years = @current_budget.ledgers.pluck(:date).map(&:year).uniq.sort
+
+    if ledger_years.any?
+      earliest_year = ledger_years.first
+      latest_year = ledger_years.last
+    else
+      earliest_year = current_year
+      latest_year = current_year
+    end
+
+    # If URL year is provided, adjust the range
+    if url_year.present?
+      if url_year < earliest_year
+        earliest_year = url_year
+      elsif url_year > latest_year
+        latest_year = url_year
+      end
+    end
+
+    # Generate the range of years
+    (earliest_year..latest_year).to_a.reverse
+  end
 end

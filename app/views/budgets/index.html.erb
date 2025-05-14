@@ -10,7 +10,10 @@
         <div>
           <%= form_tag budgets_path, method: :get, class: "flex items-center space-x-2" do %>
             <%= select_month(@selected_month, {}, class: "form-control text-2xl") %>
-            <%= select_year(@selected_month, {start_year: Date.current.year - 5, end_year: Date.current.year + 5}, {class: "form-control text-2xl"}) %>
+            <%= select_year(@selected_month, 
+                { start_year: budget_year_range_for_select.last, 
+                  end_year: budget_year_range_for_select.first }, 
+                { class: "form-control text-2xl" }) %>
             <%= submit_tag "Select", class: "px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600" %>
           <% end %>
         </div>
@@ -122,3 +125,11 @@
     <% end %>
   </div>
 </div>
+
+<select class="form-select" data-controller="year-select" data-action="change->year-select#change">
+  <% budget_year_range_for_select.each do |year| %>
+    <option value="<%= year %>" <%= 'selected' if year.to_s == params[:year] %>>
+      <%= year %>
+    </option>
+  <% end %>
+</select>
