@@ -97,9 +97,10 @@ Rails.application.routes.draw do
 
   resources :import_budgets, only: [] do
     collection do
-      get "import_preview"   # Show import form
-      post "import_preview"  # Handle file upload and show preview
-      post "submit_import"   # Process the final import
+      get :import
+      get :import_preview
+      post :import_preview
+      post :submit_import
     end
   end
 end

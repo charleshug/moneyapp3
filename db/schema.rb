@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_23_022530) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_14_182127) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_23_022530) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["budget_id"], name: "index_accounts_on_budget_id"
+  end
+
+  create_table "budget_import_batches", force: :cascade do |t|
+    t.bigint "budget_id", null: false
+    t.text "parsed_ledgers"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_id"], name: "index_budget_import_batches_on_budget_id"
   end
 
   create_table "budgets", force: :cascade do |t|
@@ -166,6 +174,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_23_022530) do
   end
 
   add_foreign_key "accounts", "budgets"
+  add_foreign_key "budget_import_batches", "budgets"
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "budgets"
   add_foreign_key "import_batches", "budgets"

@@ -1,0 +1,44 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Import Budget Data</h1>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">Instructions</h2>
+        <p class="text-gray-600 mb-4">
+          Upload a CSV file with the following columns:
+        </p>
+        <ul class="list-disc list-inside text-gray-600 mb-4">
+          <li>Date (YYYY-MM-DD)</li>
+          <li>Subcategory (must exist in your budget)</li>
+          <li>Budget (decimal amount)</li>
+          <li>Carry Forward Negative Balance (optional, true/false)</li>
+        </ul>
+      </div>
+
+      <%= form_tag import_preview_import_budgets_path, multipart: true, data: { turbo: false } do %>
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="file">
+            Select CSV File
+          </label>
+          <%= file_field_tag :file, 
+              accept: '.csv',
+              class: "block w-full text-sm text-gray-500
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-full file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-blue-50 file:text-blue-700
+                     hover:file:bg-blue-100" %>
+        </div>
+
+        <div class="flex justify-end">
+          <%= link_to "Cancel", trxes_path, 
+              class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3" %>
+          
+          <%= submit_tag "Preview", 
+              class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 
