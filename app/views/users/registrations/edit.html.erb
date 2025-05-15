@@ -88,6 +88,12 @@
             <%= f.submit "Update", class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
           </div>
         <% end %>
+          <div class="py-2 space-y-3">
+            <%= button_to "Delete Account", registration_path(resource_name), 
+                method: :delete, 
+                class: "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm",
+                form: { data: { turbo_confirm: "Are you sure? This will permanently delete your account." } } %>
+          </div>
       </div>
 
       <!-- Navigation Links section -->
@@ -101,34 +107,12 @@
         </div>
       </div>
 
-      <!-- Sign out section -->
-      <div class="bg-white rounded-lg p-6 shadow-sm">        
-        <div class="mb-4">
-          <div class="space-y-3">
-            <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md" %>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delete account section -->
-      <div class="bg-white rounded-lg p-6 shadow-sm">        
-        <div class="mb-4">
-          <div class="space-y-3">
-            <%= button_to "Delete Account", registration_path(resource_name), 
-                method: :delete, 
-                class: "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm",
-                form: { data: { turbo_confirm: "Are you sure? This will permanently delete your account." } } %>
-          </div>
-        </div>
-      </div>
-
       <!-- Bulk Operations section -->
       <div class="bg-white rounded-lg p-6 shadow-sm">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Bulk Operations</h2>
         
         <div class="space-y-4">
           <div>
-            <h3 class="text-md font-medium text-gray-700 mb-2">Export Data</h3>
             <div class="space-y-2">
               <%= form_tag trxes_export_path(format: :csv), method: :post do %>
                 <%= button_tag type: 'submit', class: "w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-center" do %>
@@ -141,15 +125,11 @@
                   <i class="fas fa-file-export mr-1"></i> Export Budgeted Values
                 <% end %>
               <% end %>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="text-md font-medium text-gray-700 mb-2">Import Data</h3>
             <div class="space-y-2">
               <%= link_to import_preview_import_budgets_path, class: "w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center block" do %>
                 <i class="fas fa-file-import mr-1"></i> Import Budget Values
               <% end %>
+            </div>
             </div>
           </div>
         </div>
