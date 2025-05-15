@@ -30,6 +30,9 @@ class ApplicationController < ActionController::Base
     @sidebar_off_budget_balance = 0
     @sidebar_closed_balance = 0
 
+    # Try to find current budget if not set
+    @current_budget ||= find_budget_from_user if current_user
+
     return unless @current_budget
 
     @sidebar_accounts = @current_budget.accounts.to_a
