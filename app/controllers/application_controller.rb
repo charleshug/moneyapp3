@@ -20,6 +20,16 @@ class ApplicationController < ActionController::Base
   end
 
   def load_accounts_for_sidebar
+    # Set default empty values
+    @sidebar_accounts = []
+    @sidebar_on_budget_accounts = []
+    @sidebar_off_budget_accounts = []
+    @sidebar_closed_accounts = []
+    @sidebar_total_balance = 0
+    @sidebar_on_budget_balance = 0
+    @sidebar_off_budget_balance = 0
+    @sidebar_closed_balance = 0
+
     return unless @current_budget
 
     @sidebar_accounts = @current_budget.accounts.to_a
