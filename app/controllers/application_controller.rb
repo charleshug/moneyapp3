@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   before_action :authenticate_user!
   before_action :set_current_budget
+  before_action :load_accounts_for_sidebar
 
   private
   def set_current_budget
@@ -16,6 +17,20 @@ class ApplicationController < ActionController::Base
     @current_budget = find_budget_from_user ||
                      find_budget_from_session ||
                      use_first_budget
+  end
+
+  def load_accounts_for_sidebar
+    return unless @current_budget
+
+    @sidebar_accounts = @current_budget.accounts.to_a
+    @sidebar_on_budget_accounts = @sidebar_accounts.select { |a| a.on_budget && !a.closed }.sort_by(&:name)
+    @sidebar_off_budget_accounts = @sidebar_accounts.select { |a| !a.on_budget && !a.closed }.sort_by(&:name)
+    @sidebar_closed_accounts = @sidebar_accounts.select { |a| a.closed }.sort_by(&:name)
+
+    @sidebar_total_balance = @sidebar_accounts.sum(&:balance)
+    @sidebar_on_budget_balance = @sidebar_on_budget_accounts.sum(&:balance)
+    @sidebar_off_budget_balance = @sidebar_off_budget_accounts.sum(&:balance)
+    @sidebar_closed_balance = @sidebar_closed_accounts.sum(&:balance)
   end
 
   def find_budget_from_session

@@ -8,7 +8,7 @@
       </button>
       <div class="flex-1">
         <h2 class="text-xl font-semibold">
-          <%= current_user.budgets.find_by(id: current_user.last_viewed_budget_id)&.name || "No Budget Selected" %>
+          <%= @current_budget&.name || "No Budget Selected" %>
         </h2>
         <p class="text-xs text-gray-500"><%= current_user.email %></p>
       </div>
@@ -24,29 +24,23 @@
         <%= link_to "Budgets", budgets_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/budgets') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
         <%= link_to "Reports", reports_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/reports') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
         
-        <% current_budget = current_user.budgets.find_by(id: current_user.last_viewed_budget_id) %>
-        <% total_balance = current_budget&.accounts&.sum(:balance) || 0 %>
-        
         <div class="relative">
           <%= link_to trxes_path, class: "flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/accounts') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" do %>
             <div>Accounts</div>
-            <div class="text-sm <%= total_balance < 0 ? 'text-red-600' : '' %>">
-              <%= number_to_currency(total_balance/100.0, unit: "$", separator: ".", delimiter: ",") %>
+            <div class="text-sm <%= @sidebar_total_balance < 0 ? 'text-red-600' : '' %>">
+              <%= number_to_currency(@sidebar_total_balance/100.0, unit: "$", separator: ".", delimiter: ",") %>
             </div>
           <% end %>
           
           <div class="pl-4 mt-1 border-l-2 border-gray-200 space-y-2 max-h-[calc(100vh-350px)] overflow-y-auto">
-            <% if current_budget && current_budget.accounts.present? %>              
-              <% on_budget_accounts = current_budget.accounts.where(on_budget: true, closed: false).order(:name) %>
-              <% if on_budget_accounts.any? %>
+            <% if @current_budget && @sidebar_accounts.any? %>              
+              <% if @sidebar_on_budget_accounts.any? %>
                 <div class="mt-2 mb-1">
-                  <% on_budget_balance = on_budget_accounts.sum(:balance) %>
-                  <% on_budget_ids = on_budget_accounts.pluck(:id) %>
-                  <%= link_to trxes_path(q: {account_id_in: on_budget_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
-                    On Budget <span class="float-right"><%= number_to_currency(on_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <%= link_to trxes_path(q: {account_id_in: @sidebar_on_budget_accounts.map(&:id)}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    On Budget <span class="float-right"><%= number_to_currency(@sidebar_on_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
                   <% end %>
                   <div class="space-y-1 mt-1">
-                    <% on_budget_accounts.each do |account| %>
+                    <% @sidebar_on_budget_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
                         <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
@@ -56,16 +50,13 @@
                 </div>
               <% end %>
               
-              <% off_budget_accounts = current_budget.accounts.where(on_budget: false, closed: false).order(:name) %>
-              <% if off_budget_accounts.any? %>
+              <% if @sidebar_off_budget_accounts.any? %>
                 <div class="mt-2 mb-1">
-                  <% off_budget_balance = off_budget_accounts.sum(:balance) %>
-                  <% off_budget_ids = off_budget_accounts.pluck(:id) %>
-                  <%= link_to trxes_path(q: {account_id_in: off_budget_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
-                    Off Budget <span class="float-right"><%= number_to_currency(off_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <%= link_to trxes_path(q: {account_id_in: @sidebar_off_budget_accounts.map(&:id)}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    Off Budget <span class="float-right"><%= number_to_currency(@sidebar_off_budget_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
                   <% end %>
                   <div class="space-y-1 mt-1">
-                    <% off_budget_accounts.each do |account| %>
+                    <% @sidebar_off_budget_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
                         <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
@@ -75,16 +66,13 @@
                 </div>
               <% end %>
               
-              <% closed_accounts = current_budget.accounts.where(closed: true).order(:name) %>
-              <% if closed_accounts.any? %>
+              <% if @sidebar_closed_accounts.any? %>
                 <div class="mt-2 mb-1">
-                  <% closed_balance = closed_accounts.sum(:balance) %>
-                  <% closed_ids = closed_accounts.pluck(:id) %>
-                  <%= link_to trxes_path(q: {account_id_in: closed_ids}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
-                    Closed <span class="float-right"><%= number_to_currency(closed_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
+                  <%= link_to trxes_path(q: {account_id_in: @sidebar_closed_accounts.map(&:id)}), class: "block px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:bg-gray-100 rounded-md" do %>
+                    Closed <span class="float-right"><%= number_to_currency(@sidebar_closed_balance/100.0, unit: "$", separator: ".", delimiter: ",") %></span>
                   <% end %>
                   <div class="space-y-1 mt-1">
-                    <% closed_accounts.each do |account| %>
+                    <% @sidebar_closed_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
                         <%= link_to account.name, edit_account_path(account), class: "text-gray-500 #{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right text-gray-500" %>
