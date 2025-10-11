@@ -1,0 +1,79 @@
+<% provide(:title, "Spending by Category") %>
+
+<div data-controller="filter-sidebar" class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)] relative">
+  <!-- Header row -->
+  <%= render 'reports/report_header', title: 'Spending By Category' %>
+  
+  <!-- Add this after the header, before the table container -->
+  <div class="bg-white p-4 mb-4 relative" style="height: 300px;">
+    <canvas data-controller="category-spending-chart"
+            data-chart-data="<%= @output.map { |parent_id, data| 
+              { 
+                label: Category.find_by(id: parent_id)&.name || 'N/A', 
+                value: data[:total] / 100.0,
+                subcategories: data[:subcategories]
+              } 
+            }.to_json %>">
+    </canvas>
+  </div>
+  
+  <!-- Table container with sticky header and footer -->
+  <div class="flex-1 overflow-auto relative">
+    <table class="w-full">
+      <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+        <tr>
+          <th class="px-4 py-2 text-left font-medium text-gray-700">Category</th>
+          <th class="px-4 py-2 text-right font-medium text-gray-700">Amount</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white">
+        <% total_amount = 0 %>
+        <% @output.each do |parent_id, data| %>
+          <% category = Category.find_by(id: parent_id) %>
+          <% total_amount += data[:total] %>
+          <tr class="bg-gray-50 font-bold">
+            <td class="px-4 py-2"><%= category.name %></td>
+            <td class="px-4 py-2 text-right">
+              <%= link_to number_to_currency((data[:total] / 100.0), precision: 2), 
+                  trxes_path(
+                    q: { 
+                      lines_ledger_subcategory_category_id_eq: parent_id,
+                      trx_date_gteq: @q.trx_date_gteq,
+                      trx_date_lteq: @q.trx_date_lteq
+                    }
+                  ) 
+              %>
+            </td>
+          </tr>
+          <% data[:subcategories].each do |subcategory_id, sub_amount| %>
+            <% subcategory = Subcategory.find_by(id: subcategory_id) %>
+            <tr class="hover:bg-gray-50 border-t border-gray-100">
+              <td class="px-4 py-2 pl-8" data-subcategory-id="<%= subcategory_id %>">
+                <%= subcategory.name %>
+              </td>
+              <td class="px-4 py-2 text-right">
+                <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
+                    trxes_path(
+                      q: {
+                        lines_ledger_subcategory_id_eq: subcategory_id,
+                        trx_date_gteq: @q.trx_date_gteq,
+                        trx_date_lteq: @q.trx_date_lteq
+                      }
+                    ) 
+                %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+      <tfoot class="bg-gray-100 font-bold sticky bottom-0 z-10 border-t border-gray-300">
+        <tr>
+          <td class="px-4 py-2">Total</td>
+          <td class="px-4 py-2 text-right"><%= number_to_currency((total_amount / 100.0), precision: 2) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<%= render 'reports/category_filter_sidebar' %>

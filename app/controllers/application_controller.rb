@@ -3,9 +3,20 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   before_action :authenticate_user!
   before_action :set_current_budget
+  before_action :detect_variant
   before_action :load_accounts_for_sidebar
 
   private
+
+  def detect_variant
+    browser = Browser.new(request.user_agent) # from `browser` gem
+    if browser.device.mobile?
+      request.variant = :mobile
+    else
+      request.variant = :desktop
+    end
+  end
+
   def set_current_budget
     return unless current_user
 

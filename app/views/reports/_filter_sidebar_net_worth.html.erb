@@ -1,0 +1,36 @@
+<!-- Filter bar (below header, full width, horizontal layout) -->
+<div id="filter-bar" class="bg-white shadow-lg border-b border-gray-200">
+  <div class="p-4">
+    <%= search_form_for @q, url: net_worth_reports_path, html: { class: "flex flex-wrap items-center gap-6" } do |f| %>
+
+      <!-- Accounts -->
+      <div class="flex items-center space-x-2">
+        <%= f.label :trx_account_id_in, 'Accounts', class: "text-sm font-medium text-gray-700 whitespace-nowrap" %>
+        <%= f.collection_select :trx_account_id_in, @current_budget.accounts, :id, :name,
+              { include_blank: true },
+              { multiple: true, class: "min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+      </div>
+
+      <!-- Date From -->
+      <div class="flex items-center space-x-2">
+        <%= f.label :trx_date_gteq, 'From', class: "text-sm font-medium text-gray-700 whitespace-nowrap" %>
+        <%= f.date_field :trx_date_gteq, value: @start_date,
+              class: "w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+
+      <!-- Date To -->
+      <div class="flex items-center space-x-2">
+        <%= f.label :trx_date_lteq, 'To', class: "text-sm font-medium text-gray-700 whitespace-nowrap" %>
+        <%= f.date_field :trx_date_lteq, value: @end_date,
+              class: "w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center space-x-2 ml-auto">
+        <%= f.submit "Apply Filters", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
+        <%= link_to "Clear", net_worth_reports_path, class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md" %>
+      </div>
+
+    <% end %>
+  </div>
+</div>

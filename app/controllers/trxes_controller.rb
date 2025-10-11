@@ -28,7 +28,8 @@ class TrxesController < ApplicationController
     @filtered_count = @filtered_results.count("DISTINCT trxes.id")
 
     # Get paginated results
-    @pagy, @trxes = pagy(@filtered_results)
+    limit = Array(request.variant).include?(:mobile) ? 20 : 60
+    @pagy, @trxes = pagy(@filtered_results, limit: limit)
 
     # Group transactions by date
     @grouped_trxes = @trxes.group_by { |trx| trx.date }

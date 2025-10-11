@@ -1,49 +1,57 @@
 <% provide(:title, "Net Worth") %>
 
-<div data-controller="filter-sidebar" class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)] relative">
-  <!-- Header row -->
-  <%= render 'reports/report_header', title: 'Net Worth' %>
-  
-  <!-- Add this right after the report header -->
-  <div class="bg-white p-4 mb-4" style="height: 300px;">
-    <canvas data-controller="net-worth-chart"
-            data-chart-data="<%= @net_worth_data.sort_by { |date, _| date }.to_h.map { |date, data| 
-              { 
-                x: date.strftime("%Y-%m"), 
-                y: data[:running_balance] / 100.0 
-              } 
-            }.to_json %>">
-    </canvas>
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)] relative">
+  <!-- Header -->
+  <%= render 'reports/report_header_net_worth'%>
+
+  <!-- Filter sidebar -->
+  <div class="bg-white m-4 overflow-hidden">
+    <%= render 'reports/filter_sidebar_net_worth' %>
   </div>
-  
-  <!-- Table container with fixed header -->
-  <div class="flex-1 overflow-hidden flex flex-col">
-    <!-- Fixed table header -->
-    <table class="w-full">
-      <thead class="bg-gray-50 border-b border-gray-200">
-        <tr>
-          <th class="px-4 py-2 text-left font-medium text-gray-700">Date</th>
-          <th class="px-4 py-2 text-right font-medium text-gray-700">Amount</th>
-          <th class="px-4 py-2 text-right font-medium text-gray-700">Running Balance</th>
-        </tr>
-      </thead>
-    </table>
+
+  <!-- Horizontal layout: chart + table -->
+  <div class="flex flex-1 overflow-hidden">
     
-    <!-- Scrollable table body -->
-    <div class="overflow-y-auto flex-1">
-      <table class="w-full bg-white">
-        <tbody>
-          <% @net_worth_data.each do |date, data| %>
-            <tr class="hover:bg-gray-50 border-t border-gray-100">
-              <td class="px-4 py-2 text-left"><%= date.strftime("%Y-%m") %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(data[:amount] / 100.0, precision: 2) %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(data[:running_balance] / 100.0, precision: 2) %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <!-- Chart section -->
+    <div class="flex-1 bg-white p-4 m-4 overflow-hidden">
+      <canvas data-controller="net-worth-chart"
+              data-chart-data="<%= @net_worth_data.sort_by { |date, _| date }.to_h.map { |date, data| 
+                { 
+                  x: date.strftime("%Y-%m"), 
+                  y: data[:running_balance] / 100.0 
+                } 
+              }.to_json %>">
+      </canvas>
     </div>
+
+    <!-- Table section -->
+    <div class="w-64 flex flex-col bg-white m-4 rounded-lg shadow-sm overflow-hidden text-xs">
+      <!-- Fixed table header -->
+      <table class="w-full table-fixed">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="px-2 py-1 text-left font-medium text-gray-700 truncate">Date</th>
+            <th class="px-2 py-1 text-right font-medium text-gray-700 truncate">Amount</th>
+            <th class="px-2 py-1 text-right font-medium text-gray-700 truncate">Running Balance</th>
+          </tr>
+        </thead>
+      </table>
+      
+      <!-- Scrollable table body -->
+      <div class="overflow-y-auto flex-1">
+        <table class="w-full bg-white">
+          <tbody>
+            <% @net_worth_data.each do |date, data| %>
+              <tr class="hover:bg-gray-50 border-t border-gray-100">
+                <td class="px-4 py-2 text-left"><%= date.strftime("%Y-%m") %></td>
+                <td class="px-4 py-2 text-right"><%= number_to_currency(data[:amount] / 100.0, precision: 2) %></td>
+                <td class="px-4 py-2 text-right"><%= number_to_currency(data[:running_balance] / 100.0, precision: 2) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
-
-<%= render 'reports/filter_sidebar' %>

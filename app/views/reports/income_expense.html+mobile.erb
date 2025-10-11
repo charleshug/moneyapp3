@@ -2,10 +2,7 @@
 
 <div data-controller="filter-sidebar" class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-180px)]">
   <!-- Header row -->
-  <%= render 'reports/report_header_net_worth' %>
-
-  <!-- Filter row -->
-  <%= render 'reports/income_expense_filter_sidebar' %>
+  <%= render 'reports/report_header', title: 'Income and Expense' %>
   
   <!-- Table section -->
   <div class="p-2 overflow-hidden flex-grow relative">
@@ -115,3 +112,5 @@
     </div>
   </div>
 </div>
+
+<%= render 'reports/income_expense_filter_sidebar' %>

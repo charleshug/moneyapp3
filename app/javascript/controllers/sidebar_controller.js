@@ -13,32 +13,65 @@ export default class extends Controller {
     const sidebar = document.getElementById('sidebar');
     const backdrop = document.getElementById('sidebar-backdrop');
 
-    if (toggleButton && sidebar && backdrop) {
+    if (toggleButton && sidebar) {
       toggleButton.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-        backdrop.classList.toggle('opacity-0');
-        backdrop.classList.toggle('pointer-events-none');
-        backdrop.classList.toggle('opacity-50');
+        // Only toggle on mobile screens (below lg breakpoint)
+        if (window.innerWidth < 1024) {
+          sidebar.classList.toggle('-translate-x-full');
+          if (backdrop) {
+            backdrop.classList.toggle('opacity-0');
+            backdrop.classList.toggle('pointer-events-none');
+            backdrop.classList.toggle('opacity-50');
+          }
+        }
       });
     }
 
-    if (closeButton && sidebar && backdrop) {
+    if (closeButton && sidebar) {
       closeButton.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-        backdrop.classList.add('opacity-0');
-        backdrop.classList.add('pointer-events-none');
-        backdrop.classList.remove('opacity-50');
+        // Only close on mobile screens (below lg breakpoint)
+        if (window.innerWidth < 1024) {
+          sidebar.classList.add('-translate-x-full');
+          if (backdrop) {
+            backdrop.classList.add('opacity-0');
+            backdrop.classList.add('pointer-events-none');
+            backdrop.classList.remove('opacity-50');
+          }
+        }
       });
     }
 
     if (backdrop && sidebar) {
       backdrop.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-        backdrop.classList.add('opacity-0');
-        backdrop.classList.add('pointer-events-none');
-        backdrop.classList.remove('opacity-50');
+        // Only close on mobile screens (below lg breakpoint)
+        if (window.innerWidth < 1024) {
+          sidebar.classList.add('-translate-x-full');
+          backdrop.classList.add('opacity-0');
+          backdrop.classList.add('pointer-events-none');
+          backdrop.classList.remove('opacity-50');
+        }
       });
     }
+
+    // Handle window resize to ensure sidebar state is correct
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        // On desktop, ensure sidebar is visible (CSS handles this with lg:translate-x-0)
+        if (backdrop) {
+          backdrop.classList.add('opacity-0');
+          backdrop.classList.add('pointer-events-none');
+          backdrop.classList.remove('opacity-50');
+        }
+      } else {
+        // On mobile, ensure sidebar is hidden by default
+        sidebar.classList.add('-translate-x-full');
+        if (backdrop) {
+          backdrop.classList.add('opacity-0');
+          backdrop.classList.add('pointer-events-none');
+          backdrop.classList.remove('opacity-50');
+        }
+      }
+    });
   }
 
   setupReportsCollapsible() {

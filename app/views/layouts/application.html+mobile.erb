@@ -11,21 +11,14 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-[#2992c2] min-h-screen">
-
-<div class="flex h-screen">
-  <!-- Sidebar -->
-  <div class="w-64 flex-shrink-0">
-    <% if current_user %>
-      <%= render "layouts/sidebar" %>
-    <% end %>
-  </div>
-  
-  <!-- Main content area -->
-  <div class="flex-1 overflow-hidden min-h-0">
+  <body class="bg-[#2992c2] min-h-screen" data-controller="sidebar">
+    <header>
+      <%= render "layouts/navbar" %>
+    </header>
+    <hr>
 
     <% if notice %>
-      <div class="container mx-auto px-4 mt-4 lg:ml-64">
+      <div class="container mx-auto px-4 mt-4">
         <p class="notice bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
           <%= notice %>
         </p>
@@ -33,7 +26,7 @@
     <% end %>
     
     <% if alert %>
-      <div class="container mx-auto px-4 mt-4 lg:ml-64">
+      <div class="container mx-auto px-4 mt-4">
         <p class="alert bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
           <%= alert %>
         </p>
@@ -43,8 +36,5 @@
     <div class="container mx-auto">
       <%= yield %>
     </div>
-  </div>
-</div>
-
   </body>
 </html>

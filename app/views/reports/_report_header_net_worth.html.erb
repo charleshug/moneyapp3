@@ -1,0 +1,11 @@
+<div class="bg-gray-800 py-3 px-4 flex justify-between items-center">
+
+  <div class="w-1/2 flex justify-end items-center space-x-2 text-sm">
+    <%= link_to 'Net Worth', net_worth_reports_path, class: "text-white p-2 rounded hover:bg-gray-700 flex-grow text-center min-w-0 transition-colors #{current_page?(net_worth_reports_path) ? 'bg-gray-700 font-medium' : ''}" %>
+    <%= link_to 'Spending By Vendor', vendor_reports_path, class: "text-white p-2 rounded hover:bg-gray-700 flex-grow text-center min-w-0 transition-colors #{current_page?(vendor_reports_path) ? 'bg-gray-700 font-medium' : ''}" %>
+    <%= link_to 'Spending By Category', category_reports_path, class: "text-white p-2 rounded hover:bg-gray-700 flex-grow text-center min-w-0 transition-colors #{current_page?(category_reports_path) ? 'bg-gray-700 font-medium' : ''}" %>
+    <%= link_to 'Income v Expense', income_expense_reports_path, class: "text-white p-2 rounded hover:bg-gray-700 flex-grow text-center min-w-0 transition-colors #{current_page?(income_expense_reports_path) ? 'bg-gray-700 font-medium' : ''}" %>
+  </div>
+
+  <div class="w-1/6 text-right flex-shrink-0"></div>
+</div>
