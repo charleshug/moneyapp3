@@ -34,9 +34,11 @@ Rails.application.routes.draw do
   resources :ledgers do
     member do
       post :toggle_carry_forward
+      patch :update_budget
     end
     collection do
       post :rebuild_chains
+      post :create_budget
     end
   end
   resources :vendors

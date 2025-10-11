@@ -96,10 +96,28 @@
             <tr class="hover:bg-gray-50">
               <td class="px-4 py-2 pl-8"><%= subcategory[:name] %></td>
               <% if subcategory[:ledger] %>
-                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]) %></td>
+                <td class="px-4 py-2 text-right cursor-pointer hover:bg-blue-50" 
+                    data-controller="inline-budget"
+                    data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
+                    data-inline-budget-ledger-id-value="<%= subcategory[:ledger].id %>"
+                    data-inline-budget-date-value="<%= @selected_month %>"
+                    data-inline-budget-current-budget-value="<%= subcategory[:budget] / 100.0 %>"
+                    data-action="click->inline-budget#startEdit"
+                    data-inline-budget-target="cell">
+                  <%= number_to_currency(subcategory[:budget] / 100.0) %>
+                </td>
                 <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
               <% else %>
-                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }) %></td>
+                <td class="px-4 py-2 text-right cursor-pointer hover:bg-blue-50" 
+                    data-controller="inline-budget"
+                    data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
+                    data-inline-budget-ledger-id-value=""
+                    data-inline-budget-date-value="<%= @selected_month %>"
+                    data-inline-budget-current-budget-value="0"
+                    data-action="click->inline-budget#startEdit"
+                    data-inline-budget-target="cell">
+                  <%= number_to_currency(0 / 100.0) %>
+                </td>
                 <td class="px-4 py-2 text-right"><%= number_to_currency(0 / 100.0) %></td>
               <% end %>
                 <td class="px-4 py-2 text-right">

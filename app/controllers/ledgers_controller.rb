@@ -98,6 +98,66 @@ class LedgersController < ApplicationController
     ), notice: "Ledger carry forward setting updated."
   end
 
+  def update_budget
+    @ledger = Ledger.find(params[:id])
+
+    # Ensure the ledger belongs to the current budget
+    if @ledger.subcategory.budget != @current_budget
+      render json: { error: "You are not authorized to edit this ledger." }, status: :unauthorized
+      return
+    end
+
+    budget_amount = params[:budget].to_f
+
+    if LedgerService.update(@ledger, budget: budget_amount)
+      render json: {
+        success: true,
+        budget: number_to_currency(budget_amount),
+        balance: number_to_currency(@ledger.rolling_balance / 100.0)
+      }
+    else
+      render json: {
+        success: false,
+        errors: @ledger.errors.full_messages
+      }, status: :unprocessable_entity
+    end
+  end
+
+  def create_budget
+    subcategory_id = params[:subcategory_id]
+    date = Date.parse(params[:date])
+    budget_amount = params[:budget].to_f
+
+    # Ensure the subcategory belongs to the current budget
+    subcategory = Subcategory.find(subcategory_id)
+    if subcategory.budget != @current_budget
+      render json: { error: "You are not authorized to create this ledger." }, status: :unauthorized
+      return
+    end
+
+    ledger_params = {
+      subcategory_id: subcategory_id,
+      date: date,
+      budget: budget_amount
+    }
+
+    @ledger = LedgerService.new.create_ledger(ledger_params)
+
+    if @ledger.valid?
+      render json: {
+        success: true,
+        ledger_id: @ledger.id,
+        budget: number_to_currency(budget_amount),
+        balance: number_to_currency(@ledger.rolling_balance / 100.0)
+      }
+    else
+      render json: {
+        success: false,
+        errors: @ledger.errors.full_messages
+      }, status: :unprocessable_entity
+    end
+  end
+
   private
   def set_ledger
     @ledger = Ledger.find(params[:id])
