@@ -1,23 +1,24 @@
 <div id="vendors_list">
   <% if vendors.any? %>
-    <table class="w-full bg-white rounded-lg overflow-hidden">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-4 py-2 text-left">Name</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="bg-white rounded-lg overflow-hidden">
+      <!-- Sticky header -->
+      <div class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
+        <div class="px-4 py-2 text-left font-medium text-gray-700">Name</div>
+      </div>
+      
+      <!-- Scrollable content -->
+      <div class="max-h-[calc(100vh-200px)] overflow-y-auto">
         <% vendors.each_with_index do |vendor, index| %>
-          <tr class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 <%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
-            <td class="px-4 py-2 text-gray-800 font-medium">
+          <div class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 <%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
+            <div class="px-4 py-2 text-gray-800 font-medium">
               <%= link_to vendor.name, edit_vendor_path(vendor), 
                   data: { turbo_frame: "modal" },
                   class: "block w-full h-full" %>
-            </td>
-          </tr>
+            </div>
+          </div>
         <% end %>
-      </tbody>
-    </table>
+      </div>
+    </div>
   <% else %>
     <div class="flex-grow flex items-center justify-center">
       <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
