@@ -7,10 +7,17 @@ export default class extends Controller {
   static targets = ["container", "contentWrapper"] 
 
   connect() {
-    this.open()
+    // Only auto-open if this is a new modal (not loaded via turbo frame)
+    if (!this.element.querySelector('turbo-frame[id="modal"]')) {
+      this.open()
+    }
     // 💡 Add keyboard close for better UX
     this.boundCloseOnEscape = this.closeOnEscape.bind(this)
     document.addEventListener("keydown", this.boundCloseOnEscape)
+    
+    // Listen for turbo frame loads to auto-open modal
+    this.boundTurboFrameLoad = this.handleTurboFrameLoad.bind(this)
+    document.addEventListener("turbo:frame-load", this.boundTurboFrameLoad)
   }
 
   // Method to open modal when content is loaded via turbo stream
@@ -26,9 +33,21 @@ export default class extends Controller {
     }, 10)
   }
 
+  // Handle turbo frame load events
+  handleTurboFrameLoad(event) {
+    // Check if the loaded frame is the modal frame
+    if (event.target.id === 'modal' && event.target.innerHTML.trim() !== '') {
+      // Small delay to ensure the modal content is fully rendered
+      setTimeout(() => {
+        this.open()
+      }, 10)
+    }
+  }
+
 
   disconnect() {
     document.removeEventListener("keydown", this.boundCloseOnEscape)
+    document.removeEventListener("turbo:frame-load", this.boundTurboFrameLoad)
   }
 
   open() {

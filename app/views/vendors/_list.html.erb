@@ -8,12 +8,11 @@
       </thead>
       <tbody>
         <% vendors.each_with_index do |vendor, index| %>
-          <tr class="border-t border-gray-100 hover:bg-blue-100 cursor-pointer transition-colors duration-150 <%= index.even? ? 'bg-white' : 'bg-gray-50' %>"
-              data-action="click->vendors#editVendor" 
-              data-vendor-id="<%= vendor.id %>"
-              data-vendor-name="<%= vendor.name %>">
+          <tr class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 <%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
             <td class="px-4 py-2 text-gray-800 font-medium">
-              <%= vendor.name %>
+              <%= link_to vendor.name, edit_vendor_path(vendor), 
+                  data: { turbo_frame: "modal" },
+                  class: "block w-full h-full" %>
             </td>
           </tr>
         <% end %>
