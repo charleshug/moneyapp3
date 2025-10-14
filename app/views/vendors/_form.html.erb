@@ -37,10 +37,9 @@
     </div>
     <% if vendor.persisted? %>
       <div>
-        <%= button_to "Delete", vendor_path(vendor), 
-            method: :delete, 
-            class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md",
-            form: { data: { turbo_confirm: "Are you sure? This will delete all transactions associated with this vendor." } } %>
+        <%= link_to "Delete", vendor_path(vendor), 
+            class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md inline-block text-center",
+            data: { turbo_method: :delete, turbo_frame: "modal", turbo_confirm: "Are you sure? This will delete all transactions associated with this vendor." } %>
       </div>
     <% end %>
   </div>
