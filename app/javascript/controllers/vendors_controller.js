@@ -4,8 +4,8 @@ export default class extends Controller {
   static targets = ["modal"]
 
   editVendor(event) {
-    const vendorId = event.target.dataset.vendorId
-    const vendorName = event.target.dataset.vendorName
+    const vendorId = event.currentTarget.dataset.vendorId
+    const vendorName = event.currentTarget.dataset.vendorName
     
     // Load the edit form via fetch
     fetch(`/vendors/${vendorId}/edit`, {
