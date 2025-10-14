@@ -42,7 +42,9 @@ class TrxCreatorService
   end
 
   def handle_vendor_custom_text
-    unless @trx_params[:vendor_custom_text].blank?
+    # If vendor_custom_text is provided and vendor_id is not set (or blank),
+    # find or create the vendor
+    if @trx_params[:vendor_custom_text].present? && @trx_params[:vendor_id].blank?
       vendor = @budget.vendors.find_or_create_by(name: @trx_params[:vendor_custom_text])
       @trx_params[:vendor_id] = vendor.id
     end
@@ -51,7 +53,7 @@ class TrxCreatorService
 
   def set_ledger
     @trx.lines.each do |line|
-      subcategory_id = line.subcategory_form_id.presence || line.subcategory
+      subcategory_id = line.subcategory_form_id.presence || (line.ledger&.subcategory&.id)
       subcategory = @budget.subcategories.find(subcategory_id)
 
       ledger = Ledger.find_or_create_by(
@@ -72,7 +74,9 @@ class TrxCreatorService
     @trx_params[:lines_attributes].each do |_, line_params|
       next unless line_params[:amount].present?
 
+      original_amount = line_params[:amount]
       line_params[:amount] = (line_params[:amount].to_d * 100).to_i
+      Rails.logger.info "TrxCreatorService: Amount conversion #{original_amount} -> #{line_params[:amount]}"
     end
   end
 end

@@ -1,0 +1,27 @@
+<!-- app/views/shared/_modal.html.erb -->
+<div 
+  id="<%= dom_id(@vendor, :modal) %>" 
+  data-controller="modal" 
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden"
+>
+  <div 
+    class="bg-white rounded-lg shadow-xl w-full max-w-lg relative" 
+    data-modal-target="container"
+  >
+    <div class="flex justify-between items-center px-4 py-3 border-b">
+      <h2 class="text-lg font-semibold"><%= title %></h2>
+      <button 
+        data-action="modal#close" 
+        class="text-gray-400 hover:text-gray-600"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div class="p-4">
+      <%= turbo_frame_tag dom_id(@vendor, :form) do %>
+        <%= render partial: "vendors/form", locals: { vendor: @vendor } %>
+      <% end %>
+    </div>
+  </div>
+</div>

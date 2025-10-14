@@ -41,7 +41,11 @@ Rails.application.routes.draw do
       post :create_budget
     end
   end
-  resources :vendors
+  resources :vendors do
+    collection do
+      get :search
+    end
+  end
   resources :categories do
     collection do
       post :sort

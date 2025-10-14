@@ -47,6 +47,34 @@ class VendorsController < ApplicationController
     end
   end
 
+  def search
+    query = params[:q]&.strip
+    budget_id = params[:budget_id]
+
+    if query.present?
+      vendors = @current_budget.vendors
+                              .where("LOWER(name) ILIKE ?", "%#{query.downcase}%")
+                              .order("LOWER(name)")
+                              .limit(20)
+    else
+      vendors = @current_budget.vendors
+                              .order("LOWER(name)")
+                              .limit(50)
+    end
+
+    vendor_data = vendors.map do |vendor|
+      {
+        id: vendor.id,
+        name: vendor.name,
+        is_transfer: vendor.account.present?
+      }
+    end
+
+    respond_to do |format|
+      format.json { render json: { vendors: vendor_data } }
+    end
+  end
+
   private
   def set_vendor
     @vendor = Vendor.find(params[:id])

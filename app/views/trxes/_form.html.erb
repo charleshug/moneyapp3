@@ -23,16 +23,20 @@
   
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <div class="mb-4">
+      <div class="mb-4" data-controller="vendor-autocomplete" 
+           data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+           data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>">
         <%= f.label :vendor, class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= f.select :vendor_id, grouped_options_for_select({
-            "Vendors" => @current_budget.vendors.not_transfer.order("LOWER(name)").map { |v| [v.name, v.id] },
-            "Transfer" => @current_budget.vendors.transfer.order("LOWER(name)").map { |v| [v.name, v.id] }
-          }, f.object.vendor_id), {include_blank: "Select Vendor"}, {class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"} %>
-      </div>
-      
-      <div class="mb-4">
-        <%= f.text_field :vendor_custom_text, placeholder: "Enter new vendor name...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        <%= f.text_field :vendor_custom_text, 
+            placeholder: "Type vendor name or select from list...", 
+            class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+            data: { 
+              vendor_autocomplete_target: "input",
+              action: "input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+            },
+            list: "vendor-datalist" %>
+        <%= f.hidden_field :vendor_id, data: { vendor_autocomplete_target: "hiddenInput" } %>
+        <datalist id="vendor-datalist" data-vendor-autocomplete-target="datalist"></datalist>
       </div>
     </div>
     

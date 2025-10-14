@@ -1,0 +1,51 @@
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="md:col-start-2 bg-white rounded-lg shadow p-4 text-sm sm:text-base md:text-lg lg:text-xl">
+      <div id="budget-header" class="flex items-center space-x-4 mb-4">
+        <div>
+          <%= link_to "<", budgets_path(date: { month: selected_month.prev_month.month, year: selected_month.prev_month.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
+        </div>
+        <div>
+          <%= form_tag budgets_path, method: :get, class: "flex items-center space-x-2" do %>
+            <%= select_month(selected_month, {}, class: "form-control ") %>
+            <%= select_year(selected_month, 
+                { start_year: budget_year_range_for_select.last, 
+                  end_year: budget_year_range_for_select.first }, 
+                { class: "form-control " }) %>
+            <%= submit_tag "Select", class: "px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600" %>
+          <% end %>
+        </div>
+        <div>
+          <%= link_to ">", budgets_path(date: { month: selected_month.next_month.month, year: selected_month.next_month.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
+        </div>
+        <div>
+          <%= link_to "Today", budgets_path(date: { month: Date.today.month, year: Date.today.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
+        </div>
+      </div>
+      
+      <div class="bg-gray-100 rounded-lg p-3 mx-auto max-w-md">
+        <table class="w-full">
+          <tr>
+            <td class="text-right px-3 py-1 w-1/2 <%= budget_available_previously < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_previously / 100.0)) %></td>
+            <td class="px-3 py-1 w-1/2 truncate">Not budgeted in Prev</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1 <%= overspent_prev < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((overspent_prev / 100.0)) %></td>
+            <td class="px-3 py-1 truncate">Overspent in Prev</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1"><%= link_to number_to_currency(income_current / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: current_budget.categories.income.first.subcategories.pluck(:id), date_gteq: selected_month.beginning_of_month, date_lteq: selected_month.end_of_month }) %></td>
+            <td class="px-3 py-1 truncate">Income for Current</td>
+          </tr>
+          <tr>
+            <td class="text-right px-3 py-1 <%= -budget_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(-(budget_current / 100.0)) %></td>
+            <td class="px-3 py-1 truncate">Budgeted in Current</td>
+          </tr>
+          <tr class="rounded-b-lg">
+            <td class="text-right px-3 py-1 <%= budget_available_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_current / 100.0)) %></td>
+            <td class="px-3 py-1 truncate">Available to budget in Current</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>

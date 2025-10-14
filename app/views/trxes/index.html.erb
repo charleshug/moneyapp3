@@ -1,9 +1,126 @@
 <% provide(:title, "Transactions") %>
 
-<div class="bg-gray-100 shadow-md overflow-hidden flex flex-col ">
+<div class="bg-gray-100 shadow-md overflow-hidden flex flex-col h-[calc(100vh)]">
 
   <!-- filter -->
   <%= render 'trxes/filter_sidebar' %>
+
+  <!-- New Transaction Button and Form Container -->
+  <div data-controller="trx-form-toggle">
+    <!-- New Transaction Button -->
+    <div class="bg-white shadow-sm p-2 border-b border-gray-200 sticky top-0 z-10">
+      <button data-trx-form-toggle-target="button" 
+              data-action="click->trx-form-toggle#showForm" 
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md">
+        <i class="fas fa-plus mr-2"></i> New Transaction
+      </button>
+    </div>
+
+    <!-- Inline New Transaction Form (hidden by default) -->
+    <div data-trx-form-toggle-target="form" 
+         class="hidden bg-blue-50 border-b border-gray-200 p-2">
+    <% @inline_trx = Trx.new %>
+    <% @inline_trx.lines.build %>
+    <%= form_with(model: @inline_trx, url: trxes_path, local: false, 
+                  data: { controller: "trx-form", trx_form_target: "form", action: "submit->trx-form#submitForm" }) do |f| %>
+      <div class="grid grid-cols-9 items-center text-center gap-2">
+        <div class="text-gray-500 text-sm">New</div>
+        
+        <!-- Account -->
+        <div>
+          <%= f.select :account_id,
+              grouped_options_for_select(@current_budget.accounts.for_select, nil),
+              { prompt: 'Select Account' },
+              { class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+        </div>
+        
+        <!-- Date -->
+        <div>
+          <%= f.date_field :date, 
+              value: Date.today,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Vendor -->
+        <div data-controller="vendor-autocomplete" 
+             data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+             data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>">
+          <%= f.text_field :vendor_custom_text, 
+              placeholder: "Type vendor name...", 
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+              data: { 
+                vendor_autocomplete_target: "input",
+                action: "input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+              },
+              list: "inline-vendor-datalist" %>
+          <%= f.hidden_field :vendor_id, data: { vendor_autocomplete_target: "hiddenInput" } %>
+          <datalist id="inline-vendor-datalist" data-vendor-autocomplete-target="datalist"></datalist>
+        </div>
+        
+        <!-- Amount -->
+        <div>
+          <input type="number" 
+                 data-trx-form-target="amountInput"
+                 data-action="input->trx-form#syncAmount"
+                 step="0.01"
+                 placeholder="0.00"
+                 class="w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+        </div>
+        
+        <!-- Category (will be populated by subcategory selection) -->
+        <div data-trx-form-target="categoryDisplay" class="text-gray-500 text-sm">-</div>
+        
+        <!-- Subcategory -->
+        <div>
+          <select data-trx-form-target="subcategorySelect"
+                  data-action="change->trx-form#updateCategory"
+                  class="w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            <option value="">Select Subcategory</option>
+            <% @current_budget.categories.each do |category| %>
+              <optgroup label="<%= category.name %>">
+                <% category.subcategories.each do |subcategory| %>
+                  <option value="<%= subcategory.id %>"><%= subcategory.name %></option>
+                <% end %>
+              </optgroup>
+            <% end %>
+          </select>
+        </div>
+        
+        <!-- Memo -->
+        <div>
+          <%= f.text_field :memo, 
+              placeholder: "Memo",
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Cleared checkbox -->
+        <div>
+          <%= f.check_box :cleared, 
+              class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+      </div>
+      
+      <!-- Hidden line fields for the transaction -->
+      <%= f.fields_for :lines do |line_form| %>
+        <%= line_form.hidden_field :ledger_id %>
+        <%= line_form.hidden_field :subcategory_form_id, data: { trx_form_target: "lineSubcategoryInput" } %>
+        <%= line_form.hidden_field :amount, data: { trx_form_target: "lineAmountInput" } %>
+      <% end %>
+      
+      <!-- Action buttons -->
+      <div class="mt-2 flex justify-center gap-2">
+        <button type="submit" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm">
+          <i class="fas fa-save mr-1"></i> Save
+        </button>
+        <button type="button" 
+                data-action="click->trx-form-toggle#hideForm"
+                class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm">
+          <i class="fas fa-times mr-1"></i> Cancel
+        </button>
+      </div>
+    <% end %>
+    </div>
+  </div>
 
   <!-- Transactions list -->
 <div class="flex flex-col flex-grow max-h-screen">
@@ -29,13 +146,13 @@
         <% if trx.lines.size == 1 %>
           <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200">
             <div class="grid grid-cols-9 items-center text-center text-gray-800">
-              <div><%= trx.id %></div>
-              <div><%= trx.account.name %></div>
-              <div><%= trx.date %></div>
-              <div><%= trx.vendor.name %></div>
-              <div><%= number_to_currency(trx.amount / 100.0) %></div>
-              <div><%= trx.lines.first&.ledger&.subcategory&.category&.name %></div>
-              <div><%= trx.lines.first&.ledger&.subcategory&.name %></div>
+              <div class="truncate"><%= trx.id %></div>
+              <div class="truncate"><%= trx.account.name %></div>
+              <div class="truncate"><%= trx.date %></div>
+              <div class="truncate"><%= trx.vendor.name %></div>
+              <div class="truncate"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.category&.name %></div>
+              <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.name %></div>
               <div class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
               <div data-controller="cleared-toggle"
                   data-cleared-toggle-trx-id-value="<%= trx.id %>"
@@ -50,15 +167,15 @@
           </div>
         <% else %>
           <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200">
-            <div class="grid grid-cols-9 items-center text-center text-gray-800 truncate whitespace-nowrap overflow-hidden">
-              <div><%= trx.id %></div>
-              <div><%= trx.account.name %></div>
-              <div><%= trx.date %></div>
-              <div><%= trx.vendor.name %></div>
-              <div><%= number_to_currency(trx.amount / 100.0) %></div>
-              <div></div>
-              <div>Split (Multiple Categories)...</div>
-              <div class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
+            <div class="grid grid-cols-9 items-center text-center text-gray-800">
+              <div class="truncate"><%= trx.id %></div>
+              <div class="truncate"><%= trx.account.name %></div>
+              <div class="truncate"><%= trx.date %></div>
+              <div class="truncate"><%= trx.vendor.name %></div>
+              <div class="truncate"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate"></div>
+              <div class="truncate">Split (Multiple Categories)...</div>
+              <div  class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
               <div data-controller="cleared-toggle"
                   data-cleared-toggle-trx-id-value="<%= trx.id %>"
                   data-cleared-toggle-cleared-value="<%= trx.cleared %>">
@@ -96,3 +213,4 @@
     </div>
   <% end %>
 </div>
+

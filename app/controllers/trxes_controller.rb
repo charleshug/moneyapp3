@@ -67,8 +67,10 @@ class TrxesController < ApplicationController
     respond_to do |format|
       if @trx.valid?
         format.html { redirect_to trxes_path(q: { account_id_in: @trx.account.id }), notice: "Trx was successfully created." }
+        format.json { render json: { success: true, trx_id: @trx.id, message: "Transaction created successfully" } }
       else
         format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @trx.errors.full_messages.join(", ") }, status: :unprocessable_entity }
       end
     end
   end
