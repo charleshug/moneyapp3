@@ -3,6 +3,7 @@
   id="<%= dom_id(@vendor, :modal) %>" 
   data-controller="modal" 
   class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden"
+  data-action="click->modal#hideOnBackgroundClick"
 >
   <div 
     class="bg-white rounded-lg shadow-xl w-full max-w-lg relative" 
@@ -18,7 +19,7 @@
       </button>
     </div>
 
-    <div class="p-4">
+    <div class="p-4" data-modal-target="contentWrapper">
       <%= turbo_frame_tag dom_id(@vendor, :form) do %>
         <%= render partial: "vendors/form", locals: { vendor: @vendor } %>
       <% end %>

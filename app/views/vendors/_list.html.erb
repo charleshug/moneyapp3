@@ -1,0 +1,31 @@
+<div id="vendors_list">
+  <% if vendors.any? %>
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left">Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% vendors.each do |vendor| %>
+          <tr class="border-t border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-2">
+              <button data-action="click->vendors#editVendor" 
+                      data-vendor-id="<%= vendor.id %>"
+                      data-vendor-name="<%= vendor.name %>"
+                      class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">
+                <%= vendor.name %>
+              </button>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="flex-grow flex items-center justify-center">
+      <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
+        <p class="text-gray-600 mb-4">No vendors found.</p>
+      </div>
+    </div>
+  <% end %>
+</div>

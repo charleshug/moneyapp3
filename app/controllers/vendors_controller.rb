@@ -1,5 +1,5 @@
 class VendorsController < ApplicationController
-  before_action :set_vendor, only: %i[ edit update ]
+  before_action :set_vendor, only: %i[ edit update destroy ]
 
   def index
     vendors = @current_budget.vendors
@@ -16,8 +16,10 @@ class VendorsController < ApplicationController
     respond_to do |format|
       if @vendor.valid?
         format.html { redirect_to vendors_path, notice: "Vendor was successfully created." }
+        format.turbo_stream { render :create }
       else
         format.html { render :new, status: :unprocessable_entity }
+        format.turbo_stream { render :new, status: :unprocessable_entity }
       end
     end
   end
@@ -26,7 +28,11 @@ class VendorsController < ApplicationController
     # Ensure the record belongs to the current budget
     if @vendor.budget != @current_budget
       redirect_to vendors_path, alert: "You are not authorized to edit this record."
-      nil
+      return
+    end
+
+    respond_to do |format|
+      format.html { render :edit }
     end
   end
 
@@ -41,9 +47,30 @@ class VendorsController < ApplicationController
     respond_to do |format|
       if @vendor.valid?
         format.html { redirect_to vendors_path, notice: "Vendor was successfully updated." }
+        format.turbo_stream { render :update }
       else
         format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def destroy
+    # Ensure the record belongs to the current budget
+    if @vendor.budget != @current_budget
+      redirect_to vendors_path, alert: "You are not authorized to delete this record."
+      return
+    end
+
+    @vendor.destroy
+    respond_to do |format|
+      format.html { redirect_to vendors_path, notice: "Vendor was successfully deleted." }
+      format.turbo_stream {
+        render turbo_stream: [
+          turbo_stream.replace("modal", "<turbo-frame id=\"modal\"></turbo-frame>"),
+          turbo_stream.replace("vendors_list", partial: "vendors/list", locals: { vendors: @current_budget.vendors.not_transfer.order("LOWER(name)") })
+        ]
+      }
     end
   end
 

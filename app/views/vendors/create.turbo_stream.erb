@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "modal" do %>
+  <turbo-frame id="modal"></turbo-frame>
+<% end %>
+
+<%= turbo_stream.replace "vendors_list" do %>
+  <%= render "list", vendors: @current_budget.vendors.not_transfer.order("LOWER(name)") %>
+<% end %>

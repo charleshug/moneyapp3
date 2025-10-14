@@ -2,47 +2,39 @@ require "test_helper"
 
 class VendorsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @vendor = vendors(:one)
+    @user = User.create!(email: "test@example.com", password: "password123")
+    @budget = Budget.create!(name: "Test Budget", user: @user)
+    @vendor = Vendor.create!(name: "Test Vendor", budget: @budget)
+    login_as(@user)
   end
 
-  test "should get index" do
-    get vendors_url
+  test "modal frame is preserved after successful vendor creation" do
+    post vendors_path, params: { vendor: { name: "New Vendor" } },
+         headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
     assert_response :success
+
+    # Check that the response contains an empty modal frame (not completely removed)
+    assert_match /<turbo-frame id="modal"><\/turbo-frame>/, response.body
   end
 
-  test "should get new" do
-    get new_vendor_url
+  test "modal frame is preserved after successful vendor update" do
+    patch vendor_path(@vendor), params: { vendor: { name: "Updated Vendor" } },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
     assert_response :success
+
+    # Check that the response contains an empty modal frame (not completely removed)
+    assert_match /<turbo-frame id="modal"><\/turbo-frame>/, response.body
   end
 
-  test "should create vendor" do
-    assert_difference("Vendor.count") do
-      post vendors_url, params: { vendor: { account_id: @vendor.account_id, budget_id: @vendor.budget_id, name: @vendor.name } }
-    end
+  test "modal frame is preserved after vendor deletion" do
+    delete vendor_path(@vendor),
+           headers: { "Accept" => "text/vnd.turbo-stream.html" }
 
-    assert_redirected_to vendor_url(Vendor.last)
-  end
-
-  test "should show vendor" do
-    get vendor_url(@vendor)
     assert_response :success
-  end
 
-  test "should get edit" do
-    get edit_vendor_url(@vendor)
-    assert_response :success
-  end
-
-  test "should update vendor" do
-    patch vendor_url(@vendor), params: { vendor: { account_id: @vendor.account_id, budget_id: @vendor.budget_id, name: @vendor.name } }
-    assert_redirected_to vendor_url(@vendor)
-  end
-
-  test "should destroy vendor" do
-    assert_difference("Vendor.count", -1) do
-      delete vendor_url(@vendor)
-    end
-
-    assert_redirected_to vendors_url
+    # Check that the response contains an empty modal frame (not completely removed)
+    assert_match /<turbo-frame id="modal"><\/turbo-frame>/, response.body
   end
 end

@@ -1,4 +1,4 @@
-<%= form_with(model: vendor) do |f| %>
+<%= form_with(model: vendor, data: { turbo_frame: "modal" }) do |f| %>
   <% if vendor.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
       <div class="flex">
@@ -31,7 +31,17 @@
 
   </div>
 
-  <div class="actions mt-6">
-    <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+  <div class="actions mt-6 flex justify-between">
+    <div>
+      <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+    </div>
+    <% if vendor.persisted? %>
+      <div>
+        <%= button_to "Delete", vendor_path(vendor), 
+            method: :delete, 
+            class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md",
+            form: { data: { turbo_confirm: "Are you sure? This will delete all transactions associated with this vendor." } } %>
+      </div>
+    <% end %>
   </div>
 <% end %>
