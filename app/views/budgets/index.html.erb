@@ -94,20 +94,3 @@
       </tbody>
     </table>
   </div>
-
-  <div class="bg-white rounded-lg shadow p-4 max-w-lg">
-    <%= form_tag update_budget_values_path, method: :post, class: "flex items-center space-x-2" do %>
-      <%= hidden_field_tag :date, @selected_month %>
-      <%= select_tag :option, options_for_select(["Zero all budgeted amounts", "Budget values used last month", "Last month outflows", "Balance to zero"]), include_blank: true, prompt: "Auto-fill budget values", class: "form-control text-base" %>
-      <%= submit_tag "Apply", class: "px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600" %>
-    <% end %>
-  </div>
-</div>
-
-<select class="form-select" data-controller="year-select" data-action="change->year-select#change">
-  <% budget_year_range_for_select.each do |year| %>
-    <option value="<%= year %>" <%= 'selected' if year.to_s == params[:year] %>>
-      <%= year %>
-    </option>
-  <% end %>
-</select>
