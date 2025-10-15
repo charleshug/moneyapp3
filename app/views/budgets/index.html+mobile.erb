@@ -56,25 +56,25 @@
     <table class="w-full">
       <thead class="bg-gray-100">
         <tr>
-          <th class="px-4 py-2 text-left">Category</th>
-          <th class="px-4 py-2 text-right w-1/6">Budget</th>
-          <th class="px-4 py-2 text-right w-1/6 hidden sm:table-cell">Actual</th>
-          <th class="px-4 py-2 text-right w-1/6">Balance</th>
+          <th class="px-4 py-2 text-left w-1/3">Category</th>
+          <th class="px-4 py-2 text-right w-1/4">Budget</th>
+          <th class="px-4 py-2 text-right w-1/4 hidden sm:table-cell">Actual</th>
+          <th class="px-4 py-2 text-right w-1/4">Balance</th>
         </tr>
       </thead>
       <tbody>
         <!-- Summary row at the top -->
         <tr class="bg-gray-100">
-          <td class="px-4 py-2"></td>
-          <td class="px-4 py-2 text-right">
-            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
+          <td class="px-4 py-2 w-1/3"></td>
+          <td class="px-4 py-2 text-right w-1/4">
+            <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right hidden sm:table-cell">
-            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
+          <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4">
+            <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right">
+          <td class="px-4 py-2 text-right w-1/4">
             <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
-            <strong class="<%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
+            <strong class="text-xs <%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
           </td>
         </tr>
         
@@ -85,25 +85,25 @@
         
         <% @budget_table_data.each do |parent| %>
           <tr class="bg-gray-100">
-            <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
-            <td class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
-            <td class="px-4 py-2 text-right hidden sm:table-cell"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
-            <td class="px-4 py-2 text-right">
-              <strong class="<%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
+            <td class="px-4 py-2 w-1/3"><strong class="block truncate text-xs"><%= parent[:name] %></strong></td>
+            <td class="px-4 py-2 text-right w-1/4"><strong class="text-xs"><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
+            <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><strong class="text-xs"><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
+            <td class="px-4 py-2 text-right w-1/4">
+              <strong class="text-xs <%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
             </td>
           </tr>
           <% parent[:subcategories].each do |subcategory| %>
             <tr class="hover:bg-gray-50">
-              <td class="px-4 py-2 pl-8"><%= subcategory[:name] %></td>
+              <td class="px-4 py-2 pl-8 w-1/3"><span class="block truncate text-xs"><%= subcategory[:name] %></span></td>
               <% if subcategory[:ledger] %>
-                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]) %></td>
-                <td class="px-4 py-2 text-right hidden sm:table-cell"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
+                <td class="px-4 py-2 text-right w-1/4"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]), class: "text-xs" %></td>
+                <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }), class: "text-xs" %></td>
               <% else %>
-                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }) %></td>
-                <td class="px-4 py-2 text-right hidden sm:table-cell"><%= number_to_currency(0 / 100.0) %></td>
+                <td class="px-4 py-2 text-right w-1/4"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }), class: "text-xs" %></td>
+                <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><span class="text-xs"><%= number_to_currency(0 / 100.0) %></span></td>
               <% end %>
-                <td class="px-4 py-2 text-right">
-                  <span class="<%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
+                <td class="px-4 py-2 text-right w-1/4">
+                  <span class="text-xs <%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
                     <%= number_to_currency(subcategory[:balance] / 100.0) %>
                     <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
                       ->
