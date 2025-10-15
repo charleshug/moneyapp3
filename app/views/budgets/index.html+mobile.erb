@@ -125,11 +125,3 @@
     <% end %>
   </div>
 </div>
-
-<select class="form-select" data-controller="year-select" data-action="change->year-select#change">
-  <% budget_year_range_for_select.each do |year| %>
-    <option value="<%= year %>" <%= 'selected' if year.to_s == params[:year] %>>
-      <%= year %>
-    </option>
-  <% end %>
-</select>
