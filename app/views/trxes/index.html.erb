@@ -1,6 +1,15 @@
 <% provide(:title, "Transactions") %>
 
-<div class="bg-gray-100 shadow-md overflow-hidden flex flex-col" style="height: 100vh;">
+<style>
+  .selected-row {
+    background-color: #fef3c7 !important; /* bg-yellow-200 */
+  }
+  .selected-row:hover {
+    background-color: #fef3c7 !important; /* Keep yellow on hover */
+  }
+</style>
+
+<div class="bg-gray-100 shadow-md overflow-hidden flex flex-col" style="height: 100vh;" data-controller="trx-selection">
 
   <!-- filter -->
   <%= render 'trxes/filter_sidebar' %>
@@ -127,7 +136,13 @@
   <% if @trxes.any? %>
     <!-- Header row -->
     <div class="bg-white shadow-sm p-1 border-b border-gray-200 sticky top-0 z-10">
-      <div class="grid grid-cols-9 items-center text-center font-medium text-blue-600">
+      <div class="grid grid-cols-10 items-center text-center font-medium text-blue-600">
+        <div>
+          <input type="checkbox" 
+                 data-trx-selection-target="headerCheckbox"
+                 data-action="click->trx-selection#toggleAll"
+                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+        </div>
         <div>ID</div>
         <div>Account</div>
         <div>Date</div>
@@ -144,13 +159,23 @@
     <div class="overflow-y-auto flex-grow">
       <% @trxes.each do |trx| %>
         <% if trx.lines.size == 1 %>
-          <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200">
-            <div class="grid grid-cols-9 items-center text-center text-gray-800">
+          <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200 cursor-pointer"
+               data-trx-selection-target="row"
+               data-trx-id="<%= trx.id %>"
+               data-action="click->trx-selection#selectRow">
+            <div class="grid grid-cols-10 items-center text-center text-gray-800">
+              <div>
+                <input type="checkbox" 
+                       data-trx-selection-target="checkbox"
+                       data-trx-id="<%= trx.id %>"
+                       data-action="click->trx-selection#toggleSelection"
+                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+              </div>
               <div class="truncate"><%= trx.id %></div>
               <div class="truncate"><%= trx.account.name %></div>
               <div class="truncate"><%= trx.date %></div>
               <div class="truncate"><%= trx.vendor.name %></div>
-              <div class="truncate"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
               <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.category&.name %></div>
               <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.name %></div>
               <div class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
@@ -166,13 +191,23 @@
             </div>
           </div>
         <% else %>
-          <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200">
-            <div class="grid grid-cols-9 items-center text-center text-gray-800">
+          <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200 cursor-pointer"
+               data-trx-selection-target="row"
+               data-trx-id="<%= trx.id %>"
+               data-action="click->trx-selection#selectRow">
+            <div class="grid grid-cols-10 items-center text-center text-gray-800">
+              <div>
+                <input type="checkbox" 
+                       data-trx-selection-target="checkbox"
+                       data-trx-id="<%= trx.id %>"
+                       data-action="click->trx-selection#toggleSelection"
+                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+              </div>
               <div class="truncate"><%= trx.id %></div>
               <div class="truncate"><%= trx.account.name %></div>
               <div class="truncate"><%= trx.date %></div>
               <div class="truncate"><%= trx.vendor.name %></div>
-              <div class="truncate"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
               <div class="truncate"></div>
               <div class="truncate">Split (Multiple Categories)...</div>
               <div  class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
@@ -215,7 +250,7 @@
 </div>
 
 <!-- Bottom Section: Scheduled Transactions and Balance Information -->
-<div class="bg-white border-t border-gray-200 p-4 z-20" style="height: 120px; flex-shrink: 0;" data-budget-id="<%= @current_budget.id %>">
+<div class="bg-white border-t border-gray-200 p-4 z-20" style="height: 120px; flex-shrink: 0;" data-budget-id="<%= @current_budget.id %>" data-trx-selection-target="balanceDisplay">
   <div class="flex justify-between items-center">
     <!-- Left: Scheduled Transactions Button -->
     <div>
@@ -237,47 +272,8 @@
     <!-- Right: Balance Information and Reconcile Button -->
     <div class="flex items-center gap-6">
       <!-- Balance Display Box -->
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-80">
-        <div class="flex items-center justify-between">
-          <!-- Cleared Balance -->
-          <div class="text-center">
-            <div class="text-sm font-medium text-gray-600 mb-1">Cleared Balance</div>
-            <div class="text-lg font-bold text-green-600" data-balance="cleared">
-              <%= number_to_currency((@trxes.select(&:cleared).sum(&:amount) / 100.0)) %>
-            </div>
-            <div class="text-xs text-gray-500 mt-1" data-count="cleared">
-              <%= pluralize(@trxes.select(&:cleared).count, 'transaction') %>
-            </div>
-          </div>
-          
-          <!-- Plus Sign -->
-          <div class="text-2xl font-bold text-gray-400 mx-4">+</div>
-          
-          <!-- Uncleared Transactions -->
-          <div class="text-center">
-            <div class="text-sm font-medium text-gray-600 mb-1">Uncleared Transactions</div>
-            <div class="text-lg font-bold text-orange-600" data-balance="uncleared">
-              <%= number_to_currency((@trxes.reject(&:cleared).sum(&:amount) / 100.0)) %>
-            </div>
-            <div class="text-xs text-gray-500 mt-1" data-count="uncleared">
-              <%= pluralize(@trxes.reject(&:cleared).count, 'transaction') %>
-            </div>
-          </div>
-          
-          <!-- Equals Sign -->
-          <div class="text-2xl font-bold text-gray-400 mx-4">=</div>
-          
-          <!-- Working Balance -->
-          <div class="text-center">
-            <div class="text-sm font-medium text-gray-600 mb-1">Working Balance</div>
-            <div class="text-lg font-bold text-blue-600" data-balance="working">
-              <%= number_to_currency((@trxes.sum(&:amount) / 100.0)) %>
-            </div>
-            <div class="text-xs text-gray-500 mt-1" data-count="total">
-              <%= pluralize(@trxes.count, 'transaction') %>
-            </div>
-          </div>
-        </div>
+      <div data-trx-selection-target="balanceContainer">
+        <%= render 'balance_display' %>
       </div>
       
       <!-- Reconcile Account Button -->

@@ -183,8 +183,12 @@ class TrxesController < ApplicationController
           total_count: @filtered_results.count
         }
       }
+      format.html {
+        render partial: "balance_display"
+      }
     end
   end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
