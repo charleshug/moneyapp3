@@ -136,22 +136,22 @@
   <% if @trxes.any? %>
     <!-- Header row -->
     <div class="bg-white shadow-sm p-1 border-b border-gray-200 sticky top-0 z-10">
-      <div class="grid grid-cols-10 items-center text-center font-medium text-blue-600">
-        <div>
+      <div class="grid items-center font-medium text-blue-600" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+        <div class="text-center px-2">
           <input type="checkbox" 
                  data-trx-selection-target="headerCheckbox"
                  data-action="click->trx-selection#toggleAll"
                  class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
         </div>
-        <div>ID</div>
-        <div>Account</div>
-        <div>Date</div>
-        <div>Vendor</div>
-        <div>Amount</div>
-        <div>Category</div>
-        <div>Subcategory</div>
-        <div>Memo</div>
-        <div>Cleared</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">ID</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Account</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Date</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Vendor</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Amount</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Category</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Subcategory</div>
+        <div class="text-left border-l border-gray-300 pl-2 pr-2">Memo</div>
+        <div class="text-center border-l border-gray-300 pl-2 pr-2">Cleared</div>
       </div>
     </div>
 
@@ -163,22 +163,22 @@
                data-trx-selection-target="row"
                data-trx-id="<%= trx.id %>"
                data-action="click->trx-selection#selectRow">
-            <div class="grid grid-cols-10 items-center text-center text-gray-800">
-              <div>
+            <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+              <div class="px-2">
                 <input type="checkbox" 
                        data-trx-selection-target="checkbox"
                        data-trx-id="<%= trx.id %>"
                        data-action="click->trx-selection#toggleSelection"
                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
               </div>
-              <div class="truncate"><%= trx.id %></div>
-              <div class="truncate"><%= trx.account.name %></div>
-              <div class="truncate"><%= trx.date %></div>
-              <div class="truncate"><%= trx.vendor.name %></div>
-              <div class="truncate" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
-              <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.category&.name %></div>
-              <div class="truncate"><%= trx.lines.first&.ledger&.subcategory&.name %></div>
-              <div class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
+              <div class="truncate text-left px-2"><%= trx.id %></div>
+              <div class="truncate text-left px-2"><%= trx.account.name %></div>
+              <div class="truncate text-left px-2"><%= trx.date %></div>
+              <div class="truncate text-left px-2"><%= trx.vendor.name %></div>
+              <div class="truncate text-left px-2" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate text-left px-2"><%= trx.lines.first&.ledger&.subcategory&.category&.name %></div>
+              <div class="truncate text-left px-2"><%= trx.lines.first&.ledger&.subcategory&.name %></div>
+              <div class="truncate text-left px-2" title="<%= trx.memo %>"><%= trx.memo %></div>
               <div data-controller="cleared-toggle"
                   data-cleared-toggle-trx-id-value="<%= trx.id %>"
                   data-cleared-toggle-cleared-value="<%= trx.cleared %>">
@@ -195,22 +195,22 @@
                data-trx-selection-target="row"
                data-trx-id="<%= trx.id %>"
                data-action="click->trx-selection#selectRow">
-            <div class="grid grid-cols-10 items-center text-center text-gray-800">
-              <div>
+            <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+              <div class="px-2">
                 <input type="checkbox" 
                        data-trx-selection-target="checkbox"
                        data-trx-id="<%= trx.id %>"
                        data-action="click->trx-selection#toggleSelection"
                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
               </div>
-              <div class="truncate"><%= trx.id %></div>
-              <div class="truncate"><%= trx.account.name %></div>
-              <div class="truncate"><%= trx.date %></div>
-              <div class="truncate"><%= trx.vendor.name %></div>
-              <div class="truncate" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
-              <div class="truncate"></div>
-              <div class="truncate">Split (Multiple Categories)...</div>
-              <div  class="truncate" title="<%= trx.memo %>"><%= trx.memo %></div>
+              <div class="truncate text-left px-2"><%= trx.id %></div>
+              <div class="truncate text-left px-2"><%= trx.account.name %></div>
+              <div class="truncate text-left px-2"><%= trx.date %></div>
+              <div class="truncate text-left px-2"><%= trx.vendor.name %></div>
+              <div class="truncate text-left px-2" data-trx-selection-target="amount" data-amount="<%= trx.amount %>"><%= number_to_currency(trx.amount / 100.0) %></div>
+              <div class="truncate text-left px-2"></div>
+              <div class="truncate text-left px-2">Split (Multiple Categories)...</div>
+              <div class="truncate text-left px-2" title="<%= trx.memo %>"><%= trx.memo %></div>
               <div data-controller="cleared-toggle"
                   data-cleared-toggle-trx-id-value="<%= trx.id %>"
                   data-cleared-toggle-cleared-value="<%= trx.cleared %>">
