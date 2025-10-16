@@ -7,9 +7,6 @@
       <div class="text-lg font-bold text-green-600" data-balance="cleared">
         <%= number_to_currency((@trxes.select(&:cleared).sum(&:amount) / 100.0)) %>
       </div>
-      <div class="text-xs text-gray-500 mt-1" data-count="cleared">
-        <%= pluralize(@trxes.select(&:cleared).count, 'transaction') %>
-      </div>
     </div>
     
     <!-- Plus Sign -->
@@ -21,9 +18,6 @@
       <div class="text-lg font-bold text-orange-600" data-balance="uncleared">
         <%= number_to_currency((@trxes.reject(&:cleared).sum(&:amount) / 100.0)) %>
       </div>
-      <div class="text-xs text-gray-500 mt-1" data-count="uncleared">
-        <%= pluralize(@trxes.reject(&:cleared).count, 'transaction') %>
-      </div>
     </div>
     
     <!-- Equals Sign -->
@@ -34,9 +28,6 @@
       <div class="text-sm font-medium text-gray-600 mb-1">Working Balance</div>
       <div class="text-lg font-bold text-blue-600" data-balance="working">
         <%= number_to_currency((@trxes.sum(&:amount) / 100.0)) %>
-      </div>
-      <div class="text-xs text-gray-500 mt-1" data-count="total">
-        <%= pluralize(@trxes.count, 'transaction') %>
       </div>
     </div>
   </div>
