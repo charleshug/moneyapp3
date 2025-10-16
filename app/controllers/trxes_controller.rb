@@ -146,6 +146,46 @@ class TrxesController < ApplicationController
     end
   end
 
+  def balance_info
+    # Use the exact same filtering logic as the index action
+    @current_budget = Budget.includes(:accounts, :vendors, :categories, subcategories: :category)
+                           .find(@current_budget.id)
+
+    base_query = @current_budget.trxes
+                               .select("trxes.*, accounts.name as account_name, vendors.name as vendor_name")
+                               .joins(:account, :vendor)
+                               .includes(:account, :vendor, lines: { ledger: { subcategory: :category } })
+
+    @q = base_query.ransack(params[:q])
+
+    # Use Ransack's sort or fall back to default sort
+    @q.sorts = [ "date desc", "id desc" ] if @q.sorts.empty?
+
+    # Get the same filtered results as the index action
+    @filtered_results = @q.result
+
+    # Calculate balances from the filtered results
+    cleared_trxes = @filtered_results.select(&:cleared)
+    uncleared_trxes = @filtered_results.reject(&:cleared)
+
+    cleared_balance = cleared_trxes.sum(&:amount) / 100.0
+    uncleared_balance = uncleared_trxes.sum(&:amount) / 100.0
+    working_balance = @filtered_results.sum(&:amount) / 100.0
+
+    respond_to do |format|
+      format.json {
+        render json: {
+          cleared_balance: ActionController::Base.helpers.number_to_currency(cleared_balance),
+          cleared_count: cleared_trxes.count,
+          uncleared_balance: ActionController::Base.helpers.number_to_currency(uncleared_balance),
+          uncleared_count: uncleared_trxes.count,
+          working_balance: ActionController::Base.helpers.number_to_currency(working_balance),
+          total_count: @filtered_results.count
+        }
+      }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_trx

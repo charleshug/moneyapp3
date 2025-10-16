@@ -215,7 +215,7 @@
 </div>
 
 <!-- Bottom Section: Scheduled Transactions and Balance Information -->
-<div class="bg-white border-t border-gray-200 p-4 z-20" style="height: 120px; flex-shrink: 0;">
+<div class="bg-white border-t border-gray-200 p-4 z-20" style="height: 120px; flex-shrink: 0;" data-budget-id="<%= @current_budget.id %>">
   <div class="flex justify-between items-center">
     <!-- Left: Scheduled Transactions Button -->
     <div>
@@ -242,10 +242,10 @@
           <!-- Cleared Balance -->
           <div class="text-center">
             <div class="text-sm font-medium text-gray-600 mb-1">Cleared Balance</div>
-            <div class="text-lg font-bold text-green-600">
+            <div class="text-lg font-bold text-green-600" data-balance="cleared">
               <%= number_to_currency((@trxes.select(&:cleared).sum(&:amount) / 100.0)) %>
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 mt-1" data-count="cleared">
               <%= pluralize(@trxes.select(&:cleared).count, 'transaction') %>
             </div>
           </div>
@@ -256,10 +256,10 @@
           <!-- Uncleared Transactions -->
           <div class="text-center">
             <div class="text-sm font-medium text-gray-600 mb-1">Uncleared Transactions</div>
-            <div class="text-lg font-bold text-orange-600">
+            <div class="text-lg font-bold text-orange-600" data-balance="uncleared">
               <%= number_to_currency((@trxes.reject(&:cleared).sum(&:amount) / 100.0)) %>
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 mt-1" data-count="uncleared">
               <%= pluralize(@trxes.reject(&:cleared).count, 'transaction') %>
             </div>
           </div>
@@ -270,10 +270,10 @@
           <!-- Working Balance -->
           <div class="text-center">
             <div class="text-sm font-medium text-gray-600 mb-1">Working Balance</div>
-            <div class="text-lg font-bold text-blue-600">
+            <div class="text-lg font-bold text-blue-600" data-balance="working">
               <%= number_to_currency((@trxes.sum(&:amount) / 100.0)) %>
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 mt-1" data-count="total">
               <%= pluralize(@trxes.count, 'transaction') %>
             </div>
           </div>

@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       post "import_preview"
       post "submit_import"
       get "import"
+      get "balance_info"
     end
   end
 

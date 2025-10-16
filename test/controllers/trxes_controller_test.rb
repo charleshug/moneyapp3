@@ -45,4 +45,31 @@ class TrxesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to trxes_url
   end
+
+  test "should toggle cleared status" do
+    initial_cleared = @trx.cleared
+
+    post toggle_cleared_trx_url(@trx), headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    @trx.reload
+    assert_not_equal initial_cleared, @trx.cleared
+
+    response_data = JSON.parse(response.body)
+    assert_equal @trx.cleared, response_data["cleared"]
+  end
+
+  test "should get balance info" do
+    get balance_info_trxes_url, headers: { "Accept" => "application/json" }
+
+    assert_response :success
+
+    response_data = JSON.parse(response.body)
+    assert_includes response_data.keys, "cleared_balance"
+    assert_includes response_data.keys, "cleared_count"
+    assert_includes response_data.keys, "uncleared_balance"
+    assert_includes response_data.keys, "uncleared_count"
+    assert_includes response_data.keys, "working_balance"
+    assert_includes response_data.keys, "total_count"
+  end
 end
