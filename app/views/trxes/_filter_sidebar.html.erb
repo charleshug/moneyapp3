@@ -19,35 +19,138 @@
         </div>
 
         <!-- Accounts -->
-        <div class="flex flex-col flex-1 min-w-[200px]">
+        <div class="flex flex-col flex-1 min-w-[200px]" 
+             data-controller="dropdown-filter"
+             data-dropdown-filter-field-name-value="account_id_in"
+             data-dropdown-filter-placeholder-value="Filter Accounts..."
+             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :account_id_in) || [] %>">
           <%= f.label :account_id_in, "Accounts", class: "text-sm font-medium text-gray-700" %>
-          <%= f.collection_select :account_id_in, @accounts, :id, :name,
-            { include_blank: true },
-            { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200', data: { action: "change->filter-sidebar#checkFilters" } } %>
+          <div class="relative">
+            <button type="button" 
+                    data-dropdown-filter-target="button"
+                    data-action="click->dropdown-filter#toggle"
+                    class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              Filter Accounts...
+            </button>
+            <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div data-dropdown-filter-target="options" class="py-1">
+                <% @accounts.each do |account| %>
+                  <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                       data-action="click->dropdown-filter#selectOption">
+                    <input type="checkbox" 
+                           value="<%= account.id %>" 
+                           class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                           <%= 'checked' if params.dig(:q, :account_id_in)&.include?(account.id.to_s) %>>
+                    <label class="flex-1 cursor-pointer"><%= account.name %></label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="hidden-form-fields"></div>
         </div>
 
         <!-- Vendors -->
-        <div class="flex flex-col flex-1 min-w-[200px]">
+        <div class="flex flex-col flex-1 min-w-[200px]" 
+             data-controller="dropdown-filter"
+             data-dropdown-filter-field-name-value="vendor_id_in"
+             data-dropdown-filter-placeholder-value="Filter Vendors..."
+             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :vendor_id_in) || [] %>">
           <%= f.label :vendor_id_in, "Vendors", class: "text-sm font-medium text-gray-700" %>
-          <%= f.collection_select :vendor_id_in, @vendors.order('LOWER(name)'), :id, :name,
-            { include_blank: true },
-            { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200', data: { action: "change->filter-sidebar#checkFilters" } } %>
+          <div class="relative">
+            <button type="button" 
+                    data-dropdown-filter-target="button"
+                    data-action="click->dropdown-filter#toggle"
+                    class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              Filter Vendors...
+            </button>
+            <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div data-dropdown-filter-target="options" class="py-1">
+                <% @vendors.order('LOWER(name)').each do |vendor| %>
+                  <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                       data-action="click->dropdown-filter#selectOption">
+                    <input type="checkbox" 
+                           value="<%= vendor.id %>" 
+                           class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                           <%= 'checked' if params.dig(:q, :vendor_id_in)&.include?(vendor.id.to_s) %>>
+                    <label class="flex-1 cursor-pointer"><%= vendor.name %></label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="hidden-form-fields"></div>
         </div>
 
         <!-- Categories -->
-        <div class="flex flex-col flex-1 min-w-[200px]">
+        <div class="flex flex-col flex-1 min-w-[200px]" 
+             data-controller="dropdown-filter"
+             data-dropdown-filter-field-name-value="lines_ledger_subcategory_category_id_in"
+             data-dropdown-filter-placeholder-value="Filter Categories..."
+             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :lines_ledger_subcategory_category_id_in) || [] %>">
           <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "text-sm font-medium text-gray-700" %>
-          <%= f.collection_select :lines_ledger_subcategory_category_id_in, @categories, :id, :name,
-            { include_blank: true },
-            { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200', data: { action: "change->filter-sidebar#checkFilters" } } %>
+          <div class="relative">
+            <button type="button" 
+                    data-dropdown-filter-target="button"
+                    data-action="click->dropdown-filter#toggle"
+                    class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              Filter Categories...
+            </button>
+            <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div data-dropdown-filter-target="options" class="py-1">
+                <% @categories.each do |category| %>
+                  <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                       data-action="click->dropdown-filter#selectOption">
+                    <input type="checkbox" 
+                           value="<%= category.id %>" 
+                           class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                           <%= 'checked' if params.dig(:q, :lines_ledger_subcategory_category_id_in)&.include?(category.id.to_s) %>>
+                    <label class="flex-1 cursor-pointer"><%= category.name %></label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="hidden-form-fields"></div>
         </div>
 
         <!-- Subcategories -->
-        <div class="flex flex-col flex-1 min-w-[200px]">
+        <div class="flex flex-col flex-1 min-w-[200px]" 
+             data-controller="dropdown-filter"
+             data-dropdown-filter-field-name-value="lines_ledger_subcategory_id_in"
+             data-dropdown-filter-placeholder-value="Filter Subcategories..."
+             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :lines_ledger_subcategory_id_in) || [] %>">
           <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "text-sm font-medium text-gray-700" %>
-          <%= f.grouped_collection_select :lines_ledger_subcategory_id_in, @categories, :subcategories, :name, :id, :name,
-            { include_blank: true },
-            { multiple: true, class: 'select2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200', data: { action: "change->filter-sidebar#checkFilters" } } %>
+          <div class="relative">
+            <button type="button" 
+                    data-dropdown-filter-target="button"
+                    data-action="click->dropdown-filter#toggle"
+                    class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              Filter Subcategories...
+            </button>
+            <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div data-dropdown-filter-target="options" class="py-1">
+                <% @categories.each do |category| %>
+                  <% if category.subcategories.any? %>
+                    <div class="px-3 py-1 text-sm font-medium text-gray-500 bg-gray-50 border-b">
+                      <%= category.name %>
+                    </div>
+                    <% category.subcategories.each do |subcategory| %>
+                      <div class="dropdown-filter-option px-6 py-2 cursor-pointer flex items-center"
+                           data-action="click->dropdown-filter#selectOption">
+                        <input type="checkbox" 
+                               value="<%= subcategory.id %>" 
+                               class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                               <%= 'checked' if params.dig(:q, :lines_ledger_subcategory_id_in)&.include?(subcategory.id.to_s) %>>
+                        <label class="flex-1 cursor-pointer"><%= subcategory.name %></label>
+                      </div>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="hidden-form-fields"></div>
         </div>
 
         <!-- Cleared -->

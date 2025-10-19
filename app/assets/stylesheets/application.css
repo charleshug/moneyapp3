@@ -40,3 +40,55 @@
 .pagy-nav a:hover {
   color: #666;
 }
+
+/* Dropdown Filter Styles */
+.dropdown-filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-filter-button:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.dropdown-filter-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dropdown-filter-dropdown {
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+  transform-origin: top;
+}
+
+.dropdown-filter-dropdown.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.dropdown-filter-dropdown:not(.hidden) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dropdown-filter-option {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.dropdown-filter-option:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdown-filter-option.selected {
+  background-color: #dbeafe;
+}
+
+.dropdown-filter-option input[type="checkbox"] {
+  transition: all 0.15s ease-in-out;
+}
+
+.dropdown-filter-option input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
