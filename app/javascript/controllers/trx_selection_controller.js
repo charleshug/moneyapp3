@@ -165,7 +165,8 @@ export default class extends Controller {
     formData.append('trx[lines_attributes][0][subcategory_form_id]', fieldData.subcategory_id || row.dataset.subcategoryId || '')
     
     if (fieldData.amount) {
-      formData.append('trx[lines_attributes][0][amount]', (parseFloat(fieldData.amount) * 100).toString())
+      // Send amount in dollars - backend will convert to cents
+      formData.append('trx[lines_attributes][0][amount]', fieldData.amount)
     }
 
     fetch(`/trxes/${trxId}`, {
@@ -219,12 +220,14 @@ export default class extends Controller {
       const display = displayFields[index]
       if (display) {
         if (input.type === 'number') {
+          const amount = parseFloat(input.value)
           const formattedValue = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD'
-          }).format(parseFloat(input.value))
+          }).format(amount)
           display.textContent = formattedValue
-          display.dataset.amount = (parseFloat(input.value) * 100).toString()
+          // Store the amount in cents for data consistency (for balance calculations)
+          display.dataset.amount = Math.round(amount * 100).toString()
         } else if (input.tagName === 'SELECT') {
           // For select fields, update display with selected option text
           const selectedOption = input.options[input.selectedIndex]
