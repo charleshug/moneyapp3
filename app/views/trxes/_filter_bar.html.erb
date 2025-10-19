@@ -1,43 +1,48 @@
 <!-- Filter Bar for Transactions -->
-<div class="bg-white border-b border-gray-200 p-4">
-  <%= search_form_for @q, class: 'flex flex-wrap items-end gap-4 w-full', data: { filter_sidebar_target: "form" } do |f| %>
+<div class="bg-white border-b border-gray-200 p-3">
+  <%= search_form_for @q, class: 'flex flex-wrap items-end gap-3 w-full', data: { filter_sidebar_target: "form" } do |f| %>
 
     <!-- Date From -->
     <div class="flex flex-col">
-      <%= f.label :date_gteq, "Date From", class: "text-sm font-medium text-gray-700" %>
-      <%= f.date_field :date_gteq, class: "w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50", data: { action: "change->filter-sidebar#checkFilters" } %>
+      <%= f.label :date_gteq, "From", class: "text-xs font-medium text-gray-700" %>
+      <%= f.date_field :date_gteq, class: "w-32 text-xs rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50", data: { action: "change->filter-sidebar#checkFilters" } %>
     </div>
 
     <!-- Date To -->
     <div class="flex flex-col">
-      <%= f.label :date_lteq, "Date To", class: "text-sm font-medium text-gray-700" %>
-      <%= f.date_field :date_lteq, class: "w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50", data: { action: "change->filter-sidebar#checkFilters" } %>
+      <%= f.label :date_lteq, "To", class: "text-xs font-medium text-gray-700" %>
+      <%= f.date_field :date_lteq, class: "w-32 text-xs rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50", data: { action: "change->filter-sidebar#checkFilters" } %>
+    </div>
+
+    <!-- Apply Button -->
+    <div class="flex items-end">
+      <%= f.submit "Apply", class: "px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-xs" %>
     </div>
 
     <!-- Accounts -->
-    <div class="flex flex-col flex-1 min-w-[200px]" 
+    <div class="flex flex-col flex-1 min-w-[150px]" 
          data-controller="dropdown-filter"
          data-dropdown-filter-field-name-value="account_id_in"
-         data-dropdown-filter-placeholder-value="Filter Accounts..."
+         data-dropdown-filter-placeholder-value="Accounts..."
          data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :account_id_in) || [params.dig(:q, :account_id_eq)].compact) %>">
-      <%= f.label :account_id_in, "Accounts", class: "text-sm font-medium text-gray-700" %>
+      <%= f.label :account_id_in, "Accounts", class: "text-xs font-medium text-gray-700" %>
       <div class="relative">
         <button type="button" 
                 data-dropdown-filter-target="button"
                 data-action="click->dropdown-filter#toggle"
-                class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          Filter Accounts...
+                class="dropdown-filter-button w-full text-left px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          Accounts...
         </button>
         <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
           <div class="p-2 border-b border-gray-200">
             <input type="text" 
                    data-dropdown-filter-target="searchInput"
                    placeholder="Search accounts..."
-                   class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                   class="dropdown-filter-search-input w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div data-dropdown-filter-target="options" class="py-1">
             <% @accounts.each do |account| %>
-              <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+              <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                    data-action="click->dropdown-filter#selectOption">
                 <input type="checkbox" 
                        value="<%= account.id %>" 
@@ -53,29 +58,29 @@
     </div>
 
     <!-- Vendors -->
-    <div class="flex flex-col flex-1 min-w-[200px]" 
+    <div class="flex flex-col flex-1 min-w-[150px]" 
          data-controller="dropdown-filter"
          data-dropdown-filter-field-name-value="vendor_id_in"
-         data-dropdown-filter-placeholder-value="Filter Vendors..."
+         data-dropdown-filter-placeholder-value="Vendors..."
          data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :vendor_id_in) || [params.dig(:q, :vendor_id_eq)].compact) %>">
-      <%= f.label :vendor_id_in, "Vendors", class: "text-sm font-medium text-gray-700" %>
+      <%= f.label :vendor_id_in, "Vendors", class: "text-xs font-medium text-gray-700" %>
       <div class="relative">
         <button type="button" 
                 data-dropdown-filter-target="button"
                 data-action="click->dropdown-filter#toggle"
-                class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          Filter Vendors...
+                class="dropdown-filter-button w-full text-left px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          Vendors...
         </button>
         <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
           <div class="p-2 border-b border-gray-200">
             <input type="text" 
                    data-dropdown-filter-target="searchInput"
                    placeholder="Search vendors..."
-                   class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                   class="dropdown-filter-search-input w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div data-dropdown-filter-target="options" class="py-1">
             <% @vendors.order('LOWER(name)').each do |vendor| %>
-              <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+              <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                    data-action="click->dropdown-filter#selectOption">
                 <input type="checkbox" 
                        value="<%= vendor.id %>" 
@@ -91,29 +96,29 @@
     </div>
 
     <!-- Categories -->
-    <div class="flex flex-col flex-1 min-w-[200px]" 
+    <div class="flex flex-col flex-1 min-w-[150px]" 
          data-controller="dropdown-filter"
          data-dropdown-filter-field-name-value="lines_ledger_subcategory_category_id_in"
-         data-dropdown-filter-placeholder-value="Filter Categories..."
+         data-dropdown-filter-placeholder-value="Categories..."
          data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :lines_ledger_subcategory_category_id_in) || [params.dig(:q, :lines_ledger_subcategory_category_id_eq)].compact) %>">
-      <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "text-sm font-medium text-gray-700" %>
+      <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "text-xs font-medium text-gray-700" %>
       <div class="relative">
         <button type="button" 
                 data-dropdown-filter-target="button"
                 data-action="click->dropdown-filter#toggle"
-                class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          Filter Categories...
+                class="dropdown-filter-button w-full text-left px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          Categories...
         </button>
         <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
           <div class="p-2 border-b border-gray-200">
             <input type="text" 
                    data-dropdown-filter-target="searchInput"
                    placeholder="Search categories..."
-                   class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                   class="dropdown-filter-search-input w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div data-dropdown-filter-target="options" class="py-1">
             <% @categories.each do |category| %>
-              <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+              <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                    data-action="click->dropdown-filter#selectOption">
                 <input type="checkbox" 
                        value="<%= category.id %>" 
@@ -129,34 +134,34 @@
     </div>
 
     <!-- Subcategories -->
-    <div class="flex flex-col flex-1 min-w-[200px]" 
+    <div class="flex flex-col flex-1 min-w-[150px]" 
          data-controller="dropdown-filter"
          data-dropdown-filter-field-name-value="lines_ledger_subcategory_id_in"
-         data-dropdown-filter-placeholder-value="Filter Subcategories..."
+         data-dropdown-filter-placeholder-value="Subcategories..."
          data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :lines_ledger_subcategory_id_in) || [params.dig(:q, :lines_ledger_subcategory_id_eq)].compact) %>">
-      <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "text-sm font-medium text-gray-700" %>
+      <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "text-xs font-medium text-gray-700" %>
       <div class="relative">
         <button type="button" 
                 data-dropdown-filter-target="button"
                 data-action="click->dropdown-filter#toggle"
-                class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          Filter Subcategories...
+                class="dropdown-filter-button w-full text-left px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          Subcategories...
         </button>
         <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
           <div class="p-2 border-b border-gray-200">
             <input type="text" 
                    data-dropdown-filter-target="searchInput"
                    placeholder="Search subcategories..."
-                   class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                   class="dropdown-filter-search-input w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div data-dropdown-filter-target="options" class="py-1">
             <% @categories.each do |category| %>
               <% if category.subcategories.any? %>
-                <div class="px-3 py-1 text-sm font-medium text-gray-500 bg-gray-50 border-b">
+                <div class="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 border-b">
                   <%= category.name %>
                 </div>
                 <% category.subcategories.each do |subcategory| %>
-                  <div class="dropdown-filter-option px-6 py-2 cursor-pointer flex items-center"
+                  <div class="dropdown-filter-option px-4 py-1 cursor-pointer flex items-center text-xs"
                        data-action="click->dropdown-filter#selectOption">
                     <input type="checkbox" 
                            value="<%= subcategory.id %>" 
@@ -174,22 +179,22 @@
     </div>
 
     <!-- Cleared -->
-    <div class="flex flex-col w-40" 
+    <div class="flex flex-col w-32" 
          data-controller="dropdown-filter"
          data-dropdown-filter-field-name-value="cleared_eq"
-         data-dropdown-filter-placeholder-value="Filter Cleared..."
+         data-dropdown-filter-placeholder-value="Cleared..."
          data-dropdown-filter-selected-ids-value="<%= [params.dig(:q, :cleared_eq)].compact %>">
-      <%= f.label :cleared_eq, "Cleared", class: "text-sm font-medium text-gray-700" %>
+      <%= f.label :cleared_eq, "Cleared", class: "text-xs font-medium text-gray-700" %>
       <div class="relative">
         <button type="button" 
                 data-dropdown-filter-target="button"
                 data-action="click->dropdown-filter#toggle"
-                class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          Filter Cleared...
+                class="dropdown-filter-button w-full text-left px-2 py-1 text-xs border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          Cleared...
         </button>
         <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
           <div data-dropdown-filter-target="options" class="py-1">
-            <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+            <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                  data-action="click->dropdown-filter#selectOption">
               <input type="checkbox" 
                      value="" 
@@ -197,7 +202,7 @@
                      <%= 'checked' if params.dig(:q, :cleared_eq).blank? %>>
               <label class="flex-1 cursor-pointer">All</label>
             </div>
-            <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+            <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                  data-action="click->dropdown-filter#selectOption">
               <input type="checkbox" 
                      value="true" 
@@ -205,7 +210,7 @@
                      <%= 'checked' if params.dig(:q, :cleared_eq) == 'true' %>>
               <label class="flex-1 cursor-pointer">Cleared</label>
             </div>
-            <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+            <div class="dropdown-filter-option px-2 py-1 cursor-pointer flex items-center text-xs"
                  data-action="click->dropdown-filter#selectOption">
               <input type="checkbox" 
                      value="false" 
@@ -219,10 +224,9 @@
       <div class="hidden-form-fields"></div>
     </div>
 
-    <!-- Apply / Clear -->
-    <div class="flex items-end space-x-2">
-      <%= f.submit "Apply", class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md" %>
-      <%= link_to "Clear", trxes_path, class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md" %>
+    <!-- Clear Button -->
+    <div class="flex items-end">
+      <%= link_to "Clear", trxes_path, class: "px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-xs" %>
     </div>
 
   <% end %>
