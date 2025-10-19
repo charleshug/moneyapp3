@@ -146,8 +146,9 @@ export default class extends Controller {
     // Find the container for hidden form fields
     const container = this.element.querySelector('.hidden-form-fields')
     if (container) {
-      // Clear existing fields for this specific filter
-      const existingFields = container.querySelectorAll(`input[name*="${this.fieldNameValue}"]`)
+      // Clear existing fields for this specific filter (both _eq and _in versions)
+      const baseFieldName = this.fieldNameValue.replace('_in', '').replace('_eq', '')
+      const existingFields = container.querySelectorAll(`input[name*="${baseFieldName}"]`)
       existingFields.forEach(field => field.remove())
       
       // Add new fields for each selected value

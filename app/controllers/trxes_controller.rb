@@ -225,6 +225,10 @@ class TrxesController < ApplicationController
     params.require(:q).permit(
       :date_gteq, :date_lteq,
       :cleared_eq,
+      :account_id_eq,
+      :vendor_id_eq,
+      :lines_ledger_subcategory_category_id_eq,
+      :lines_ledger_subcategory_id_eq,
       account_id_in: [],
       vendor_id_in: [],
       lines_ledger_subcategory_category_id_in: [],

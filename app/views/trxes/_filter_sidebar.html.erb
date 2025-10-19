@@ -23,7 +23,7 @@
              data-controller="dropdown-filter"
              data-dropdown-filter-field-name-value="account_id_in"
              data-dropdown-filter-placeholder-value="Filter Accounts..."
-             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :account_id_in) || [] %>">
+             data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :account_id_in) || [params.dig(:q, :account_id_eq)].compact) %>">
           <%= f.label :account_id_in, "Accounts", class: "text-sm font-medium text-gray-700" %>
           <div class="relative">
             <button type="button" 
@@ -40,7 +40,7 @@
                     <input type="checkbox" 
                            value="<%= account.id %>" 
                            class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                           <%= 'checked' if params.dig(:q, :account_id_in)&.include?(account.id.to_s) %>>
+                           <%= 'checked' if (params.dig(:q, :account_id_in)&.include?(account.id.to_s) || params.dig(:q, :account_id_eq) == account.id.to_s) %>>
                     <label class="flex-1 cursor-pointer"><%= account.name %></label>
                   </div>
                 <% end %>
@@ -55,7 +55,7 @@
              data-controller="dropdown-filter"
              data-dropdown-filter-field-name-value="vendor_id_in"
              data-dropdown-filter-placeholder-value="Filter Vendors..."
-             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :vendor_id_in) || [] %>">
+             data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :vendor_id_in) || [params.dig(:q, :vendor_id_eq)].compact) %>">
           <%= f.label :vendor_id_in, "Vendors", class: "text-sm font-medium text-gray-700" %>
           <div class="relative">
             <button type="button" 
@@ -72,7 +72,7 @@
                     <input type="checkbox" 
                            value="<%= vendor.id %>" 
                            class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                           <%= 'checked' if params.dig(:q, :vendor_id_in)&.include?(vendor.id.to_s) %>>
+                           <%= 'checked' if (params.dig(:q, :vendor_id_in)&.include?(vendor.id.to_s) || params.dig(:q, :vendor_id_eq) == vendor.id.to_s) %>>
                     <label class="flex-1 cursor-pointer"><%= vendor.name %></label>
                   </div>
                 <% end %>
@@ -87,7 +87,7 @@
              data-controller="dropdown-filter"
              data-dropdown-filter-field-name-value="lines_ledger_subcategory_category_id_in"
              data-dropdown-filter-placeholder-value="Filter Categories..."
-             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :lines_ledger_subcategory_category_id_in) || [] %>">
+             data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :lines_ledger_subcategory_category_id_in) || [params.dig(:q, :lines_ledger_subcategory_category_id_eq)].compact) %>">
           <%= f.label :lines_ledger_subcategory_category_id_in, "Categories", class: "text-sm font-medium text-gray-700" %>
           <div class="relative">
             <button type="button" 
@@ -104,7 +104,7 @@
                     <input type="checkbox" 
                            value="<%= category.id %>" 
                            class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                           <%= 'checked' if params.dig(:q, :lines_ledger_subcategory_category_id_in)&.include?(category.id.to_s) %>>
+                           <%= 'checked' if (params.dig(:q, :lines_ledger_subcategory_category_id_in)&.include?(category.id.to_s) || params.dig(:q, :lines_ledger_subcategory_category_id_eq) == category.id.to_s) %>>
                     <label class="flex-1 cursor-pointer"><%= category.name %></label>
                   </div>
                 <% end %>
@@ -119,7 +119,7 @@
              data-controller="dropdown-filter"
              data-dropdown-filter-field-name-value="lines_ledger_subcategory_id_in"
              data-dropdown-filter-placeholder-value="Filter Subcategories..."
-             data-dropdown-filter-selected-ids-value="<%= params.dig(:q, :lines_ledger_subcategory_id_in) || [] %>">
+             data-dropdown-filter-selected-ids-value="<%= (params.dig(:q, :lines_ledger_subcategory_id_in) || [params.dig(:q, :lines_ledger_subcategory_id_eq)].compact) %>">
           <%= f.label :lines_ledger_subcategory_id_in, "Subcategories", class: "text-sm font-medium text-gray-700" %>
           <div class="relative">
             <button type="button" 
@@ -141,7 +141,7 @@
                         <input type="checkbox" 
                                value="<%= subcategory.id %>" 
                                class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                               <%= 'checked' if params.dig(:q, :lines_ledger_subcategory_id_in)&.include?(subcategory.id.to_s) %>>
+                               <%= 'checked' if (params.dig(:q, :lines_ledger_subcategory_id_in)&.include?(subcategory.id.to_s) || params.dig(:q, :lines_ledger_subcategory_id_eq) == subcategory.id.to_s) %>>
                         <label class="flex-1 cursor-pointer"><%= subcategory.name %></label>
                       </div>
                     <% end %>
