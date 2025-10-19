@@ -3,11 +3,11 @@
 one:
   name: MyString
   hidden: false
-  type: 
+  normal_balance: EXPENSE
   budget: one
 
 two:
   name: MyString
   hidden: false
-  type: 
+  normal_balance: INCOME
   budget: two

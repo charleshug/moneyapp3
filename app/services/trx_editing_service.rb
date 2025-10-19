@@ -194,7 +194,7 @@ class TrxEditingService
 
   def handle_vendor_custom_text
     unless @trx_params[:vendor_custom_text].blank?
-      vendor = @budget.vendors.find_or_create_by(name: @trx_params[:vendor_custom_text])
+      vendor = @trx.budget.vendors.find_or_create_by(name: @trx_params[:vendor_custom_text])
       @trx_params[:vendor_id] = vendor.id
     end
     @trx_params.delete(:vendor_custom_text)

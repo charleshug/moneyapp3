@@ -28,12 +28,212 @@ export default class extends Controller {
     // Don't trigger if clicking on checkbox (handled by toggleSelection)
     if (event.target.type === 'checkbox') return
     
+    // Don't trigger if clicking on editable fields
+    if (event.target.closest('[data-controller*="trx-inline-edit"]')) {
+      event.stopPropagation()
+      return
+    }
+    
     const row = event.currentTarget
     const trxId = row.dataset.trxId
     const index = Array.from(this.rowTargets).indexOf(row)
     
     // For row clicks, clear previous selections and select only current row
     this.selectTrx(trxId, index, false, false) // Force single selection behavior
+  }
+
+  // Handle row double-click
+  handleRowDoubleClick(event) {
+    // Don't trigger if double-clicking on checkboxes
+    if (event.target.type === 'checkbox') return
+    
+    // For double-clicks anywhere in the row, activate editing mode
+    this.activateRowEditing(event)
+  }
+
+  // Activate editing mode for the entire row
+  activateRowEditing(event) {
+    const row = event.currentTarget
+    const trxId = row.dataset.trxId
+    
+    // Add visual indicator that row is in editing mode
+    row.classList.add('editing-row')
+    
+    // Show all input fields in this row
+    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
+    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
+    
+    inputFields.forEach(input => input.classList.remove('hidden'))
+    displayFields.forEach(display => display.classList.add('hidden'))
+    
+    // Show the control row for this transaction
+    const controlRow = row.querySelector('[data-trx-inline-edit-target="controlRow"]')
+    if (controlRow) {
+      controlRow.classList.remove('hidden')
+    }
+    
+    // Focus the first input field
+    if (inputFields.length > 0) {
+      setTimeout(() => {
+        inputFields[0].focus()
+        inputFields[0].select()
+      }, 10)
+    }
+  }
+
+  // Handle submit button click
+  handleSubmit(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    const row = event.target.closest('[data-trx-selection-target="row"]')
+    if (row) {
+      this.saveRowChanges(row)
+    }
+  }
+
+  // Handle cancel button click
+  handleCancel(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    const row = event.target.closest('[data-trx-selection-target="row"]')
+    if (row) {
+      this.cancelRowEditing(row)
+    }
+  }
+
+  // Handle keyboard events in input fields
+  handleKeydown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      const row = event.target.closest('[data-trx-selection-target="row"]')
+      if (row) {
+        this.saveRowChanges(row)
+      }
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      const row = event.target.closest('[data-trx-selection-target="row"]')
+      if (row) {
+        this.cancelRowEditing(row)
+      }
+    }
+  }
+
+  // Update category display when subcategory changes
+  updateCategory(event) {
+    const subcategorySelect = event.target
+    const selectedOption = subcategorySelect.options[subcategorySelect.selectedIndex]
+    const categoryName = selectedOption.dataset.categoryName || ''
+    
+    // Find the category display field in the same row
+    const row = subcategorySelect.closest('[data-trx-selection-target="row"]')
+    const categoryDisplay = row.querySelector('[data-field-name="category_display"]')
+    
+    if (categoryDisplay) {
+      categoryDisplay.textContent = categoryName
+    }
+  }
+
+  // Save changes for a row
+  saveRowChanges(row) {
+    const trxId = row.dataset.trxId
+    const formData = new FormData()
+    
+    // Collect field data
+    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
+    const fieldData = {}
+    
+    inputFields.forEach(input => {
+      const fieldName = input.dataset.fieldName
+      if (fieldName) {
+        fieldData[fieldName] = input.value
+      }
+    })
+    
+    // Add transaction data
+    formData.append('trx[cleared]', row.dataset.trxCleared === 'true')
+    formData.append('trx[memo]', fieldData.memo || row.dataset.trxMemo || '')
+    formData.append('trx[date]', fieldData.date)
+    formData.append('trx[vendor_custom_text]', fieldData.vendor || '')
+    formData.append('trx[account_id]', fieldData.account_id || '')
+    
+    // Add line attributes
+    formData.append('trx[lines_attributes][0][id]', row.dataset.lineId || '')
+    formData.append('trx[lines_attributes][0][ledger_id]', row.dataset.ledgerId || '')
+    formData.append('trx[lines_attributes][0][subcategory_form_id]', fieldData.subcategory_id || row.dataset.subcategoryId || '')
+    
+    if (fieldData.amount) {
+      formData.append('trx[lines_attributes][0][amount]', (parseFloat(fieldData.amount) * 100).toString())
+    }
+
+    fetch(`/trxes/${trxId}`, {
+      method: 'PATCH',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        this.updateRowDisplayValues(row, fieldData)
+        this.cancelRowEditing(row)
+      } else {
+        alert('Error updating transaction: ' + (data.errors || 'Unknown error'))
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      alert('Error updating transaction. Please try again.')
+    })
+  }
+
+  // Cancel editing for a row
+  cancelRowEditing(row) {
+    // Hide all input fields
+    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
+    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
+    
+    inputFields.forEach(input => input.classList.add('hidden'))
+    displayFields.forEach(display => display.classList.remove('hidden'))
+    
+    // Hide the control row
+    const controlRow = row.querySelector('[data-trx-inline-edit-target="controlRow"]')
+    if (controlRow) {
+      controlRow.classList.add('hidden')
+    }
+    
+    // Remove editing styling
+    row.classList.remove('editing-row')
+  }
+
+  // Update display values after successful save
+  updateRowDisplayValues(row, fieldData) {
+    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
+    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
+    
+    inputFields.forEach((input, index) => {
+      const display = displayFields[index]
+      if (display) {
+        if (input.type === 'number') {
+          const formattedValue = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format(parseFloat(input.value))
+          display.textContent = formattedValue
+          display.dataset.amount = (parseFloat(input.value) * 100).toString()
+        } else if (input.tagName === 'SELECT') {
+          // For select fields, update display with selected option text
+          const selectedOption = input.options[input.selectedIndex]
+          display.textContent = selectedOption.textContent
+        } else {
+          display.textContent = input.value
+        }
+      }
+    })
   }
 
   // Main selection logic

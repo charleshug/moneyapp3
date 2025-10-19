@@ -79,7 +79,10 @@ class TrxesController < ApplicationController
   def update
     # Ensure the record belongs to the current budget
     if @trx.budget != @current_budget
-      redirect_to trxes_path, alert: "You are not authorized to edit this transaction."
+      respond_to do |format|
+        format.html { redirect_to trxes_path, alert: "You are not authorized to edit this transaction." }
+        format.json { render json: { success: false, errors: "You are not authorized to edit this transaction." }, status: :unauthorized }
+      end
       return
     end
 
@@ -87,8 +90,10 @@ class TrxesController < ApplicationController
     respond_to do |format|
       if @trx.valid?
         format.html { redirect_to edit_trx_path(@trx), notice: "Trx was successfully updated." }
+        format.json { render json: { success: true, trx_id: @trx.id, message: "Transaction updated successfully" } }
       else
         format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @trx.errors.full_messages.join(", ") }, status: :unprocessable_entity }
       end
     end
   end

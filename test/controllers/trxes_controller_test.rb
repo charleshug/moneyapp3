@@ -38,6 +38,21 @@ class TrxesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to trx_url(@trx)
   end
 
+  test "should update trx via JSON" do
+    patch trx_url(@trx),
+          params: { trx: { memo: "Updated memo", date: "2024-01-15" } },
+          headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    @trx.reload
+    assert_equal "Updated memo", @trx.memo
+    assert_equal Date.parse("2024-01-15"), @trx.date
+
+    response_data = JSON.parse(response.body)
+    assert_equal true, response_data["success"]
+    assert_equal @trx.id, response_data["trx_id"]
+  end
+
   test "should destroy trx" do
     assert_difference("Trx.count", -1) do
       delete trx_url(@trx)

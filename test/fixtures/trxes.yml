@@ -2,22 +2,18 @@
 
 one:
   date: 2024-09-07
-  amount: 1
+  amount: 100
   memo: MyString
   account: one
-  subcategory: one
   vendor: one
-  ledger: one
   cleared: false
-  transfer_id: 1
+  transfer_child: false
 
 two:
   date: 2024-09-07
-  amount: 1
+  amount: 200
   memo: MyString
   account: two
-  subcategory: two
   vendor: two
-  ledger: two
   cleared: false
-  transfer_id: 1
+  transfer_child: false
