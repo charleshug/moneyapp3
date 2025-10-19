@@ -45,23 +45,48 @@ export default class extends Controller {
     const input = option.querySelector('input')
     const isChecked = input.checked
     
-    if (isChecked) {
-      // Remove from selected
-      this.selectedIdsValue = this.selectedIdsValue.filter(id => id !== input.value)
-      option.classList.remove('selected')
+    // Check if this is a single-select field (like cleared_eq)
+    const isSingleSelect = this.fieldNameValue.includes('_eq')
+    
+    if (isSingleSelect) {
+      // For single-select fields, uncheck all other options first
+      this.optionsTarget.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false
+        checkbox.closest('.dropdown-filter-option').classList.remove('selected')
+      })
+      
+      // Then check the selected option
+      input.checked = !isChecked
+      if (!isChecked) {
+        this.selectedIdsValue = [input.value]
+        option.classList.add('selected')
+      } else {
+        this.selectedIdsValue = []
+        option.classList.remove('selected')
+      }
     } else {
-      // Add to selected
-      this.selectedIdsValue = [...this.selectedIdsValue, input.value]
-      option.classList.add('selected')
+      // Multi-select behavior (for account_id_in, vendor_id_in, etc.)
+      if (isChecked) {
+        // Remove from selected
+        this.selectedIdsValue = this.selectedIdsValue.filter(id => id !== input.value)
+        option.classList.remove('selected')
+      } else {
+        // Add to selected
+        this.selectedIdsValue = [...this.selectedIdsValue, input.value]
+        option.classList.add('selected')
+      }
+      
+      input.checked = !isChecked
     }
     
-    input.checked = !isChecked
     this.updateButtonText()
     this.updateFormField()
   }
 
   updateButtonText() {
     const count = this.selectedIdsValue.length
+    const isSingleSelect = this.fieldNameValue.includes('_eq')
+    
     if (count === 0) {
       this.buttonTarget.textContent = this.placeholderValue
     } else if (count === 1) {
@@ -71,7 +96,17 @@ export default class extends Controller {
         this.buttonTarget.textContent = label
       }
     } else {
-      this.buttonTarget.textContent = `(${count}) ${this.fieldNameValue} selected`
+      // This should only happen for multi-select fields
+      if (isSingleSelect) {
+        // For single-select, show the selected option name
+        const selectedOption = this.optionsTarget.querySelector(`input[value="${this.selectedIdsValue[0]}"]`)
+        if (selectedOption) {
+          const label = selectedOption.closest('div').querySelector('label').textContent.trim()
+          this.buttonTarget.textContent = label
+        }
+      } else {
+        this.buttonTarget.textContent = `(${count}) ${this.fieldNameValue.replace('_id_in', '').replace('_', ' ')} selected`
+      }
     }
   }
 
@@ -119,7 +154,8 @@ export default class extends Controller {
       this.selectedIdsValue.forEach(id => {
         const newField = document.createElement('input')
         newField.type = 'hidden'
-        newField.name = `q[${this.fieldNameValue}][]`
+        const isSingleSelect = this.fieldNameValue.includes('_eq')
+        newField.name = isSingleSelect ? `q[${this.fieldNameValue}]` : `q[${this.fieldNameValue}][]`
         newField.value = id
         container.appendChild(newField)
       })

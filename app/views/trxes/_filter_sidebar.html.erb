@@ -154,10 +154,49 @@
         </div>
 
         <!-- Cleared -->
-        <div class="flex flex-col w-40">
+        <div class="flex flex-col w-40" 
+             data-controller="dropdown-filter"
+             data-dropdown-filter-field-name-value="cleared_eq"
+             data-dropdown-filter-placeholder-value="Filter Cleared..."
+             data-dropdown-filter-selected-ids-value="<%= [params.dig(:q, :cleared_eq)].compact %>">
           <%= f.label :cleared_eq, "Cleared", class: "text-sm font-medium text-gray-700" %>
-          <%= f.select :cleared_eq, [['All', ''], ['Cleared', true], ['Uncleared', false]],
-            {}, { class: 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200', data: { action: "change->filter-sidebar#checkFilters" } } %>
+          <div class="relative">
+            <button type="button" 
+                    data-dropdown-filter-target="button"
+                    data-action="click->dropdown-filter#toggle"
+                    class="dropdown-filter-button w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              Filter Cleared...
+            </button>
+            <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div data-dropdown-filter-target="options" class="py-1">
+                <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                     data-action="click->dropdown-filter#selectOption">
+                  <input type="checkbox" 
+                         value="" 
+                         class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         <%= 'checked' if params.dig(:q, :cleared_eq).blank? %>>
+                  <label class="flex-1 cursor-pointer">All</label>
+                </div>
+                <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                     data-action="click->dropdown-filter#selectOption">
+                  <input type="checkbox" 
+                         value="true" 
+                         class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         <%= 'checked' if params.dig(:q, :cleared_eq) == 'true' %>>
+                  <label class="flex-1 cursor-pointer">Cleared</label>
+                </div>
+                <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
+                     data-action="click->dropdown-filter#selectOption">
+                  <input type="checkbox" 
+                         value="false" 
+                         class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         <%= 'checked' if params.dig(:q, :cleared_eq) == 'false' %>>
+                  <label class="flex-1 cursor-pointer">Uncleared</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hidden-form-fields"></div>
         </div>
 
         <!-- Apply / Clear -->
