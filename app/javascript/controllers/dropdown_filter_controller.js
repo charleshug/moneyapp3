@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["button", "dropdown", "options", "selectedCount"]
+  static targets = ["button", "dropdown", "options", "selectedCount", "searchInput"]
   static values = { 
     fieldName: String,
     selectedIds: Array,
@@ -13,10 +13,37 @@ export default class extends Controller {
     this.initializeSelectedState()
     this.setupClickOutside()
     this.setupFormSubmission()
+    this.setupSearch()
   }
 
   disconnect() {
     this.removeClickOutside()
+  }
+
+  setupSearch() {
+    if (this.hasSearchInputTarget) {
+      this.searchInputTarget.addEventListener('input', (event) => {
+        this.filterOptions(event.target.value)
+      })
+      
+      // Prevent search input clicks from closing dropdown
+      this.searchInputTarget.addEventListener('click', (event) => {
+        event.stopPropagation()
+      })
+    }
+  }
+
+  filterOptions(searchTerm) {
+    const options = this.optionsTarget.querySelectorAll('.dropdown-filter-option')
+    const searchLower = searchTerm.toLowerCase()
+    
+    options.forEach(option => {
+      const label = option.querySelector('label')
+      const text = label ? label.textContent.toLowerCase() : ''
+      const isVisible = text.includes(searchLower)
+      
+      option.style.display = isVisible ? 'flex' : 'none'
+    })
   }
 
   initializeSelectedState() {
@@ -35,6 +62,15 @@ export default class extends Controller {
     this.dropdownTarget.classList.toggle('hidden')
     if (!this.dropdownTarget.classList.contains('hidden')) {
       this.buttonTarget.classList.add('ring-2', 'ring-blue-500')
+      // Clear search and show all options when opening
+      if (this.hasSearchInputTarget) {
+        this.searchInputTarget.value = ''
+        this.filterOptions('')
+      }
+      // Focus the search input
+      if (this.hasSearchInputTarget) {
+        setTimeout(() => this.searchInputTarget.focus(), 100)
+      }
     } else {
       this.buttonTarget.classList.remove('ring-2', 'ring-blue-500')
     }

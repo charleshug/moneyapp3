@@ -92,3 +92,28 @@
   background-color: #3b82f6;
   border-color: #3b82f6;
 }
+
+/* Search Input Styles */
+.dropdown-filter-search-input {
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-filter-search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.dropdown-filter-search-input::placeholder {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* Search Results */
+.dropdown-filter-option[style*="display: none"] {
+  display: none !important;
+}
+
+.dropdown-filter-option[style*="display: flex"] {
+  display: flex !important;
+}

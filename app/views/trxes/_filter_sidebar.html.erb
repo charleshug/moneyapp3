@@ -33,6 +33,12 @@
               Filter Accounts...
             </button>
             <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div class="p-2 border-b border-gray-200">
+                <input type="text" 
+                       data-dropdown-filter-target="searchInput"
+                       placeholder="Search accounts..."
+                       class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
               <div data-dropdown-filter-target="options" class="py-1">
                 <% @accounts.each do |account| %>
                   <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
@@ -65,6 +71,12 @@
               Filter Vendors...
             </button>
             <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div class="p-2 border-b border-gray-200">
+                <input type="text" 
+                       data-dropdown-filter-target="searchInput"
+                       placeholder="Search vendors..."
+                       class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
               <div data-dropdown-filter-target="options" class="py-1">
                 <% @vendors.order('LOWER(name)').each do |vendor| %>
                   <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
@@ -97,6 +109,12 @@
               Filter Categories...
             </button>
             <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div class="p-2 border-b border-gray-200">
+                <input type="text" 
+                       data-dropdown-filter-target="searchInput"
+                       placeholder="Search categories..."
+                       class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
               <div data-dropdown-filter-target="options" class="py-1">
                 <% @categories.each do |category| %>
                   <div class="dropdown-filter-option px-3 py-2 cursor-pointer flex items-center"
@@ -129,6 +147,12 @@
               Filter Subcategories...
             </button>
             <div data-dropdown-filter-target="dropdown" class="dropdown-filter-dropdown hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div class="p-2 border-b border-gray-200">
+                <input type="text" 
+                       data-dropdown-filter-target="searchInput"
+                       placeholder="Search subcategories..."
+                       class="dropdown-filter-search-input w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
               <div data-dropdown-filter-target="options" class="py-1">
                 <% @categories.each do |category| %>
                   <% if category.subcategories.any? %>
