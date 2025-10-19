@@ -141,9 +141,22 @@ export default class extends Controller {
           this.buttonTarget.textContent = label
         }
       } else {
-        this.buttonTarget.textContent = `(${count}) ${this.fieldNameValue.replace('_id_in', '').replace('_', ' ')} selected`
+        const fieldName = this.getPluralFieldName()
+        this.buttonTarget.textContent = `(${count}) ${fieldName} selected`
       }
     }
+  }
+
+  getPluralFieldName() {
+    // Map field names to their proper plural forms
+    const fieldNameMap = {
+      'account_id_in': 'Accounts',
+      'vendor_id_in': 'Vendors', 
+      'lines_ledger_subcategory_category_id_in': 'Categories',
+      'lines_ledger_subcategory_id_in': 'Subcategories'
+    }
+    
+    return fieldNameMap[this.fieldNameValue] || this.fieldNameValue.replace('_id_in', '').replace('_', ' ')
   }
 
   setupFormSubmission() {
