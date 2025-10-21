@@ -47,8 +47,11 @@ export default class extends Controller {
     const trxId = row.dataset.trxId
     const index = Array.from(this.rowTargets).indexOf(row)
     
-    // For row clicks, clear previous selections and select only current row
-    this.selectTrx(trxId, index, false, false) // Force single selection behavior
+    // Respect Ctrl and Shift keys for multi-selection
+    const isCtrlClick = event.ctrlKey || event.metaKey // Support both Ctrl and Cmd (Mac)
+    const isShiftClick = event.shiftKey
+    
+    this.selectTrx(trxId, index, isCtrlClick, isShiftClick)
   }
 
   // Handle row double-click
