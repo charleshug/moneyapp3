@@ -12,9 +12,9 @@ export default class extends Controller {
     this.lastSelectedIndex = null
     this.editingRow = null
     
-    // Add global click listener for click-outside functionality
+    // Add global click listener for click-outside functionality (using capture phase)
     this.boundHandleGlobalClick = this.handleGlobalClick.bind(this)
-    document.addEventListener('click', this.boundHandleGlobalClick)
+    document.addEventListener('click', this.boundHandleGlobalClick, true)
     
     // Add global keydown listener for escape key functionality
     this.boundHandleGlobalKeydown = this.handleGlobalKeydown.bind(this)
@@ -156,7 +156,13 @@ export default class extends Controller {
     
     // If click is outside both the editing row and control row, cancel editing
     if (!clickedInsideEditingRow && !clickedInsideControlRow) {
+      // Cancel the editing first
       this.cancelRowEditing(this.editingRow)
+      
+      // Stop the event from propagating to other handlers
+      // This prevents other click handlers (like cleared toggle) from executing
+      event.stopPropagation()
+      event.preventDefault()
     }
   }
 
