@@ -8,6 +8,10 @@ class VendorsController < ApplicationController
 
   def new
     @vendor = Vendor.new
+    respond_to do |format|
+      format.html { render :new }
+      format.turbo_stream { render :new_form }
+    end
   end
 
   def create
@@ -19,7 +23,7 @@ class VendorsController < ApplicationController
         format.turbo_stream { render :create }
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.turbo_stream { render :create_error }
       end
     end
   end
@@ -33,6 +37,7 @@ class VendorsController < ApplicationController
 
     respond_to do |format|
       format.html { render :edit }
+      format.turbo_stream { render :edit_form }
     end
   end
 
@@ -50,7 +55,7 @@ class VendorsController < ApplicationController
         format.turbo_stream { render :update }
       else
         format.html { render :edit, status: :unprocessable_entity }
-        format.turbo_stream { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :update_error }
       end
     end
   end

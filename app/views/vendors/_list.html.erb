@@ -1,19 +1,20 @@
 <div id="vendors_list">
   <% if vendors.any? %>
-    <div class="bg-white rounded-lg overflow-hidden">
+    <div class="bg-white">
       <!-- Sticky header -->
       <div class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
         <div class="px-4 py-2 text-left font-medium text-gray-700">Name</div>
       </div>
       
       <!-- Scrollable content -->
-      <div class=" overflow-y-auto">
+      <div>
         <% vendors.each_with_index do |vendor, index| %>
-          <div class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 <%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
-            <div class="px-4 py-2 text-gray-800 font-medium">
-              <%= link_to vendor.name, edit_vendor_path(vendor), 
-                  data: { turbo_frame: "modal" },
-                  class: "block w-full h-full" %>
+          <div class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 cursor-pointer <%= index.even? ? 'bg-white' : 'bg-gray-50' %>" 
+               data-action="click->vendors#selectVendor" 
+               data-vendor-id="<%= vendor.id %>"
+               data-vendor-name="<%= vendor.name %>">
+            <div class="px-4 py-3 text-gray-800 font-medium">
+              <%= vendor.name %>
             </div>
           </div>
         <% end %>

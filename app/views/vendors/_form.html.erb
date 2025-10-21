@@ -1,4 +1,4 @@
-<%= form_with(model: vendor, data: { turbo_frame: "modal" }) do |f| %>
+<%= form_with(model: vendor, data: { turbo_frame: "vendor-form-frame" }) do |f| %>
   <% if vendor.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
       <div class="flex">
@@ -39,7 +39,7 @@
       <div>
         <%= link_to "Delete", vendor_path(vendor), 
             class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md inline-block text-center",
-            data: { turbo_method: :delete, turbo_frame: "modal", turbo_confirm: "Are you sure? This will delete all transactions associated with this vendor." } %>
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure? This will delete all transactions associated with this vendor." } %>
       </div>
     <% end %>
   </div>

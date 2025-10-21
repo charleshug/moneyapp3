@@ -2,6 +2,18 @@
   <turbo-frame id="modal"></turbo-frame>
 <% end %>
 
-<%= turbo_stream.replace "vendors_list" do %>
+<%= turbo_stream.replace "vendors-list" do %>
   <%= render "list", vendors: @current_budget.vendors.not_transfer.order("LOWER(name)") %>
+<% end %>
+
+<%= turbo_stream.replace "vendor-form-container" do %>
+  <div class="flex items-center justify-center h-full text-green-500">
+    <div class="text-center">
+      <svg class="w-16 h-16 mx-auto mb-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <p class="text-lg font-medium">Vendor created successfully!</p>
+      <p class="text-sm text-gray-500 mt-2">Select another vendor to edit or create a new one</p>
+    </div>
+  </div>
 <% end %>

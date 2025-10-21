@@ -18,6 +18,9 @@
       <nav class="space-y-2">
         <%= link_to "Budgets", budgets_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/budgets') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
         <%= link_to "Reports", reports_path, class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/reports') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
+        <%= link_to "Vendors", vendors_path, 
+            data: { turbo_frame: "modal" }, 
+            class: "block px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/vendors') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
         
         <div class="relative">
           <%= link_to trxes_path, class: "flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 #{request.path.starts_with?('/accounts') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" do %>
