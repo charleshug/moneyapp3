@@ -10,14 +10,17 @@ export default class extends Controller {
   connect() {
     this.debounceTimer = null
     this.vendors = []
-    this.loadInitialVendors()
+    this.vendorsLoaded = false
   }
 
   loadInitialVendors() {
+    if (this.vendorsLoaded) return
+    
     fetch(`${this.searchUrlValue}?budget_id=${this.budgetIdValue}`)
       .then(response => response.json())
       .then(data => {
         this.vendors = data.vendors || []
+        this.vendorsLoaded = true
         this.updateDatalist()
       })
       .catch(error => console.error('Error loading vendors:', error))
@@ -29,6 +32,12 @@ export default class extends Controller {
       const query = this.inputTarget.value.trim()
       
       if (query.length === 0) {
+        this.loadInitialVendors()
+        return
+      }
+
+      // Load vendors if not already loaded
+      if (!this.vendorsLoaded) {
         this.loadInitialVendors()
         return
       }
