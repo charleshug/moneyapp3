@@ -43,12 +43,6 @@ export default class extends Controller {
     // Don't trigger if clicking on checkbox (handled by toggleSelection)
     if (event.target.type === 'checkbox') return
     
-    // Don't trigger if clicking on editable fields
-    if (event.target.closest('[data-controller*="trx-inline-edit"]')) {
-      event.stopPropagation()
-      return
-    }
-    
     const row = event.currentTarget
     const trxId = row.dataset.trxId
     const index = Array.from(this.rowTargets).indexOf(row)

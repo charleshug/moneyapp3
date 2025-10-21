@@ -26,9 +26,11 @@ export default class extends Controller {
     this.focusInput()
   }
 
-  // Handle single click to prevent row selection
+  // Handle single click - allow row selection but don't start editing
   handleClick(event) {
-    event.stopPropagation()
+    // Don't stop propagation - let the row selection happen
+    // This allows single clicks to select the row
+    // Double clicks will still trigger editing mode
   }
 
   cancelEdit(event) {
