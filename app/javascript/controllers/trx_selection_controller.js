@@ -401,8 +401,8 @@ export default class extends Controller {
 
   // Update balance display based on selection
   updateBalanceDisplay() {
-    if (this.selectedTrxes.size > 0) {
-      // Show selection balance display
+    if (this.selectedTrxes.size >= 2) {
+      // Show selection balance display only when 2 or more transactions are selected
       this.showSelectionBalanceDisplay()
     } else {
       // Show normal balance display
