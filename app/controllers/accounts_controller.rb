@@ -60,8 +60,11 @@ class AccountsController < ApplicationController
     respond_to do |format|
       if account.valid?
         format.html { redirect_to accounts_path, notice: "Account was successfully created." }
+        format.turbo_stream { render :create }
       else
+        @account = account
         format.html { render :new, status: :unprocessable_entity }
+        format.turbo_stream { render :new, status: :unprocessable_entity }
       end
     end
   end

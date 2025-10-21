@@ -1,6 +1,6 @@
 <!-- app/views/shared/_modal.html.erb -->
 <div 
-  id="<%= dom_id(@vendor, :modal) %>" 
+  id="<%= dom_id(model, :modal) %>" 
   data-controller="modal" 
   class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden"
   data-action="click->modal#hideOnBackgroundClick"
@@ -23,8 +23,8 @@
     </div>
 
     <div class="p-4" data-modal-target="contentWrapper">
-      <%= turbo_frame_tag dom_id(@vendor, :form) do %>
-        <%= render partial: "vendors/form", locals: { vendor: @vendor } %>
+      <%= turbo_frame_tag dom_id(model, :form) do %>
+        <%= render partial: partial_name, locals: partial_locals %>
       <% end %>
     </div>
   </div>
