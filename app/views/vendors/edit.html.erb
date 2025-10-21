@@ -1,3 +1,3 @@
 <%= turbo_frame_tag "modal" do %>
-  <%= render "shared/modal", title: "Edit Vendor", vendor: @vendor %>
+  <%= render "shared/modal", title: "Edit Vendor", model: @vendor, partial_name: "vendors/form", partial_locals: { vendor: @vendor } %>
 <% end %>
