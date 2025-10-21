@@ -85,8 +85,10 @@ class AccountsController < ApplicationController
     respond_to do |format|
       if @account.valid?
         format.html { redirect_to accounts_path, notice: "Account was successfully updated." }
+        format.turbo_stream { render :update }
       else
         format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
       end
     end
   end

@@ -37,7 +37,7 @@
                   <div class="space-y-1 mt-1">
                     <% @sidebar_on_budget_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
-                        <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to account.name, edit_account_path(account), data: { turbo_frame: "modal" }, class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
                       </div>
                     <% end %>
@@ -53,7 +53,7 @@
                   <div class="space-y-1 mt-1">
                     <% @sidebar_off_budget_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
-                        <%= link_to account.name, edit_account_path(account), class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to account.name, edit_account_path(account), data: { turbo_frame: "modal" }, class: "#{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right #{account.balance < 0 ? 'text-red-600' : ''}" %>
                       </div>
                     <% end %>
@@ -69,7 +69,7 @@
                   <div class="space-y-1 mt-1">
                     <% @sidebar_closed_accounts.each do |account| %>
                       <div class="flex justify-between items-center px-4 py-1 text-sm rounded-md hover:bg-gray-100 <%= request.path == account_path(account) ? 'bg-blue-50' : '' %>">
-                        <%= link_to account.name, edit_account_path(account), class: "text-gray-500 #{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
+                        <%= link_to account.name, edit_account_path(account), data: { turbo_frame: "modal" }, class: "text-gray-500 #{request.path == edit_account_path(account) ? 'text-blue-600 font-medium' : ''}" %>
                         <%= link_to number_to_currency(account.balance/100.0, unit: "$", separator: ".", delimiter: ","), trxes_path(q:{account_id_eq: account.id}), class: "text-right text-gray-500" %>
                       </div>
                     <% end %>

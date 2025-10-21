@@ -12,7 +12,7 @@
     <div class="bg-white rounded-b-lg shadow">
       <% accounts.each do |account| %>
         <div class="flex w-full hover:bg-slate-200">
-          <%= link_to edit_account_path(account), class: "flex-grow p-3" do %>
+          <%= link_to edit_account_path(account), data: { turbo_frame: "modal" }, class: "flex-grow p-3" do %>
             <div class="text-slate-700"><%= account.name %></div>
           <% end %>
           

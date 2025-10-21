@@ -2,7 +2,7 @@
 <h1>Account: <%= @account.name%></h1>
 
 <div>
-  <%= link_to "Edit Account", edit_account_path(@account) %>
+  <%= link_to "Edit Account", edit_account_path(@account), data: { turbo_frame: "modal" } %>
 </div>
 
 <br>

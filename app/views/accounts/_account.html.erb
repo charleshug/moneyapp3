@@ -1,5 +1,5 @@
 <div id="<%= dom_id account %>">
-  <%= link_to edit_account_path(account) do %>
+  <%= link_to edit_account_path(account), data: { turbo_frame: "modal" } do %>
     <strong><%= account.name %></strong>
   <% end %>
   <%#= link_to number_to_currency((account.balance / 100.0), precision: 2), trxes_path(q: { account_id_in: [account.id] }) %>
