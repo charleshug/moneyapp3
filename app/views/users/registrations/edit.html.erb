@@ -100,7 +100,9 @@
       <div class="bg-white rounded-lg p-6 shadow-sm">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Navigation</h2>
         <div class="space-y-3">
-          <%= link_to "Vendors", vendors_path, class: "block px-4 py-2 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/vendors') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
+          <%= link_to "Vendors", vendors_path, 
+              data: { turbo_frame: "modal" }, 
+              class: "block px-4 py-2 text-sm rounded-md hover:bg-gray-100" %>
           <%= link_to "Categories", categories_path, class: "block px-4 py-2 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/categories') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
           <%= link_to 'Ledgers', ledgers_path, class: "block px-4 py-2 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/ledgers') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
           <%= link_to "Transactions", trxes_path, class: "block px-4 py-2 text-sm rounded-md hover:bg-gray-100 #{request.path.starts_with?('/trxes') ? 'bg-blue-50 text-blue-600 font-medium' : ''}" %>
