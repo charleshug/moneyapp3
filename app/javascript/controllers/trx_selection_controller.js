@@ -10,6 +10,21 @@ export default class extends Controller {
   connect() {
     this.selectedTrxes = new Set()
     this.lastSelectedIndex = null
+    this.editingRow = null
+    
+    // Add global click listener for click-outside functionality
+    this.boundHandleGlobalClick = this.handleGlobalClick.bind(this)
+    document.addEventListener('click', this.boundHandleGlobalClick)
+    
+    // Add global keydown listener for escape key functionality
+    this.boundHandleGlobalKeydown = this.handleGlobalKeydown.bind(this)
+    document.addEventListener('keydown', this.boundHandleGlobalKeydown)
+  }
+
+  disconnect() {
+    // Remove global listeners when controller disconnects
+    document.removeEventListener('click', this.boundHandleGlobalClick)
+    document.removeEventListener('keydown', this.boundHandleGlobalKeydown)
   }
 
   // Handle checkbox click
@@ -55,6 +70,14 @@ export default class extends Controller {
   activateRowEditing(event) {
     const row = event.currentTarget
     const trxId = row.dataset.trxId
+    
+    // Cancel any existing editing row first
+    if (this.editingRow && this.editingRow !== row) {
+      this.cancelRowEditing(this.editingRow)
+    }
+    
+    // Set this as the currently editing row
+    this.editingRow = row
     
     // Add visual indicator that row is in editing mode
     row.classList.add('editing-row')
@@ -118,6 +141,32 @@ export default class extends Controller {
       if (row) {
         this.cancelRowEditing(row)
       }
+    }
+  }
+
+  // Handle global clicks to cancel editing when clicking outside
+  handleGlobalClick(event) {
+    // Only proceed if there's an editing row
+    if (!this.editingRow) return
+    
+    // Check if the click is inside the editing row or its control row
+    const clickedInsideEditingRow = this.editingRow.contains(event.target)
+    const controlRow = this.editingRow.querySelector('[data-trx-inline-edit-target="controlRow"]')
+    const clickedInsideControlRow = controlRow && controlRow.contains(event.target)
+    
+    // If click is outside both the editing row and control row, cancel editing
+    if (!clickedInsideEditingRow && !clickedInsideControlRow) {
+      this.cancelRowEditing(this.editingRow)
+    }
+  }
+
+  // Handle global keydown events (primarily for escape key)
+  handleGlobalKeydown(event) {
+    // Only handle escape key when there's an editing row
+    if (event.key === 'Escape' && this.editingRow) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.cancelRowEditing(this.editingRow)
     }
   }
 
@@ -209,6 +258,11 @@ export default class extends Controller {
     
     // Remove editing styling
     row.classList.remove('editing-row')
+    
+    // Clear the editing row reference
+    if (this.editingRow === row) {
+      this.editingRow = null
+    }
   }
 
   // Update display values after successful save
