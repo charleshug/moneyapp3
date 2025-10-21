@@ -1,30 +1,27 @@
-<div id="vendors_list">
-  <% if vendors.any? %>
-    <div class="bg-white">
-      <!-- Sticky header -->
-      <div class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
-        <div class="px-4 py-2 text-left font-medium text-gray-700">Name</div>
-      </div>
-      
-      <!-- Scrollable content -->
-      <div>
-        <% vendors.each_with_index do |vendor, index| %>
-          <div class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 cursor-pointer <%= index.even? ? 'bg-white' : 'bg-gray-50' %>" 
-               data-action="click->vendors#selectVendor" 
-               data-vendor-id="<%= vendor.id %>"
-               data-vendor-name="<%= vendor.name %>">
-            <div class="px-4 py-3 text-gray-800 font-medium">
-              <%= vendor.name %>
-            </div>
+<% if vendors.any? %>
+  <div class="bg-white">
+    <!-- Sticky header -->
+    <div class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
+      <div class="px-4 py-2 text-left font-medium text-gray-700">Name</div>
+    </div>
+    
+    <!-- Scrollable content -->
+    <div>
+      <% vendors.each_with_index do |vendor, index| %>
+        <div class="border-t border-gray-100 hover:bg-blue-100 transition-colors duration-150 cursor-pointer vendor-item <%= index.even? ? 'bg-white' : 'bg-gray-50' %>" 
+             data-vendor-id="<%= vendor.id %>"
+             data-vendor-name="<%= vendor.name %>">
+          <div class="px-4 py-3 text-gray-800 font-medium">
+            <%= vendor.name %>
           </div>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     </div>
-  <% else %>
-    <div class="flex-grow flex items-center justify-center">
-      <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
-        <p class="text-gray-600 mb-4">No vendors found.</p>
-      </div>
+  </div>
+<% else %>
+  <div class="flex-grow flex items-center justify-center">
+    <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
+      <p class="text-gray-600 mb-4">No vendors found.</p>
     </div>
-  <% end %>
-</div>
+  </div>
+<% end %>

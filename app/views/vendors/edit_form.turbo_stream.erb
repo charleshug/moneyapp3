@@ -1,5 +1,5 @@
-<%= turbo_stream.replace "vendor-form-container" do %>
-  <div class="bg-white rounded-lg p-6 shadow-sm">
+<%= turbo_stream.update "vendor-form-container" do %>
+  <div class="bg-white rounded-lg p-6 shadow-sm animate-fade-in">
     <%= render "form", vendor: @vendor %>
   </div>
 <% end %>

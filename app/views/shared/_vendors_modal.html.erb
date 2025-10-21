@@ -30,14 +30,16 @@
         <!-- Add new vendor button -->
         <div class="p-4 border-b border-gray-200 flex-shrink-0">
           <%= link_to "New Vendor", new_vendor_path, 
-              data: { turbo_frame: "vendor-form-frame", action: "click->vendors#loadNewVendorForm" }, 
+              data: { action: "click->vendors#loadNewVendorForm" }, 
               class: "w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-center block" %>
         </div>
         
         <!-- Vendor list -->
-        <div class="flex-1 overflow-y-auto" data-controller="vendors">
-          <div id="vendors-list">
-            <%= render "vendors/list", vendors: vendors %>
+        <div class="flex-1 overflow-y-auto">
+          <div id="vendors-list" data-controller="vendors">
+            <div id="vendors-list-content">
+              <%= render "vendors/list", vendors: vendors %>
+            </div>
           </div>
         </div>
       </div>
@@ -58,8 +60,6 @@
           </div>
         </div>
       </div>
-      
-      <%= turbo_frame_tag "vendor-form-frame" %>
     </div>
 
     <!-- Footer with Close button -->

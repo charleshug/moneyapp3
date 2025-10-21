@@ -70,12 +70,7 @@ class VendorsController < ApplicationController
     @vendor.destroy
     respond_to do |format|
       format.html { redirect_to vendors_path, notice: "Vendor was successfully deleted." }
-      format.turbo_stream {
-        render turbo_stream: [
-          turbo_stream.replace("modal", "<turbo-frame id=\"modal\"></turbo-frame>"),
-          turbo_stream.replace("vendors_list", partial: "vendors/list", locals: { vendors: @current_budget.vendors.not_transfer.order("LOWER(name)") })
-        ]
-      }
+      format.turbo_stream { render :destroy }
     end
   end
 

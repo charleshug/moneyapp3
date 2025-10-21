@@ -1,4 +1,4 @@
-<%= turbo_stream.replace "vendor-form-container" do %>
+<%= turbo_stream.update "vendor-form-container" do %>
   <div class="bg-white rounded-lg p-6 shadow-sm">
     <%= render "form", vendor: @vendor %>
   </div>

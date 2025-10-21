@@ -1,39 +1,59 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  selectVendor(event) {
-    const vendorId = event.currentTarget.dataset.vendorId
-    const vendorName = event.currentTarget.dataset.vendorName
+  connect() {
+    // Listen for turbo stream events to clear selection after operations
+    this.boundTurboStreamEnd = this.handleTurboStreamEnd.bind(this)
+    document.addEventListener("turbo:stream-end", this.boundTurboStreamEnd)
+    
+    // Use event delegation for vendor item clicks
+    this.boundVendorClick = this.handleVendorClick.bind(this)
+    this.element.addEventListener("click", this.boundVendorClick)
+  }
+  
+  disconnect() {
+    document.removeEventListener("turbo:stream-end", this.boundTurboStreamEnd)
+    this.element.removeEventListener("click", this.boundVendorClick)
+  }
+  
+  handleTurboStreamEnd(event) {
+    // Clear selection after successful operations
+    setTimeout(() => {
+      this.clearSelection()
+    }, 100)
+  }
+  
+  handleVendorClick(event) {
+    // Check if the clicked element is a vendor item or inside one
+    const vendorItem = event.target.closest('.vendor-item')
+    
+    if (vendorItem) {
+      event.preventDefault()
+      this.selectVendor(vendorItem)
+    }
+  }
+  
+  selectVendor(vendorItem) {
+    const vendorId = vendorItem.dataset.vendorId
+    const vendorName = vendorItem.dataset.vendorName
     
     // Remove active class from all vendor items
-    this.element.querySelectorAll('[data-vendor-id]').forEach(item => {
-      item.classList.remove('bg-blue-100', 'border-blue-300')
+    const allItems = this.element.querySelectorAll('.vendor-item')
+    allItems.forEach(item => {
+      item.classList.remove('bg-blue-100', 'border-blue-300', 'border-l-4')
       item.classList.add('hover:bg-blue-100')
     })
     
     // Add active class to selected vendor
-    event.currentTarget.classList.add('bg-blue-100', 'border-blue-300')
-    event.currentTarget.classList.remove('hover:bg-blue-100')
+    vendorItem.classList.add('bg-blue-100', 'border-blue-300', 'border-l-4')
+    vendorItem.classList.remove('hover:bg-blue-100')
     
     // Load the vendor form in the right side
     this.loadVendorForm(vendorId)
   }
   
   loadVendorForm(vendorId) {
-    const formContainer = document.getElementById('vendor-form-container')
-    if (!formContainer) return
-    
-    // Show loading state
-    formContainer.innerHTML = `
-      <div class="flex items-center justify-center h-full">
-        <div class="text-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p class="text-gray-500">Loading...</p>
-        </div>
-      </div>
-    `
-    
-    // Use Turbo to load the form
+    // Use Turbo to load the form directly
     fetch(`/vendors/${vendorId}/edit`, {
       headers: {
         'Accept': 'text/vnd.turbo-stream.html',
@@ -44,43 +64,25 @@ export default class extends Controller {
       if (response.ok) {
         return response.text()
       } else {
-        throw new Error('Failed to load vendor form')
+        throw new Error(`Failed to load vendor form: ${response.status} ${response.statusText}`)
       }
     })
     .then(html => {
-      // Use Turbo to process the stream
+      // Use Turbo to process the stream - this will update the form container
       Turbo.renderStreamMessage(html)
     })
     .catch(error => {
       console.error('Error loading vendor form:', error)
-      formContainer.innerHTML = `
-        <div class="flex items-center justify-center h-full text-red-500">
-          <div class="text-center">
-            <p class="text-lg font-medium">Error loading vendor form</p>
-            <p class="text-sm text-gray-500 mt-2">Please try again</p>
-          </div>
-        </div>
-      `
     })
   }
   
   loadNewVendorForm(event) {
     event.preventDefault()
     
-    const formContainer = document.getElementById('vendor-form-container')
-    if (!formContainer) return
+    // Clear any selected vendor
+    this.clearSelection()
     
-    // Show loading state
-    formContainer.innerHTML = `
-      <div class="flex items-center justify-center h-full">
-        <div class="text-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p class="text-gray-500">Loading...</p>
-        </div>
-      </div>
-    `
-    
-    // Use Turbo to load the new vendor form
+    // Use Turbo to load the new vendor form directly
     fetch('/vendors/new', {
       headers: {
         'Accept': 'text/vnd.turbo-stream.html',
@@ -95,19 +97,19 @@ export default class extends Controller {
       }
     })
     .then(html => {
-      // Use Turbo to process the stream
+      // Use Turbo to process the stream - this will replace the form container
       Turbo.renderStreamMessage(html)
     })
     .catch(error => {
       console.error('Error loading new vendor form:', error)
-      formContainer.innerHTML = `
-        <div class="flex items-center justify-center h-full text-red-500">
-          <div class="text-center">
-            <p class="text-lg font-medium">Error loading new vendor form</p>
-            <p class="text-sm text-gray-500 mt-2">Please try again</p>
-          </div>
-        </div>
-      `
+    })
+  }
+  
+  clearSelection() {
+    // Remove active class from all vendor items
+    this.element.querySelectorAll('.vendor-item').forEach(item => {
+      item.classList.remove('bg-blue-100', 'border-blue-300', 'border-l-4')
+      item.classList.add('hover:bg-blue-100')
     })
   }
 }

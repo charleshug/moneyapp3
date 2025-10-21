@@ -1,4 +1,15 @@
-<%= form_with(model: vendor, data: { turbo_frame: "vendor-form-frame" }) do |f| %>
+<%= form_with(model: vendor) do |f| %>
+  <!-- Vendor header -->
+  <div class="mb-6 pb-4 border-b border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-900">
+      <% if vendor.persisted? %>
+        Edit Vendor: <%= vendor.name %>
+      <% else %>
+        Create New Vendor
+      <% end %>
+    </h3>
+  </div>
+
   <% if vendor.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
       <div class="flex">
