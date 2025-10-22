@@ -1,0 +1,56 @@
+<!-- Transactions list -->
+<div class="flex flex-col flex-grow overflow-hidden">
+  <% if trxes.any? %>
+    <!-- Header row -->
+    <div class="bg-white shadow-sm p-1 border-b border-gray-200 sticky top-0 z-5">
+      <div class="grid items-center font-medium text-blue-600" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px 40px;">
+        <div class="text-center px-2">
+          <input type="checkbox" 
+                 data-trx-selection-target="headerCheckbox"
+                 data-action="click->trx-selection#toggleAll"
+                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+        </div>
+        <div class="text-left border-l border-gray-300 px-2">ID</div>
+        <div class="text-left border-l border-gray-300 px-2">Account</div>
+        <div class="text-left border-l border-gray-300 px-2">Date</div>
+        <div class="text-left border-l border-gray-300 px-2">Vendor</div>
+        <div class="text-left border-l border-gray-300 px-2">Amount</div>
+        <div class="text-left border-l border-gray-300 px-2">Category</div>
+        <div class="text-left border-l border-gray-300 px-2">Subcategory</div>
+        <div class="text-left border-l border-gray-300 px-2">Memo</div>
+        <div class="text-center border-l border-gray-300 px-2">Cleared</div>
+        <div class="text-center border-l border-gray-300 px-2">Edit</div>
+      </div>
+    </div>
+
+    <!-- Scrollable data rows -->
+    <div class="overflow-y-auto flex-grow">
+      <% trxes.each do |trx| %>
+        <%= turbo_frame_tag "trx_#{trx.id}" do %>
+          <%= render 'trxes/row_display', trx: trx %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2 border-t border-gray-200">
+      <div class="text-sm text-gray-600">
+        <strong>Page:</strong> <%= pluralize(trxes.size, 'transaction') %>
+        <span class="mx-2">|</span>
+        <strong>Total:</strong> <%= pluralize(filtered_count, 'transaction') %>
+      </div>
+      <div>
+        <%= custom_pagy_nav(pagy) %>
+      </div>
+    </div>
+  <% else %>
+    <div class="flex-grow flex items-center justify-center">
+      <div class="text-center p-8 bg-white rounded-lg shadow-sm max-w-md">
+        <p class="text-gray-600 mb-4">No transactions found.</p>
+        <%= link_to new_trx_path, class: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md inline-block" do %>
+          <i class="fas fa-plus mr-2"></i> Create Your First Transaction
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

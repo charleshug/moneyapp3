@@ -7,8 +7,8 @@
        data-line-id="<%= trx.lines.first&.id %>"
        data-ledger-id="<%= trx.lines.first&.ledger_id %>"
        data-subcategory-id="<%= trx.lines.first&.ledger&.subcategory_id %>"
-       data-action="click->trx-selection#selectRow dblclick->trx-selection#activateRowEditing">
-    <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+       data-action="click->trx-selection#selectRow">
+    <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px 40px;">
       <div class="px-2">
         <input type="checkbox" 
                data-trx-selection-target="checkbox"
@@ -40,6 +40,14 @@
           </div>
         </button>
       </div>
+      <div class="text-center px-2">
+        <button data-action="click->trx-selection#activateRowEditing" 
+                data-trx-id="<%= trx.id %>"
+                class="text-gray-400 hover:text-blue-600 focus:outline-none transition-colors duration-200"
+                title="Edit transaction">
+          <i class="fas fa-edit text-sm"></i>
+        </button>
+      </div>
     </div>
   </div>
 <% else %>
@@ -51,8 +59,8 @@
        data-line-id="<%= trx.lines.first&.id %>"
        data-ledger-id="<%= trx.lines.first&.ledger_id %>"
        data-subcategory-id="<%= trx.lines.first&.ledger&.subcategory_id %>"
-       data-action="click->trx-selection#selectRow dblclick->trx-selection#activateRowEditing">
-    <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+       data-action="click->trx-selection#selectRow">
+    <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px 40px;">
       <div class="px-2">
         <input type="checkbox" 
                data-trx-selection-target="checkbox"
@@ -79,6 +87,14 @@
           <div data-cleared-toggle-target="circle"
               class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mx-auto">
           </div>
+        </button>
+      </div>
+      <div class="text-center px-2">
+        <button data-action="click->trx-selection#activateRowEditing" 
+                data-trx-id="<%= trx.id %>"
+                class="text-gray-400 hover:text-blue-600 focus:outline-none transition-colors duration-200"
+                title="Edit transaction">
+          <i class="fas fa-edit text-sm"></i>
         </button>
       </div>
     </div>

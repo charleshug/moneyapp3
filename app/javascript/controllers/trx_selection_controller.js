@@ -56,11 +56,14 @@ export default class extends Controller {
     this.selectTrx(trxId, index, isCtrlClick, isShiftClick)
   }
 
-  // Handle row double-click
+  // Handle edit button click
   activateRowEditing(event) {
-    console.log('activateRowEditing called from dblclick')
-    const row = event.currentTarget
-    const trxId = row.dataset.trxId
+    console.log('activateRowEditing called from edit button')
+    event.stopPropagation() // Prevent row selection when clicking edit button
+    
+    // Get trxId from the button's data attribute
+    const trxId = event.target.closest('button').dataset.trxId
+    const row = event.target.closest('[data-trx-selection-target="row"]')
     console.log('trxId:', trxId)
     
     // Cancel any existing editing row first
