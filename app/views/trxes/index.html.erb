@@ -112,10 +112,12 @@
               
               <!-- Editable Vendor -->
               <div class="truncate text-left px-2" 
-                   data-controller="trx-inline-edit"
+                   data-controller="trx-inline-edit vendor-autocomplete"
                    data-trx-inline-edit-trx-id-value="<%= trx.id %>"
                    data-trx-inline-edit-field-name-value="vendor"
                    data-trx-inline-edit-original-value-value="<%= trx.vendor.name %>"
+                   data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+                   data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>"
                    data-trx-cleared="<%= trx.cleared %>"
                    data-trx-memo="<%= trx.memo %>">
                 <div data-trx-inline-edit-target="display" 
@@ -125,10 +127,16 @@
                 </div>
                 <input type="text" 
                        data-trx-inline-edit-target="input"
+                       data-vendor-autocomplete-target="input"
                        data-field-name="vendor"
                        value="<%= trx.vendor.name %>"
                        class="hidden w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                       data-action="keydown->trx-selection#handleKeydown">
+                       data-action="keydown->trx-selection#handleKeydown input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+                       list="edit-vendor-datalist-<%= trx.id %>">
+                <input type="hidden" 
+                       data-vendor-autocomplete-target="hiddenInput"
+                       value="<%= trx.vendor.id %>">
+                <datalist id="edit-vendor-datalist-<%= trx.id %>" data-vendor-autocomplete-target="datalist"></datalist>
               </div>
               
               <!-- Editable Amount -->
@@ -313,10 +321,12 @@
               
               <!-- Editable Vendor -->
               <div class="truncate text-left px-2" 
-                   data-controller="trx-inline-edit"
+                   data-controller="trx-inline-edit vendor-autocomplete"
                    data-trx-inline-edit-trx-id-value="<%= trx.id %>"
                    data-trx-inline-edit-field-name-value="vendor"
                    data-trx-inline-edit-original-value-value="<%= trx.vendor.name %>"
+                   data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+                   data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>"
                    data-trx-cleared="<%= trx.cleared %>"
                    data-trx-memo="<%= trx.memo %>">
                 <div data-trx-inline-edit-target="display" 
@@ -326,10 +336,16 @@
                 </div>
                 <input type="text" 
                        data-trx-inline-edit-target="input"
+                       data-vendor-autocomplete-target="input"
                        data-field-name="vendor"
                        value="<%= trx.vendor.name %>"
                        class="hidden w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                       data-action="keydown->trx-selection#handleKeydown">
+                       data-action="keydown->trx-selection#handleKeydown input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+                       list="edit-vendor-datalist-<%= trx.id %>">
+                <input type="hidden" 
+                       data-vendor-autocomplete-target="hiddenInput"
+                       value="<%= trx.vendor.id %>">
+                <datalist id="edit-vendor-datalist-<%= trx.id %>" data-vendor-autocomplete-target="datalist"></datalist>
               </div>
               
               <!-- Editable Amount -->

@@ -26,13 +26,26 @@ export default class extends Controller {
       .catch(error => console.error('Error loading vendors:', error))
   }
 
+  loadAllVendors() {
+    // Always fetch all vendors (sorted alphabetically) when field is empty
+    fetch(`${this.searchUrlValue}?budget_id=${this.budgetIdValue}`)
+      .then(response => response.json())
+      .then(data => {
+        this.vendors = data.vendors || []
+        this.vendorsLoaded = true
+        this.updateDatalist()
+      })
+      .catch(error => console.error('Error loading vendors:', error))
+  }
+
   search() {
     clearTimeout(this.debounceTimer)
     this.debounceTimer = setTimeout(() => {
       const query = this.inputTarget.value.trim()
       
       if (query.length === 0) {
-        this.loadInitialVendors()
+        // Always load initial vendors when field is empty
+        this.loadAllVendors()
         return
       }
 
@@ -81,6 +94,6 @@ export default class extends Controller {
 
   onFocus() {
     // Load all vendors when focusing on the input
-    this.loadInitialVendors()
+    this.loadAllVendors()
   }
 }
