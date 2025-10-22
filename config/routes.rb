@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     member do
       post :add_line_to_trx
       post :toggle_cleared
+      get :edit_row
     end
     collection do
       post :add_line_to_new_trx

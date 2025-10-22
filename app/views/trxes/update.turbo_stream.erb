@@ -1,0 +1,3 @@
+<%= turbo_stream.replace "trx_#{@trx.id}" do %>
+  <%= render 'trxes/row_display', trx: @trx %>
+<% end %>

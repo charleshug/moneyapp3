@@ -8,6 +8,7 @@ export default class extends Controller {
   }
 
   connect() {
+    console.log('trx-selection controller connected')
     this.selectedTrxes = new Set()
     this.lastSelectedIndex = null
     this.editingRow = null
@@ -40,6 +41,7 @@ export default class extends Controller {
 
   // Handle row click
   selectRow(event) {
+    console.log('selectRow called')
     // Don't trigger if clicking on checkbox (handled by toggleSelection)
     if (event.target.type === 'checkbox') return
     
@@ -55,90 +57,67 @@ export default class extends Controller {
   }
 
   // Handle row double-click
-  handleRowDoubleClick(event) {
-    // Don't trigger if double-clicking on checkboxes
-    if (event.target.type === 'checkbox') return
-    
-    // For double-clicks anywhere in the row, activate editing mode
-    this.activateRowEditing(event)
-  }
-
-  // Activate editing mode for the entire row
   activateRowEditing(event) {
+    console.log('activateRowEditing called from dblclick')
     const row = event.currentTarget
     const trxId = row.dataset.trxId
+    console.log('trxId:', trxId)
     
     // Cancel any existing editing row first
     if (this.editingRow && this.editingRow !== row) {
+      console.log('Canceling existing editing row:', this.editingRow.dataset.trxId)
       this.cancelRowEditing(this.editingRow)
     }
     
     // Set this as the currently editing row
     this.editingRow = row
+    console.log('Set new editing row:', trxId)
     
-    // Add visual indicator that row is in editing mode
-    row.classList.add('editing-row')
-    
-    // Show all input fields in this row
-    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
-    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
-    
-    inputFields.forEach(input => input.classList.remove('hidden'))
-    displayFields.forEach(display => display.classList.add('hidden'))
-    
-    // Show the control row for this transaction
-    const controlRow = row.querySelector('[data-trx-inline-edit-target="controlRow"]')
-    if (controlRow) {
-      controlRow.classList.remove('hidden')
+    // Store the current display HTML before replacing with edit form
+    const frame = document.getElementById(`trx_${trxId}`)
+    console.log('frame:', frame)
+    if (frame) {
+      frame.dataset.originalHtml = frame.innerHTML
+      console.log('Stored original HTML, length:', frame.dataset.originalHtml.length)
     }
     
-    // Focus the first input field
-    if (inputFields.length > 0) {
-      setTimeout(() => {
-        inputFields[0].focus()
-        inputFields[0].select()
-      }, 10)
-    }
+    // Load edit form into the turbo frame
+    fetch(`/trxes/${trxId}/edit_row`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.text()
+      }
+      throw new Error('Network response was not ok')
+    })
+    .then(html => {
+      // Process the turbo stream response
+      Turbo.renderStreamMessage(html)
+    })
+    .catch(error => {
+      console.error('Error loading edit form:', error)
+    })
   }
 
-  // Handle submit button click
+
+  // Handle submit button click (no longer needed - handled by turbo frames)
   handleSubmit(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    
-    const row = event.target.closest('[data-trx-selection-target="row"]')
-    if (row) {
-      this.saveRowChanges(row)
-    }
+    // This method is no longer needed as form submission is handled by turbo frames
   }
 
-  // Handle cancel button click
+  // Handle cancel button click (no longer needed - handled by turbo frames)
   handleCancel(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    
-    const row = event.target.closest('[data-trx-selection-target="row"]')
-    if (row) {
-      this.cancelRowEditing(row)
-    }
+    // This method is no longer needed as cancel is handled by turbo frames
   }
 
-  // Handle keyboard events in input fields
+  // Handle keyboard events in input fields (no longer needed - handled by turbo frames)
   handleKeydown(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      const row = event.target.closest('[data-trx-selection-target="row"]')
-      if (row) {
-        this.saveRowChanges(row)
-      }
-    } else if (event.key === 'Escape') {
-      event.preventDefault()
-      event.stopPropagation()
-      const row = event.target.closest('[data-trx-selection-target="row"]')
-      if (row) {
-        this.cancelRowEditing(row)
-      }
-    }
+    // This method is no longer needed as keyboard handling is done by the trx-row-edit controller
   }
 
   // Handle global clicks to cancel editing when clicking outside
@@ -146,13 +125,11 @@ export default class extends Controller {
     // Only proceed if there's an editing row
     if (!this.editingRow) return
     
-    // Check if the click is inside the editing row or its control row
+    // Check if the click is inside the editing row
     const clickedInsideEditingRow = this.editingRow.contains(event.target)
-    const controlRow = this.editingRow.querySelector('[data-trx-inline-edit-target="controlRow"]')
-    const clickedInsideControlRow = controlRow && controlRow.contains(event.target)
     
-    // If click is outside both the editing row and control row, cancel editing
-    if (!clickedInsideEditingRow && !clickedInsideControlRow) {
+    // If click is outside the editing row, cancel editing
+    if (!clickedInsideEditingRow) {
       // Cancel the editing first
       this.cancelRowEditing(this.editingRow)
       
@@ -188,112 +165,33 @@ export default class extends Controller {
     }
   }
 
-  // Save changes for a row
+  // Save changes for a row (no longer needed - handled by turbo frames)
   saveRowChanges(row) {
-    const trxId = row.dataset.trxId
-    const formData = new FormData()
-    
-    // Collect field data
-    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
-    const fieldData = {}
-    
-    inputFields.forEach(input => {
-      const fieldName = input.dataset.fieldName
-      if (fieldName) {
-        fieldData[fieldName] = input.value
-      }
-    })
-    
-    // Add transaction data
-    formData.append('trx[cleared]', row.dataset.trxCleared === 'true')
-    formData.append('trx[memo]', fieldData.memo || row.dataset.trxMemo || '')
-    formData.append('trx[date]', fieldData.date)
-    formData.append('trx[vendor_custom_text]', fieldData.vendor || '')
-    formData.append('trx[account_id]', fieldData.account_id || '')
-    
-    // Add line attributes
-    formData.append('trx[lines_attributes][0][id]', row.dataset.lineId || '')
-    formData.append('trx[lines_attributes][0][ledger_id]', row.dataset.ledgerId || '')
-    formData.append('trx[lines_attributes][0][subcategory_form_id]', fieldData.subcategory_id || row.dataset.subcategoryId || '')
-    
-    if (fieldData.amount) {
-      // Send amount in dollars - backend will convert to cents
-      formData.append('trx[lines_attributes][0][amount]', fieldData.amount)
-    }
-
-    fetch(`/trxes/${trxId}`, {
-      method: 'PATCH',
-      body: formData,
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        this.updateRowDisplayValues(row, fieldData)
-        this.cancelRowEditing(row)
-      } else {
-        alert('Error updating transaction: ' + (data.errors || 'Unknown error'))
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error)
-      alert('Error updating transaction. Please try again.')
-    })
+    // This method is no longer needed as form submission is handled by turbo frames
   }
 
   // Cancel editing for a row
   cancelRowEditing(row) {
-    // Hide all input fields
-    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
-    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
+    const trxId = row.dataset.trxId
     
-    inputFields.forEach(input => input.classList.add('hidden'))
-    displayFields.forEach(display => display.classList.remove('hidden'))
-    
-    // Hide the control row
-    const controlRow = row.querySelector('[data-trx-inline-edit-target="controlRow"]')
-    if (controlRow) {
-      controlRow.classList.add('hidden')
+    // Restore the original HTML from memory
+    const frame = document.getElementById(`trx_${trxId}`)
+    if (frame && frame.dataset.originalHtml) {
+      frame.innerHTML = frame.dataset.originalHtml
+      // Clear the stored HTML
+      delete frame.dataset.originalHtml
     }
-    
-    // Remove editing styling
-    row.classList.remove('editing-row')
     
     // Clear the editing row reference
     if (this.editingRow === row) {
+      console.log('Clearing editing row reference')
       this.editingRow = null
     }
   }
 
-  // Update display values after successful save
+  // Update display values after successful save (no longer needed - handled by turbo frames)
   updateRowDisplayValues(row, fieldData) {
-    const displayFields = row.querySelectorAll('[data-trx-inline-edit-target="display"]')
-    const inputFields = row.querySelectorAll('[data-trx-inline-edit-target="input"]')
-    
-    inputFields.forEach((input, index) => {
-      const display = displayFields[index]
-      if (display) {
-        if (input.type === 'number') {
-          const amount = parseFloat(input.value)
-          const formattedValue = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-          }).format(amount)
-          display.textContent = formattedValue
-          // Store the amount in cents for data consistency (for balance calculations)
-          display.dataset.amount = Math.round(amount * 100).toString()
-        } else if (input.tagName === 'SELECT') {
-          // For select fields, update display with selected option text
-          const selectedOption = input.options[input.selectedIndex]
-          display.textContent = selectedOption.textContent
-        } else {
-          display.textContent = input.value
-        }
-      }
-    })
+    // This method is no longer needed as display updates are handled by turbo frames
   }
 
   // Main selection logic

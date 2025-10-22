@@ -1,6 +1,6 @@
 class TrxesController < ApplicationController
   include Pagy::Backend
-  before_action :set_trx, only: %i[ edit update destroy toggle_cleared ]
+  before_action :set_trx, only: %i[ edit update destroy toggle_cleared edit_row ]
   before_action :check_transfer_child, only: %i[ update destroy ]
 
   def index
@@ -91,9 +91,11 @@ class TrxesController < ApplicationController
       if @trx.valid?
         format.html { redirect_to edit_trx_path(@trx), notice: "Trx was successfully updated." }
         format.json { render json: { success: true, trx_id: @trx.id, message: "Transaction updated successfully" } }
+        format.turbo_stream
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: { success: false, errors: @trx.errors.full_messages.join(", ") }, status: :unprocessable_entity }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("trx_#{@trx.id}", "<div>Error: #{@trx.errors.full_messages.join(', ')}</div>") }
       end
     end
   end
@@ -137,6 +139,22 @@ class TrxesController < ApplicationController
   def import
     # Any setup needed for the import form
   end
+
+  def edit_row
+    # Ensure the record belongs to the current budget
+    if @trx.budget != @current_budget
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("trx_#{@trx.id}", "<div>Unauthorized</div>") }
+        format.html { render plain: "Unauthorized", status: :unauthorized }
+      end
+      return
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
 
   def toggle_cleared
     if @trx.budget != @current_budget

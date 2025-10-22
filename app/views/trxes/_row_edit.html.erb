@@ -1,0 +1,234 @@
+<% if trx.lines.size == 1 %>
+  <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200 cursor-pointer editing-row"
+       data-trx-selection-target="row"
+       data-trx-id="<%= trx.id %>"
+       data-trx-cleared="<%= trx.cleared %>"
+       data-trx-memo="<%= trx.memo %>"
+       data-line-id="<%= trx.lines.first&.id %>"
+       data-ledger-id="<%= trx.lines.first&.ledger_id %>"
+       data-subcategory-id="<%= trx.lines.first&.ledger&.subcategory_id %>"
+       data-controller="trx-row-edit"
+       data-trx-row-edit-trx-id-value="<%= trx.id %>">
+    <%= form_with model: trx, local: false, 
+        data: { action: "submit->trx-row-edit#handleSubmit keydown->trx-row-edit#handleKeydown" } do |f| %>
+      <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+        <div class="px-2">
+          <input type="checkbox" 
+                 data-trx-selection-target="checkbox"
+                 data-trx-id="<%= trx.id %>"
+                 data-action="click->trx-selection#toggleSelection"
+                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+        </div>
+        <div class="truncate text-left px-2"><%= trx.id %></div>
+        
+        <!-- Editable Account -->
+        <div class="truncate text-left px-2">
+          <%= f.select :account_id,
+              options_from_collection_for_select(@current_budget.accounts, :id, :name, trx.account.id),
+              {},
+              { class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+        </div>
+        
+        <!-- Editable Date -->
+        <div class="truncate text-left px-2">
+          <%= f.date_field :date, 
+              value: trx.date,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Editable Vendor -->
+        <div class="truncate text-left px-2" data-controller="vendor-autocomplete"
+             data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+             data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>">
+          <%= f.text_field :vendor_custom_text, 
+              value: trx.vendor.name,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+              data: { 
+                vendor_autocomplete_target: "input",
+                action: "input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+              },
+              list: "edit-vendor-datalist-#{trx.id}" %>
+          <%= f.hidden_field :vendor_id, value: trx.vendor.id, data: { vendor_autocomplete_target: "hiddenInput" } %>
+          <datalist id="edit-vendor-datalist-<%= trx.id %>" data-vendor-autocomplete-target="datalist"></datalist>
+        </div>
+        
+        <!-- Editable Amount -->
+        <div class="truncate text-left px-2">
+          <%= f.fields_for :lines do |line_form| %>
+            <%= line_form.number_field :amount, 
+                value: trx.amount / 100.0,
+                step: 0.01,
+                class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+                data: { action: "keydown->trx-row-edit#handleKeydown" } %>
+          <% end %>
+        </div>
+        
+        <!-- Category Display (read-only) -->
+        <div class="truncate text-left px-2 bg-gray-100 rounded px-1 py-0.5">
+          <%= trx.lines.first&.ledger&.subcategory&.category&.name %>
+        </div>
+        
+        <!-- Editable Subcategory -->
+        <div class="truncate text-left px-2">
+          <%= f.select :subcategory_id,
+              grouped_options_for_select(
+                @current_budget.categories.map { |category|
+                  [category.name, category.subcategories.map { |subcategory|
+                    [subcategory.name, subcategory.id, { 'data-category-name' => category.name }]
+                  }]
+                },
+                trx.lines.first&.ledger&.subcategory_id
+              ),
+              { prompt: 'Select Subcategory' },
+              { class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+                data: { action: "change->trx-selection#updateCategory" } } %>
+        </div>
+        
+        <!-- Editable Memo -->
+        <div class="truncate text-left px-2">
+          <%= f.text_field :memo, 
+              value: trx.memo,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Cleared Toggle -->
+        <div data-controller="cleared-toggle"
+            data-cleared-toggle-trx-id-value="<%= trx.id %>"
+            data-cleared-toggle-cleared-value="<%= trx.cleared %>">
+          <button data-action="click->cleared-toggle#toggle" class="focus:outline-none">
+            <div data-cleared-toggle-target="circle"
+                class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mx-auto">
+            </div>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Hidden line fields -->
+      <%= f.fields_for :lines do |line_form| %>
+        <%= line_form.hidden_field :id, value: trx.lines.first&.id %>
+        <%= line_form.hidden_field :ledger_id, value: trx.lines.first&.ledger_id %>
+        <%= line_form.hidden_field :subcategory_form_id, value: trx.lines.first&.ledger&.subcategory_id %>
+      <% end %>
+      
+      <!-- Control Row -->
+      <div class="bg-blue-50 border-t border-blue-200 p-2">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-blue-700 font-medium">
+            Editing Transaction #<%= trx.id %>
+          </div>
+          <div class="flex gap-2">
+            <button type="submit"
+                    class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium">
+              <i class="fas fa-check mr-1"></i>Submit
+            </button>
+            <button type="button"
+                    data-action="click->trx-row-edit#cancel"
+                    class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm font-medium">
+              <i class="fas fa-times mr-1"></i>Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <!-- For split transactions, show a simplified edit form -->
+  <div class="odd:bg-white even:bg-blue-50 bg-white shadow-sm p-1 hover:bg-gray-50 border-b border-gray-200 cursor-pointer editing-row"
+       data-trx-selection-target="row"
+       data-trx-id="<%= trx.id %>"
+       data-trx-cleared="<%= trx.cleared %>"
+       data-trx-memo="<%= trx.memo %>"
+       data-controller="trx-row-edit"
+       data-trx-row-edit-trx-id-value="<%= trx.id %>">
+    <%= form_with model: trx, local: false, 
+        data: { action: "submit->trx-row-edit#handleSubmit keydown->trx-row-edit#handleKeydown" } do |f| %>
+      <div class="grid items-center text-gray-800" style="grid-template-columns: 40px 60px 100px 100px 1fr 100px 100px 1fr 1fr 60px;">
+        <div class="px-2">
+          <input type="checkbox" 
+                 data-trx-selection-target="checkbox"
+                 data-trx-id="<%= trx.id %>"
+                 data-action="click->trx-selection#toggleSelection"
+                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+        </div>
+        <div class="truncate text-left px-2"><%= trx.id %></div>
+        
+        <!-- Editable Account -->
+        <div class="truncate text-left px-2">
+          <%= f.select :account_id,
+              options_from_collection_for_select(@current_budget.accounts, :id, :name, trx.account.id),
+              {},
+              { class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
+        </div>
+        
+        <!-- Editable Date -->
+        <div class="truncate text-left px-2">
+          <%= f.date_field :date, 
+              value: trx.date,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Editable Vendor -->
+        <div class="truncate text-left px-2" data-controller="vendor-autocomplete"
+             data-vendor-autocomplete-search-url-value="<%= search_vendors_path %>"
+             data-vendor-autocomplete-budget-id-value="<%= @current_budget.id %>">
+          <%= f.text_field :vendor_custom_text, 
+              value: trx.vendor.name,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50",
+              data: { 
+                vendor_autocomplete_target: "input",
+                action: "input->vendor-autocomplete#search focus->vendor-autocomplete#onFocus input->vendor-autocomplete#onInputChange"
+              },
+              list: "edit-vendor-datalist-#{trx.id}" %>
+          <%= f.hidden_field :vendor_id, value: trx.vendor.id, data: { vendor_autocomplete_target: "hiddenInput" } %>
+          <datalist id="edit-vendor-datalist-<%= trx.id %>" data-vendor-autocomplete-target="datalist"></datalist>
+        </div>
+        
+        <!-- Amount (read-only for split transactions) -->
+        <div class="truncate text-left px-2 bg-gray-100 rounded px-1 py-0.5">
+          <%= number_to_currency(trx.amount / 100.0) %>
+        </div>
+        
+        <div class="truncate text-left px-2"></div>
+        <div class="truncate text-left px-2">Split (Multiple Categories)...</div>
+        
+        <!-- Editable Memo -->
+        <div class="truncate text-left px-2">
+          <%= f.text_field :memo, 
+              value: trx.memo,
+              class: "w-full text-sm rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+        </div>
+        
+        <!-- Cleared Toggle -->
+        <div data-controller="cleared-toggle"
+            data-cleared-toggle-trx-id-value="<%= trx.id %>"
+            data-cleared-toggle-cleared-value="<%= trx.cleared %>">
+          <button data-action="click->cleared-toggle#toggle" class="focus:outline-none">
+            <div data-cleared-toggle-target="circle"
+                class="w-4 h-4 rounded-full <%= trx.cleared ? 'bg-green-500' : 'bg-gray-300' %> mx-auto">
+            </div>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Control Row -->
+      <div class="bg-blue-50 border-t border-blue-200 p-2">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-blue-700 font-medium">
+            Editing Transaction #<%= trx.id %> (Split Transaction)
+          </div>
+          <div class="flex gap-2">
+            <button type="submit"
+                    class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium">
+              <i class="fas fa-check mr-1"></i>Submit
+            </button>
+            <button type="button"
+                    data-action="click->trx-row-edit#cancel"
+                    class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm font-medium">
+              <i class="fas fa-times mr-1"></i>Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
