@@ -32,6 +32,7 @@ Rails.application.routes.draw do
 
   post "/trxes_export", to: "trxes_export#create"
 
+  get "accounts", to: redirect("/trxes")
   resources :accounts, except: [ :index, :show ]
   resources :ledgers do
     member do
