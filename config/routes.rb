@@ -93,7 +93,7 @@ Rails.application.routes.draw do
   get "reports/vendor", to: "reports#spending_by_vendor", as: "vendor_reports"
   get "reports/category", to: "reports#spending_by_category", as: "category_reports"
 
-  root "accounts#index"
+  root "trxes#index"
 
   resources :scheduled_trxes do
     collection do

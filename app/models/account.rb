@@ -11,6 +11,8 @@ class Account < ApplicationRecord
 
   # attr_accessor :starting_balance, :starting_date
   before_destroy :ensure_no_trxes
+  after_create :create_transfer_vendor
+  after_update :update_transfer_vendor_name, if: :saved_change_to_name?
 
   def self.ransackable_attributes(auth_object = nil)
     [ "balance", "budget_id", "closed", "created_at", "id", "name", "on_budget", "updated_at" ]
@@ -48,5 +50,15 @@ class Account < ApplicationRecord
       errors.add(:base, "Cannot delete account with associated trxes")
       throw :abort
     end
+  end
+
+  private
+
+  def create_transfer_vendor
+    budget.vendors.create!(name: "Transfer: #{name}", account: self)
+  end
+
+  def update_transfer_vendor_name
+    vendor&.update!(name: "Transfer: #{name}")
   end
 end
