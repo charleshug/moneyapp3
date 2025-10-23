@@ -1,42 +1,13 @@
 class AccountsController < ApplicationController
   before_action :set_account, only: %i[ edit update destroy ]
 
-  def index
-    session[:page] = "Accounts"
-
-    # Group accounts by type
-    @account_groups = {
-      "Budget Accounts" => {
-        accounts: @current_budget.accounts.where(closed: false, on_budget: true).order(:name),
-        id: "budget_accounts"
-      },
-      "Off-Budget Accounts" => {
-        accounts: @current_budget.accounts.where(closed: false, on_budget: false).order(:name),
-        id: "off_budget_accounts"
-      },
-      "Closed Accounts" => {
-        accounts: @current_budget.accounts.where(closed: true).order(:name),
-        id: "closed_accounts"
-      }
-    }
-
-    # Calculate balances
-    @balances = {}
-    @balances[:total] = 0
-
-    @account_groups.each do |name, group|
-      balance = group[:accounts].sum(:balance)
-      @balances[name] = balance
-      @balances[:total] += balance
-    end
-  end
 
   def show
     @account = Account.find(params[:id])
 
     # Ensure the account belongs to the current budget
     if @account.budget != @current_budget
-      redirect_to accounts_path, alert: "The account does not belong to this budget."
+      redirect_to trxes_path, alert: "The account does not belong to this budget."
       return
     end
     @trxes = @account.trxes.includes(:vendor, :category, :subcategory)
@@ -49,7 +20,7 @@ class AccountsController < ApplicationController
   def edit
     # Ensure the record belongs to the current budget
     if @account.budget != @current_budget
-      redirect_to accounts_path, alert: "You are not authorized to edit this account."
+      redirect_to trxes_path, alert: "You are not authorized to edit this account."
       nil
     end
   end
@@ -59,7 +30,7 @@ class AccountsController < ApplicationController
     AccountCreator.new(account, account_params)
     respond_to do |format|
       if account.valid?
-        format.html { redirect_to accounts_path, notice: "Account was successfully created." }
+        format.html { redirect_to trxes_path, notice: "Account was successfully created." }
         format.turbo_stream { render :create }
       else
         @account = account
@@ -74,14 +45,14 @@ class AccountsController < ApplicationController
 
     # Ensure the record belongs to the current budget
     if @account.budget != @current_budget
-      redirect_to accounts_path, alert: "You are not authorized to edit this account."
+      redirect_to trxes_path, alert: "You are not authorized to edit this account."
       return
     end
 
     @account.update(account_params)
     respond_to do |format|
       if @account.valid?
-        format.html { redirect_to accounts_path, notice: "Account was successfully updated." }
+        format.html { redirect_to trxes_path, notice: "Account was successfully updated." }
         format.turbo_stream { render :update }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -93,14 +64,14 @@ class AccountsController < ApplicationController
   def destroy
     # Ensure the record belongs to the current budget
     if @account.budget != @current_budget
-      redirect_to accounts_path, alert: "You are not authorized to delete this account."
+      redirect_to trxes_path, alert: "You are not authorized to delete this account."
       return
     end
 
     @account.destroy!
     respond_to do |format|
-      format.html { redirect_to accounts_path, notice: "Account was successfully destroyed." }
-      format.turbo_stream { redirect_to accounts_path, notice: "Account was successfully destroyed." }
+      format.html { redirect_to trxes_path, notice: "Account was successfully destroyed." }
+      format.turbo_stream { redirect_to trxes_path, notice: "Account was successfully destroyed." }
     end
 
   rescue ActiveRecord::RecordNotDestroyed => e

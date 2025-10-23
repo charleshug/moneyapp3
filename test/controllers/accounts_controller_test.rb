@@ -5,10 +5,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     @account = accounts(:one)
   end
 
-  test "should get index" do
-    get accounts_url
-    assert_response :success
-  end
 
   test "should get new" do
     get new_account_url
@@ -20,7 +16,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       post accounts_url, params: { account: { balance: @account.balance, budget_id: @account.budget_id, closed: @account.closed, name: @account.name, on_budget: @account.on_budget } }
     end
 
-    assert_redirected_to account_url(Account.last)
+    assert_redirected_to trxes_url
   end
 
   test "should show account" do
@@ -35,7 +31,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   test "should update account" do
     patch account_url(@account), params: { account: { balance: @account.balance, budget_id: @account.budget_id, closed: @account.closed, name: @account.name, on_budget: @account.on_budget } }
-    assert_redirected_to account_url(@account)
+    assert_redirected_to trxes_url
   end
 
   test "should destroy account" do
@@ -43,6 +39,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       delete account_url(@account)
     end
 
-    assert_redirected_to accounts_url
+    assert_redirected_to trxes_url
   end
 end

@@ -5,14 +5,10 @@ class AccountsTest < ApplicationSystemTestCase
     @account = accounts(:one)
   end
 
-  test "visiting the index" do
-    visit accounts_url
-    assert_selector "h1", text: "Accounts"
-  end
 
   test "should create account" do
-    visit accounts_url
-    click_on "New account"
+    visit trxes_url
+    click_on "Add Account"
 
     fill_in "Balance", with: @account.balance
     fill_in "Budget", with: @account.budget_id
