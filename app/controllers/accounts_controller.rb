@@ -70,7 +70,7 @@ class AccountsController < ApplicationController
   end
 
   def update
-    account = Account.find(params[:id])
+    # before_action :set_account is called
 
     # Ensure the record belongs to the current budget
     if @account.budget != @current_budget
@@ -78,10 +78,7 @@ class AccountsController < ApplicationController
       return
     end
 
-    @account = AccountEditingService.new.edit_account(
-      account,
-      account_params
-      )
+    @account.update(account_params)
     respond_to do |format|
       if @account.valid?
         format.html { redirect_to accounts_path, notice: "Account was successfully updated." }
@@ -103,11 +100,13 @@ class AccountsController < ApplicationController
     @account.destroy!
     respond_to do |format|
       format.html { redirect_to accounts_path, notice: "Account was successfully destroyed." }
+      format.turbo_stream { redirect_to accounts_path, notice: "Account was successfully destroyed." }
     end
 
-    rescue ActiveRecord::RecordNotDestroyed => e
+  rescue ActiveRecord::RecordNotDestroyed => e
       respond_to do |format|
         format.html { redirect_to edit_account_path(@account), alert: e.message }
+        format.turbo_stream { redirect_to edit_account_path(@account), alert: e.message }
       end
   end
 

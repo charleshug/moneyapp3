@@ -5,7 +5,6 @@ class AccountCreator
 
     ActiveRecord::Base.transaction do
       create_account
-      create_vendor_from_account
       create_starting_transaction
     end
   end
@@ -13,10 +12,6 @@ class AccountCreator
   def create_account
     @account.assign_attributes(@account_params.except(:starting_balance, :starting_date))
     @account.save
-  end
-
-  def create_vendor_from_account
-    @account.budget.vendors.create!(name: "Transfer: " + @account.name, account: @account)
   end
 
   def create_starting_transaction

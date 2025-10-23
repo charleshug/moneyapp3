@@ -49,8 +49,24 @@
       </div>
     <% end %>
 
-    <div class="pt-4">
-      <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+    <div class="pt-4 flex justify-between">
+      <div>
+        <%= f.submit class: "px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md" %>
+      </div>
+      <% if account.persisted? %>
+        <div>
+          <%= link_to account_path(account), 
+              method: :delete, 
+              class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md inline-block text-center",
+              data: { 
+                turbo_confirm: "Are you sure you want to delete this account? This action cannot be undone.", 
+                turbo_frame: "_top",
+                turbo_method: "delete"
+              } do %>
+            Delete Account
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>
