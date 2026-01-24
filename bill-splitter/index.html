@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Bill Splitter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Restaurant Bill Splitter</h1>
+
+        <!-- Person Management Section -->
+        <section class="section persons-section">
+            <h2>Persons</h2>
+            <div class="persons-list" id="personsList">
+                <!-- Persons will be dynamically added here -->
+            </div>
+            <button type="button" id="addPersonBtn" class="btn btn-primary" tabindex="200">Add Person</button>
+        </section>
+
+        <!-- Item Entry Section -->
+        <section class="section items-section">
+            <h2>Items</h2>
+            <div class="items-list" id="itemsList">
+                <!-- Items will be dynamically added here -->
+            </div>
+            <button type="button" id="addItemBtn" class="btn btn-primary" tabindex="1000">Add Item</button>
+            <div class="items-total">
+                <strong>Items Total: $<span id="itemsTotal">0.00</span></strong>
+            </div>
+        </section>
+
+        <!-- Bill Totals Section -->
+        <section class="section totals-section">
+            <h2>Bill Totals</h2>
+            <div class="totals-form">
+                <div class="form-group">
+                    <label for="subtotal">Subtotal:</label>
+                    <input type="number" id="subtotal" step="0.01" min="0" placeholder="0.00" tabindex="2000">
+                    <div class="difference" id="subtotalDifference"></div>
+                </div>
+                <div class="form-group">
+                    <label for="tax">Tax Amount:</label>
+                    <div class="amount-rate-row">
+                        <input type="number" id="tax" step="0.01" min="0" placeholder="0.00" tabindex="2100">
+                        <div class="rate-input-container">
+                            <input type="number" id="taxRate" step="0.01" min="0" placeholder="0.00" class="rate-input" tabindex="2101">
+                            <span class="rate-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tip">Tip Amount:</label>
+                    <div class="amount-rate-row">
+                        <input type="number" id="tip" step="0.01" min="0" placeholder="0.00" tabindex="2200">
+                        <div class="rate-input-container">
+                            <input type="number" id="tipRate" step="0.01" min="0" placeholder="0.00" class="rate-input" tabindex="2201">
+                            <span class="rate-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="calculateBtn" class="btn btn-primary btn-large" tabindex="3000">Calculate</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="section results-section" id="resultsSection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">Results</h2>
+                <button type="button" id="printReceiptBtn" class="btn btn-primary">Print Receipt</button>
+            </div>
+            <div class="results-content" id="resultsContent">
+                <!-- Results will be dynamically added here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

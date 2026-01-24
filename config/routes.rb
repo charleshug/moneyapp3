@@ -96,6 +96,9 @@ Rails.application.routes.draw do
 
   root "trxes#index"
 
+  # Bill splitter - standalone route, no authentication required
+  get "billsplit", to: "bill_splitter#index", as: :bill_splitter
+
   resources :scheduled_trxes do
     collection do
       post "create_selected"
