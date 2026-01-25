@@ -102,7 +102,11 @@ class BillSplitter {
         // Print receipt button
         const printReceiptBtn = document.getElementById('printReceiptBtn');
         if (printReceiptBtn) {
-            printReceiptBtn.addEventListener('click', () => this.printReceipt());
+            printReceiptBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.printReceipt();
+            });
         }
     }
 
@@ -1048,290 +1052,27 @@ class BillSplitter {
         const billSubtotal = parseFloat(subtotalInput.value) || 0;
         const billTax = parseFloat(taxInput.value) || 0;
         const billTip = parseFloat(tipInput.value) || 0;
-        const billTotal = billSubtotal + billTax + billTip;
 
-        // Generate receipt HTML
-        let receiptHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill Receipt</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            color: #333;
-        }
-        .receipt-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #333;
-        }
-        .receipt-header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .bill-summary {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 30px;
-        }
-        .bill-summary h2 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #555;
-        }
-        .bill-summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .bill-summary-row:last-child {
-            border-bottom: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-top: 5px;
-            padding-top: 10px;
-            border-top: 2px solid #333;
-        }
-        .person-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            page-break-inside: avoid;
-        }
-        .person-section h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 8px;
-        }
-        .items-list {
-            margin-bottom: 15px;
-        }
-        .item-row {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .item-row:last-child {
-            border-bottom: none;
-        }
-        .item-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .item-details {
-            font-size: 0.9em;
-            color: #666;
-            margin-left: 15px;
-        }
-        .person-totals {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #ddd;
-        }
-        .person-totals-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-        }
-        .person-totals-row.total {
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-            color: #007bff;
-        }
-        .all-items-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .all-items-section h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #555;
-            border-bottom: 2px solid #555;
-            padding-bottom: 8px;
-        }
-        .all-item-row {
-            padding: 12px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .all-item-row:last-child {
-            border-bottom: none;
-        }
-        .all-item-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-        }
-        .all-item-price {
-            color: #666;
-            margin-bottom: 5px;
-        }
-        .all-item-people {
-            margin-top: 8px;
-            font-size: 0.95em;
-        }
-        .all-item-people-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .all-item-people-list {
-            margin-left: 10px;
-            color: #007bff;
-        }
-        @media print {
-            body {
-                padding: 0;
-            }
-            .person-section {
-                page-break-inside: avoid;
-                margin-bottom: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="receipt-header">
-        <h1>Restaurant Bill Receipt</h1>
-        <p>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
-    </div>
-
-    <div class="bill-summary">
-        <h2>Bill Summary</h2>
+        // Open receipt.html from the same directory as app.js
+        // Files are in public/bill-splitter/ so use /bill-splitter/receipt.html
+        const receiptPath = '/bill-splitter/receipt.html';
+        const receiptWindow = window.open(receiptPath, '_blank');
         
-        <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #555;">Items Ordered</h3>`;
-
-        // List all items with assigned people
-        const regularItems = this.items.filter(item => !item.isPlug);
-        regularItems.forEach(item => {
-            const assignedPersonIds = item.assignedPersons.length > 0 
-                ? item.assignedPersons 
-                : this.persons.map(p => p.id);
-            
-            const assignedPeople = this.persons
-                .filter(p => assignedPersonIds.includes(p.id))
-                .map(p => p.name);
-            
-            const peopleList = assignedPeople.length > 0 
-                ? assignedPeople.join(', ') 
-                : 'Everyone';
-            
-            receiptHtml += `
-            <div class="all-item-row">
-                <div class="all-item-name">${this.escapeHtml(item.name || 'Unnamed item')}</div>
-                <div class="all-item-price">Price: $${item.price.toFixed(2)}</div>
-                <div class="all-item-people">
-                    <span class="all-item-people-label">Assigned to:</span>
-                    <span class="all-item-people-list">${this.escapeHtml(peopleList)}</span>
-                </div>
-            </div>`;
-        });
-
-        receiptHtml += `
-        </div>
-        
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ddd;">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: #555;">Totals</h3>
-            <div class="bill-summary-row">
-                <span>Subtotal:</span>
-                <span>$${billSubtotal.toFixed(2)}</span>
-            </div>
-            <div class="bill-summary-row">
-                <span>Tax:</span>
-                <span>$${billTax.toFixed(2)}</span>
-            </div>
-            <div class="bill-summary-row">
-                <span>Tip:</span>
-                <span>$${billTip.toFixed(2)}</span>
-            </div>
-            <div class="bill-summary-row">
-                <span>Total:</span>
-                <span>$${billTotal.toFixed(2)}</span>
-            </div>
-        </div>
-    </div>`;
-
-        // Add each person's breakdown
-        this.currentPersonResults.forEach(result => {
-            let personSubtotal = 0;
-            let personTax = 0;
-            let personTip = 0;
-
-            let itemsHtml = '<div class="items-list">';
-            result.items.forEach(itemDetail => {
-                const item = itemDetail.item;
-                personSubtotal += item.price / (item.assignedPersons.length > 0 ? item.assignedPersons.length : this.persons.length);
-                personTax += itemDetail.taxPortion;
-                personTip += itemDetail.tipPortion;
-
-                itemsHtml += `
-                    <div class="item-row">
-                        <div class="item-name">${this.escapeHtml(item.name || 'Unnamed item')}</div>
-                        <div class="item-details">
-                            Item Price: $${item.price.toFixed(2)} | 
-                            Tax: $${itemDetail.taxPortion.toFixed(2)} | 
-                            Tip: $${itemDetail.tipPortion.toFixed(2)} | 
-                            <strong>Your Share: $${itemDetail.share.toFixed(2)}</strong>
-                        </div>
-                    </div>
-                `;
+        // Wait for the window to load before setting data
+        if (receiptWindow) {
+            receiptWindow.addEventListener('load', () => {
+                receiptWindow.receiptData = {
+                    items: this.items,
+                    persons: this.persons,
+                    results: this.currentPersonResults,
+                    billSummary: {
+                        subtotal: billSubtotal,
+                        tax: billTax,
+                        tip: billTip
+                    }
+                };
             });
-            itemsHtml += '</div>';
-
-            receiptHtml += `
-    <div class="person-section">
-        <h3>${this.escapeHtml(result.person.name)}</h3>
-        ${itemsHtml}
-        <div class="person-totals">
-            <div class="person-totals-row">
-                <span>Subtotal:</span>
-                <span>$${personSubtotal.toFixed(2)}</span>
-            </div>
-            <div class="person-totals-row">
-                <span>Tax:</span>
-                <span>$${personTax.toFixed(2)}</span>
-            </div>
-            <div class="person-totals-row">
-                <span>Tip:</span>
-                <span>$${personTip.toFixed(2)}</span>
-            </div>
-            <div class="person-totals-row total">
-                <span>Total Owed:</span>
-                <span>$${result.total.toFixed(2)}</span>
-            </div>
-        </div>
-    </div>`;
-        });
-
-        receiptHtml += `
-</body>
-</html>`;
-
-        // Open receipt in new tab
-        const receiptWindow = window.open('', '_blank');
-        receiptWindow.document.write(receiptHtml);
-        receiptWindow.document.close();
+        }
     }
 }
 
