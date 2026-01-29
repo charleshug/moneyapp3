@@ -749,16 +749,30 @@ class BillSplitter {
         }
     }
 
+    // Total of taxable items (for tax rate derivation)
+    getTaxableItemsTotal() {
+        return this.items
+            .filter(item => item.taxable)
+            .reduce((sum, item) => sum + item.price, 0);
+    }
+
+    // Total of tippable items (for tip rate derivation)
+    getTippableItemsTotal() {
+        return this.items
+            .filter(item => item.tippable)
+            .reduce((sum, item) => sum + item.price, 0);
+    }
+
     // Tax: Update rate field from amount (on amount blur)
+    // Rate = specified tax / total of taxable items
     updateTaxRateFromAmount() {
         const taxInput = document.getElementById('tax');
         const taxAmount = parseFloat(taxInput.value) || 0;
-        const subtotalInput = document.getElementById('subtotal');
-        const subtotal = parseFloat(subtotalInput.value) || 0;
+        const taxableTotal = this.getTaxableItemsTotal();
         
         const rateInput = document.getElementById('taxRate');
-        if (subtotal > 0 && taxAmount > 0) {
-            const rate = (taxAmount / subtotal) * 100;
+        if (taxableTotal > 0 && taxAmount > 0) {
+            const rate = (taxAmount / taxableTotal) * 100;
             rateInput.value = rate.toFixed(2);
         } else {
             rateInput.value = '';
@@ -766,15 +780,15 @@ class BillSplitter {
     }
 
     // Tax: Update amount field from rate (on rate blur)
+    // Amount = (total of taxable items * rate) / 100
     updateTaxAmountFromRate() {
         const rateInput = document.getElementById('taxRate');
         const rate = parseFloat(rateInput.value) || 0;
-        const subtotalInput = document.getElementById('subtotal');
-        const subtotal = parseFloat(subtotalInput.value) || 0;
+        const taxableTotal = this.getTaxableItemsTotal();
         const taxInput = document.getElementById('tax');
         
-        if (subtotal > 0 && rate > 0) {
-            const calculatedTax = (subtotal * rate) / 100;
+        if (taxableTotal > 0 && rate > 0) {
+            const calculatedTax = (taxableTotal * rate) / 100;
             taxInput.value = calculatedTax.toFixed(2);
             // Recalculate and display rate (in case of rounding)
             this.updateTaxRateFromAmount();
@@ -782,15 +796,15 @@ class BillSplitter {
     }
 
     // Tip: Update rate field from amount (on amount blur)
+    // Rate = specified tip / total of tippable items
     updateTipRateFromAmount() {
         const tipInput = document.getElementById('tip');
         const tipAmount = parseFloat(tipInput.value) || 0;
-        const subtotalInput = document.getElementById('subtotal');
-        const subtotal = parseFloat(subtotalInput.value) || 0;
+        const tippableTotal = this.getTippableItemsTotal();
         
         const rateInput = document.getElementById('tipRate');
-        if (subtotal > 0 && tipAmount > 0) {
-            const rate = (tipAmount / subtotal) * 100;
+        if (tippableTotal > 0 && tipAmount > 0) {
+            const rate = (tipAmount / tippableTotal) * 100;
             rateInput.value = rate.toFixed(2);
         } else {
             rateInput.value = '';
@@ -798,15 +812,15 @@ class BillSplitter {
     }
 
     // Tip: Update amount field from rate (on rate blur)
+    // Amount = (total of tippable items * rate) / 100
     updateTipAmountFromRate() {
         const rateInput = document.getElementById('tipRate');
         const rate = parseFloat(rateInput.value) || 0;
-        const subtotalInput = document.getElementById('subtotal');
-        const subtotal = parseFloat(subtotalInput.value) || 0;
+        const tippableTotal = this.getTippableItemsTotal();
         const tipInput = document.getElementById('tip');
         
-        if (subtotal > 0 && rate > 0) {
-            const calculatedTip = (subtotal * rate) / 100;
+        if (tippableTotal > 0 && rate > 0) {
+            const calculatedTip = (tippableTotal * rate) / 100;
             tipInput.value = calculatedTip.toFixed(2);
             // Recalculate and display rate (in case of rounding)
             this.updateTipRateFromAmount();
@@ -832,9 +846,10 @@ class BillSplitter {
             // Check if tip rate is entered
             const tipRateInput = document.getElementById('tipRate');
             const tipRate = parseFloat(tipRateInput.value) || 0;
-            if (tipRate > 0 && this.subtotal > 0) {
-                // Calculate from rate if amount is not provided
-                this.tip = (this.subtotal * tipRate) / 100;
+            const tippableTotal = this.getTippableItemsTotal();
+            if (tipRate > 0 && tippableTotal > 0) {
+                // Calculate from rate if amount is not provided (rate applies to tippable items total)
+                this.tip = (tippableTotal * tipRate) / 100;
                 tipInput.value = this.tip.toFixed(2);
             } else {
                 this.tip = 0;
