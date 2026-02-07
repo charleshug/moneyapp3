@@ -19,78 +19,83 @@ class DemoDataGenerator
       pct: nil,
       category_name: "Income Parent",
       subcategory_name: "Income",
-      vendors: ["Employer"],
+      vendors: [ "Employer" ],
       cadence: { per_month: 1 }
     },
     rent: {
       pct: 30,
       category_name: "Monthly",
       subcategory_name: "Rent",
-      vendors: ["Landlord LLC"],
+      vendors: [ "Landlord LLC" ],
       cadence: { per_month: 1 }
     },
     groceries: {
       pct: 12,
       category_name: "Everyday",
       subcategory_name: "Groceries",
-      vendors: ["Safeway", "Whole Foods", "Trader Joe's", "Kroger", "Costco"],
-      cadence: { per_month: [2, 4] }
+      vendors: [ "Safeway", "Whole Foods", "Trader Joe's", "Kroger", "Costco" ],
+      cadence: { per_month: [ 2, 4 ] },
+      amount_variance: 0.15
     },
     fuel: {
       pct: 5,
       category_name: "Everyday",
       subcategory_name: "Fuel",
-      vendors: ["Shell", "Chevron", "Costco Gas", "BP", "Exxon"],
-      cadence: { per_month: [2, 4] }
+      vendors: [ "Shell", "Chevron", "Costco Gas", "BP", "Exxon" ],
+      cadence: { per_month: [ 2, 4 ] },
+      amount_variance: 0.15
     },
     restaurants: {
       pct: 8,
       category_name: "Everyday",
       subcategory_name: "Restaurants",
-      vendors: ["Chipotle", "Local Bistro", "Starbucks", "Pizza Place", "Taco Bell"],
-      cadence: { per_month: [4, 10] }
+      vendors: [ "Chipotle", "Local Bistro", "Starbucks", "Pizza Place", "Taco Bell" ],
+      cadence: { per_month: [ 4, 10 ] },
+      amount_variance: 0.15
     },
     subscriptions: {
       pct: 3,
       category_name: "Monthly",
       subcategory_name: "News Subscriptions",
-      vendors: ["Netflix", "Spotify", "HBO Max", "Disney+", "YouTube Premium"],
+      vendors: [ "Netflix", "Spotify", "HBO Max", "Disney+", "YouTube Premium" ],
       cadence: { per_month: 3 }
     },
     utilities: {
       pct: 4,
       category_name: "Monthly",
       subcategory_name: "Internet & Utilities",
-      vendors: ["Electric Co", "Water Co", "Gas Utility", "Internet Provider"],
-      cadence: { per_month: [1, 2] }
+      vendors: [ "Electric Co", "Water Co", "Gas Utility", "Internet Provider" ],
+      cadence: { per_month: [ 1, 2 ] }
     },
     phone: {
       pct: 2,
       category_name: "Monthly",
       subcategory_name: "Phone",
-      vendors: ["Verizon", "AT&T", "T-Mobile"],
+      vendors: [ "Verizon" ],
       cadence: { per_month: 1 }
     },
     insurance: {
       pct: 4,
       category_name: "Monthly",
       subcategory_name: "Car Insurance",
-      vendors: ["Geico", "State Farm", "Progressive"],
+      vendors: [ "Geico" ],
       cadence: { per_year: 2 }
     },
     entertainment: {
       pct: 5,
       category_name: "Everyday",
       subcategory_name: "Entertainment",
-      vendors: ["AMC Theaters", "Steam", "Concert Venue", "Bookstore"],
-      cadence: { per_month: [2, 6] }
+      vendors: [ "AMC Theaters", "Steam", "Concert Venue", "Bookstore" ],
+      cadence: { per_month: [ 2, 6 ] },
+      amount_variance: 0.15
     },
     household: {
       pct: 3,
       category_name: "Everyday",
       subcategory_name: "Household & Cleaning",
-      vendors: ["Target", "Walmart", "Home Depot", "Amazon"],
-      cadence: { per_month: [1, 3] }
+      vendors: [ "Target", "Walmart", "Home Depot", "Amazon" ],
+      cadence: { per_month: [ 1, 3 ] },
+      amount_variance: 0.15
     }
   }.freeze
 
@@ -145,7 +150,7 @@ class DemoDataGenerator
         n = transaction_count_for(config[:cadence], month_start, cat_key, per_year_months)
         next if n <= 0
 
-        amounts_cents = amounts_for_month(config[:cadence], n, monthly_budget_cents, annual_budget_cents)
+        amounts_cents = amounts_for_month(config, n, monthly_budget_cents, annual_budget_cents)
         dates = pick_dates_in_month(month_start, month_end, n, cat_key)
 
         vendors = config[:vendors]
@@ -171,7 +176,7 @@ class DemoDataGenerator
       end
     end
 
-    transactions.sort_by! { |t| [t[:date], t[:category_key].to_s, t[:vendor_name]] }
+    transactions.sort_by! { |t| [ t[:date], t[:category_key].to_s, t[:vendor_name] ] }
 
     build_full_hash(transactions, summary_by_category)
   end
@@ -240,18 +245,25 @@ class DemoDataGenerator
     end
   end
 
-  def amounts_for_month(cadence, n, monthly_budget_cents, annual_budget_cents)
+  def amounts_for_month(config, n, monthly_budget_cents, annual_budget_cents)
+    cadence = config[:cadence]
     if cadence.is_a?(Hash) && cadence[:per_year]
       per_year = cadence[:per_year]
       amount_per = (annual_budget_cents / per_year).round
-      Array.new(n, amount_per)
-    else
-      split_with_variance(monthly_budget_cents, n)
+      return Array.new(n, amount_per)
     end
+
+    if (variance = config[:amount_variance]) && variance > 0
+      # Base amount per transaction = (monthly budget) / n; each amount ±variance (e.g. ±10%). No normalization.
+      base = monthly_budget_cents.to_f / n
+      return n.times.map { (base * (1 - variance + 2 * variance * rng.rand)).round }
+    end
+
+    split_with_variance(monthly_budget_cents, n)
   end
 
   def split_with_variance(total_cents, n)
-    return [total_cents] if n <= 1
+    return [ total_cents ] if n <= 1
 
     weights = n.times.map { 0.7 + 0.6 * rng.rand }
     sum_w = weights.sum
@@ -263,7 +275,7 @@ class DemoDataGenerator
 
   def pick_dates_in_month(month_start, month_end, n, category_key)
     if category_key == :rent || category_key == :income
-      return [month_start] if n == 1
+      return [ month_start ] if n == 1
     end
 
     pool = (month_start..month_end).to_a
@@ -310,7 +322,7 @@ class DemoDataGenerator
       },
       budget: { name: "Demo Budget", currency: "USD" },
       categories: categories,
-      accounts: [{ key: :checking, name: "Checking", on_budget: true }],
+      accounts: [ { key: :checking, name: "Checking", on_budget: true } ],
       vendors: vendors_flat,
       transactions: transactions,
       summary: summary
@@ -319,10 +331,12 @@ class DemoDataGenerator
 
   def write_transactions_csv(transactions, path)
     CSV.open(path, "w") do |csv|
-      csv << %w[date category subcategory vendor amount_cents amount_dollars memo]
+      csv << %w[date period category subcategory vendor amount_cents amount_dollars memo]
       transactions.each do |t|
+        period = t[:date].end_of_month
         csv << [
           t[:date].iso8601,
+          period.iso8601,
           t[:category_name],
           t[:subcategory_name],
           t[:vendor_name],
