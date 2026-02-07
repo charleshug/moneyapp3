@@ -60,12 +60,20 @@ class DemoDataGenerator
       vendors: [ "Netflix", "Spotify", "HBO Max", "Disney+", "YouTube Premium" ],
       cadence: { per_month: 3 }
     },
-    utilities: {
-      pct: 4,
+    internet: {
+      pct: 1,
       category_name: "Monthly",
       subcategory_name: "Internet & Utilities",
-      vendors: [ "Electric Co", "Water Co", "Gas Utility", "Internet Provider" ],
-      cadence: { per_month: [ 1, 2 ] }
+      vendors: [ "Internet Provider" ],
+      cadence: { per_month: 1 }
+    },
+    utilities: {
+      pct: 3,
+      category_name: "Monthly",
+      subcategory_name: "Internet & Utilities",
+      vendors: [ "Gas, Water & Electric" ],
+      cadence: { per_month: 1 },
+      amount_variance: 0.10
     },
     phone: {
       pct: 2,
@@ -158,7 +166,7 @@ class DemoDataGenerator
         subcategory_name = config[:subcategory_name]
 
         n.times do |i|
-          vendor_name = vendors[rng.rand(vendors.size)]
+          vendor_name = config[:vendors_ordered] ? vendors[i % vendors.size] : vendors[rng.rand(vendors.size)]
           amount_cents = amounts_cents[i]
           date = dates[i]
           transactions << {
