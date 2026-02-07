@@ -416,11 +416,13 @@ class DemoDataGenerator
 
   def write_transactions_csv(transactions, path)
     CSV.open(path, "w") do |csv|
-      csv << %w[date period category subcategory vendor amount_cents amount_dollars memo]
+      csv << %w[date month year period category subcategory vendor amount_cents amount_dollars memo]
       transactions.each do |t|
         period = t[:date].end_of_month
         csv << [
           t[:date].iso8601,
+          t[:date].month,
+          t[:date].year,
           period.iso8601,
           t[:category_name],
           t[:subcategory_name],
