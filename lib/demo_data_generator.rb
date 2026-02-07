@@ -27,7 +27,8 @@ class DemoDataGenerator
       category_name: "Monthly",
       subcategory_name: "Rent",
       vendors: [ "Landlord LLC" ],
-      cadence: { per_month: 1 }
+      cadence: { per_month: 1 },
+      flat_amount: true
     },
     groceries: {
       pct: 12,
@@ -60,14 +61,16 @@ class DemoDataGenerator
       vendors: [ "Netflix", "Spotify", "HBO Max", "Disney+", "YouTube Premium" ],
       cadence: { per_month: 5 },
       vendor_weights: [ 1.0, 0.9, 1.2, 1.0, 0.8 ],
-      vendors_ordered: true
+      vendors_ordered: true,
+      flat_amount: true
     },
     internet: {
       pct: 1,
       category_name: "Monthly",
       subcategory_name: "Internet & Utilities",
       vendors: [ "Internet Provider" ],
-      cadence: { per_month: 1 }
+      cadence: { per_month: 1 },
+      flat_amount: true
     },
     utilities: {
       pct: 3,
@@ -75,21 +78,24 @@ class DemoDataGenerator
       subcategory_name: "Internet & Utilities",
       vendors: [ "Gas, Water & Electric" ],
       cadence: { per_month: 1 },
-      amount_variance: 0.10
+      amount_variance: 0.10,
+      flat_amount: true
     },
     phone: {
       pct: 2,
       category_name: "Monthly",
       subcategory_name: "Phone",
       vendors: [ "Verizon" ],
-      cadence: { per_month: 1 }
+      cadence: { per_month: 1 },
+      flat_amount: true
     },
     insurance: {
       pct: 4,
       category_name: "Monthly",
       subcategory_name: "Car Insurance",
       vendors: [ "Geico" ],
-      cadence: { per_year: 2 }
+      cadence: { per_year: 2 },
+      flat_amount: true
     },
     entertainment: {
       pct: 5,
@@ -181,6 +187,16 @@ class DemoDataGenerator
         if config[:amount_range_cents]
           monthly_budget_cents = 0
           annual_budget_cents = 0
+        elsif config[:flat_amount]
+          salary_for_amounts = annual_salary_dollars
+          if config[:pct].nil?
+            monthly_budget_cents = (salary_for_amounts * 100 * take_home_ratio / 12).round
+            annual_budget_cents = (salary_for_amounts * 100 * take_home_ratio).round
+          else
+            pct = config[:pct]
+            monthly_budget_cents = (salary_for_amounts * 100 * take_home_ratio * (pct / 100.0) / 12).round
+            annual_budget_cents = (salary_for_amounts * 100 * take_home_ratio * (pct / 100.0)).round
+          end
         elsif config[:pct].nil?
           monthly_budget_cents = (effective_salary * 100 * take_home_ratio / 12).round
           annual_budget_cents = (effective_salary * 100 * take_home_ratio).round
