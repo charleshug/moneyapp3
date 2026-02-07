@@ -58,7 +58,9 @@ class DemoDataGenerator
       category_name: "Monthly",
       subcategory_name: "News Subscriptions",
       vendors: [ "Netflix", "Spotify", "HBO Max", "Disney+", "YouTube Premium" ],
-      cadence: { per_month: 3 }
+      cadence: { per_month: 5 },
+      vendor_weights: [ 1.0, 0.9, 1.2, 1.0, 0.8 ],
+      vendors_ordered: true
     },
     internet: {
       pct: 1,
@@ -259,6 +261,13 @@ class DemoDataGenerator
       per_year = cadence[:per_year]
       amount_per = (annual_budget_cents / per_year).round
       return Array.new(n, amount_per)
+    end
+
+    if (weights = config[:vendor_weights]) && weights.size == n
+      sum_w = weights.sum.to_f
+      amounts = n.times.map { |i| (monthly_budget_cents * weights[i] / sum_w).round }
+      amounts[0] += (monthly_budget_cents - amounts.sum)
+      return amounts
     end
 
     if (variance = config[:amount_variance]) && variance > 0
