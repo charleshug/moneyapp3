@@ -106,6 +106,33 @@ class DemoDataGenerator
       vendors: [ "Target", "Walmart", "Home Depot", "Amazon" ],
       cadence: { per_month: [ 1, 3 ] },
       amount_variance: 0.15
+    },
+    gifts: {
+      pct: nil,
+      category_name: "Sinking",
+      subcategory_name: "Gifts",
+      vendors: [ "Amazon", "Target", "Local Shop", "Etsy" ],
+      cadence: { per_month: [ 2, 3 ] },
+      amount_range_cents: [ 2000, 15_000 ],
+      amount_range_skew: nil
+    },
+    car_repairs: {
+      pct: nil,
+      category_name: "Sinking",
+      subcategory_name: "Car Repairs & Maint",
+      vendors: [ "Local Mechanic", "Quick Lube", "Tire Shop" ],
+      cadence: { per_year: 1 },
+      amount_range_cents: [ 7500, 30_000 ],
+      amount_range_skew: nil
+    },
+    medical_dental: {
+      pct: nil,
+      category_name: "Sinking",
+      subcategory_name: "Medical / Dental",
+      vendors: [ "CVS Pharmacy", "Dental Office", "Urgent Care", "GP Office" ],
+      cadence: { per_year: 7 },
+      amount_range_cents: [ 2000, 30_000 ],
+      amount_range_skew: :low
     }
   }.freeze
 
@@ -130,7 +157,10 @@ class DemoDataGenerator
     summary_by_category = Hash.new { |h, k| h[k] = { target_annual_cents: 0, generated_annual_cents: 0, transaction_count: 0 } }
 
     DEMO_TEMPLATE.each do |cat_key, config|
-      if config[:pct].nil?
+      if config[:amount_range_cents]
+        summary_by_category[cat_key][:target_pct] = nil
+        summary_by_category[cat_key][:target_annual_cents] = nil
+      elsif config[:pct].nil?
         summary_by_category[cat_key][:target_pct] = nil
         summary_by_category[cat_key][:target_annual_cents] = (annual_salary_dollars * 100 * take_home_ratio).round
       else
@@ -148,7 +178,10 @@ class DemoDataGenerator
       effective_salary = (annual_salary_dollars * (1 + salary_growth_rate)**year_index).round
 
       DEMO_TEMPLATE.each do |cat_key, config|
-        if config[:pct].nil?
+        if config[:amount_range_cents]
+          monthly_budget_cents = 0
+          annual_budget_cents = 0
+        elsif config[:pct].nil?
           monthly_budget_cents = (effective_salary * 100 * take_home_ratio / 12).round
           annual_budget_cents = (effective_salary * 100 * take_home_ratio).round
         else
@@ -160,7 +193,11 @@ class DemoDataGenerator
         n = transaction_count_for(config[:cadence], month_start, cat_key, per_year_months)
         next if n <= 0
 
-        amounts_cents = amounts_for_month(config, n, monthly_budget_cents, annual_budget_cents)
+        amounts_cents = if config[:amount_range_cents]
+          generate_amounts_from_range(config, n)
+        else
+          amounts_for_month(config, n, monthly_budget_cents, annual_budget_cents)
+        end
         dates = pick_dates_in_month(month_start, month_end, n, cat_key)
 
         vendors = config[:vendors]
@@ -170,6 +207,7 @@ class DemoDataGenerator
         n.times do |i|
           vendor_name = config[:vendors_ordered] ? vendors[i % vendors.size] : vendors[rng.rand(vendors.size)]
           amount_cents = amounts_cents[i]
+          signed_cents = (cat_key == :income ? amount_cents : -amount_cents)
           date = dates[i]
           transactions << {
             date: date,
@@ -177,10 +215,10 @@ class DemoDataGenerator
             category_name: category_name,
             subcategory_name: subcategory_name,
             vendor_name: vendor_name,
-            amount_cents: amount_cents,
+            amount_cents: signed_cents,
             memo: memo_for(cat_key, vendor_name)
           }
-          summary_by_category[cat_key][:generated_annual_cents] += amount_cents
+          summary_by_category[cat_key][:generated_annual_cents] += signed_cents
           summary_by_category[cat_key][:transaction_count] += 1
         end
       end
@@ -288,6 +326,20 @@ class DemoDataGenerator
     diff = total_cents - amounts.sum
     amounts[0] += diff
     amounts
+  end
+
+  def generate_amounts_from_range(config, n)
+    min_cents, max_cents = config[:amount_range_cents]
+    range = max_cents - min_cents
+    skew = config[:amount_range_skew]
+    n.times.map do
+      if skew == :low
+        # Skew toward min: use rand**2 so more values near min
+        (min_cents + range * rng.rand**2).round
+      else
+        (min_cents + range * rng.rand).round
+      end
+    end
   end
 
   def pick_dates_in_month(month_start, month_end, n, category_key)
