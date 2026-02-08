@@ -15,12 +15,7 @@
   <!-- Chart section -->
   <div class="flex-1 bg-white p-4 mb-4" style="">
     <canvas data-controller="vendor-spending-chart"
-            data-chart-data="<%= @output.map { |(_id, name), amount| 
-              { 
-                label: name || 'N/A', 
-                value: amount / 100.0 
-              } 
-            }.to_json %>">
+            data-chart-data="<%= @chart_data.to_json %>">
     </canvas>
   </div>
 

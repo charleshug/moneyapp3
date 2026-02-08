@@ -34,6 +34,15 @@ class ReportsController < ApplicationController
     .where(categories: { normal_balance: "EXPENSE" })  # Filter for expense categories
     # .order(date: :desc)  # Order transactions by date
     @output = SpendingByVendorReportService.get_hash_trx_by_vendor_cat(@trxes)
+    Rails.logger.debug "[Vendor Amount table] rows=#{@output.size}"
+    @output.each_with_index do |((vendor_id, vendor_name), amount), i|
+      Rails.logger.debug "  [#{i}] vendor_id=#{vendor_id} vendor=#{vendor_name.inspect} amount_cents=#{amount} amount=$#{amount / 100.0}"
+    end
+    @chart_data = SpendingByVendorReportService.chart_data_top9_plus_others(@output)
+    Rails.logger.debug "[Vendor pie chart] slices=#{@chart_data.size}"
+    @chart_data.each_with_index do |slice, i|
+      Rails.logger.debug "  [#{i}] vendor=#{slice[:label].inspect} amount=$#{slice[:value]}"
+    end
   end
 
 

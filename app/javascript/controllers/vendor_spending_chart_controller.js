@@ -6,24 +6,20 @@ Chart.register(...registerables);
 export default class extends Controller {
   connect() {
     const ctx = this.element.getContext('2d');
-    const rawData = JSON.parse(this.element.dataset.chartData);
-    
-    // Sort data by value in descending order and take top 10
-    const sortedData = rawData.sort((a, b) => b.value - a.value);
-    const top10Data = sortedData.slice(0, 10);
-    
-    // Combine the rest into "Others"
-    const othersSum = sortedData.slice(10).reduce((sum, item) => sum + item.value, 0);
-    if (othersSum > 0) {
-      top10Data.push({ label: 'Others', value: othersSum });
-    }
+    // Server sends top 9 vendors + "Others" (pre-aggregated), so chart matches table total
+    const chartData = JSON.parse(this.element.dataset.chartData);
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
+    console.debug('[Vendor pie chart] slices=', chartData.length, 'total=$', total);
+    chartData.forEach((item, i) => {
+      console.debug(`  [${i}] vendor=${item.label} amount=$${item.value}`);
+    });
 
     new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: top10Data.map(item => item.label),
+        labels: chartData.map(item => item.label),
         datasets: [{
-          data: top10Data.map(item => item.value),
+          data: chartData.map(item => item.value),
           backgroundColor: [
             '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1',
             '#EC4899', '#8B5CF6', '#14B8A6', '#F97316', '#06B6D4',
@@ -46,7 +42,7 @@ export default class extends Controller {
               label: (context) => {
                 const label = context.label || '';
                 const value = context.raw;
-                const percentage = ((value / rawData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1);
+                const percentage = total !== 0 ? ((value / total) * 100).toFixed(1) : '0';
                 return `${label}: ${new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
