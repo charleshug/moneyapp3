@@ -129,6 +129,9 @@
                 <% end %>
               <% end %>
             <div class="space-y-2">
+              <%= link_to import_trxes_path, class: "w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center block" do %>
+                <i class="fas fa-file-import mr-1"></i> Import Transactions
+              <% end %>
               <%= link_to import_preview_import_budgets_path, class: "w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center block" do %>
                 <i class="fas fa-file-import mr-1"></i> Import Budget Values
               <% end %>
