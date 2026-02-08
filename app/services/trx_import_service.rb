@@ -31,8 +31,10 @@ class TrxImportService
       csv.group_by { |row| [ row["Date"], row["Vendor"], row.object_id ] }
     end
 
-    Rails.logger.debug "Grouped Rows: #{grouped_rows.inspect}"
-    Rails.logger.debug "Using Group field: #{has_group_field}"
+    Rails.logger.debug "Grouped into #{grouped_rows.size} transaction groups (Group field: #{has_group_field})"
+
+    # Preload lookups for this budget only (1–2 queries per entity type instead of per row)
+    lookups = build_lookups(budget, grouped_rows)
 
     parsed_trxes = []
     warnings = []
@@ -46,10 +48,11 @@ class TrxImportService
         parsed_date = parse_date(first_row["Date"])
         raise ImportError, "Invalid date format: #{date}" unless parsed_date
 
-        account_id = find_account_id(first_row["Account"], budget)
+        account_id = lookups.account_id_by_name(first_row["Account"])
         raise ImportError, "Account not found: #{first_row['Account']}" unless account_id
 
-        vendor_id = find_or_create_vendor_id(vendor, budget)
+        vendor_id = lookups.vendor_id_by_name(vendor)
+        raise ImportError, "Vendor missing after lookup" unless vendor_id
 
         # Build the transaction hash
         trx = {
@@ -66,7 +69,7 @@ class TrxImportService
           amount = parse_amount(row["Amount"])
           next unless amount
 
-          subcategory_id = find_subcategory_id(row["Subcategory"], budget)
+          subcategory_id = lookups.subcategory_id_by_name(row["Subcategory"])
           unless subcategory_id
             warnings << "Subcategory not found: #{row['Subcategory']}"
             next
@@ -84,7 +87,6 @@ class TrxImportService
 
         if trx["lines_attributes"].any?
           parsed_trxes << trx
-          Rails.logger.debug "Added transaction: #{trx.inspect}"
         end
       rescue StandardError => e
         warnings << "Row error (#{vendor} - #{date}): #{e.message}"
@@ -92,8 +94,7 @@ class TrxImportService
       end
     end
 
-    Rails.logger.debug "Final parsed transactions: #{parsed_trxes.inspect}"
-    Rails.logger.debug "Warnings: #{warnings.inspect}"
+    Rails.logger.debug "Parsed #{parsed_trxes.size} transactions, #{warnings.size} warnings"
 
     { trxes: parsed_trxes, warnings: warnings }
   end
@@ -235,37 +236,61 @@ class TrxImportService
     BigDecimal(cleaned)
   end
 
-  def self.find_account_id(account_name, budget)
-    return nil unless account_name.present?
-    budget.accounts.find_by("LOWER(name) = ?", account_name.downcase)&.id
-  end
-
-  def self.find_or_create_vendor_id(memo, budget)
-    return nil unless memo.present?
-    vendor = budget.vendors.find_by("LOWER(name) = ?", memo.downcase)
-    vendor ||= budget.vendors.create!(name: memo)
-    vendor.id
-  end
-
-  def self.find_subcategory_id(category_name, budget)
-    return nil unless category_name.present?
-
-    # Try to match category - subcategory format
-    if category_name.include?(" - ")
-      category_name, subcategory_name = category_name.split(" - ").map(&:strip)
-      category = budget.categories
-        .where("LOWER(categories.name) = ?", category_name.downcase)
-        .first
-
-      return category&.subcategories
-        .where("LOWER(subcategories.name) = ?", subcategory_name.downcase)
-        &.first&.id
+  # In-memory lookups scoped to a single budget; used during parse to avoid N+1 queries.
+  ImportLookups = Struct.new(:account_ids, :vendor_ids, :subcategory_composite, :subcategory_direct, keyword_init: true) do
+    def account_id_by_name(name)
+      return nil unless name.present?
+      account_ids[name.to_s.downcase]
     end
 
-    # Try direct subcategory match
-    budget.subcategories
-      .where("LOWER(subcategories.name) = ?", category_name.downcase)
-      .first&.id
+    def vendor_id_by_name(name)
+      return nil unless name.present?
+      vendor_ids[name.to_s.downcase]
+    end
+
+    def subcategory_id_by_name(name)
+      return nil unless name.present?
+      key = name.to_s.downcase
+      # "Category - Subcategory" format first, then direct subcategory name
+      subcategory_composite[key] || subcategory_direct[key]
+    end
+  end
+
+  def self.build_lookups(budget, grouped_rows)
+    # Accounts: one query, scoped to this budget
+    account_ids = budget.accounts.pluck(:name, :id).to_h { |name, id| [ name.to_s.downcase, id ] }
+
+    # Vendors: load existing for this budget, then batch-create any missing referenced in CSV
+    vendor_ids = budget.vendors.pluck(:name, :id).to_h { |name, id| [ name.to_s.downcase, id ] }
+    unique_vendor_names = grouped_rows.keys.filter_map { |(_date, vendor, _group)| vendor }.uniq
+    new_names = unique_vendor_names.reject { |n| vendor_ids.key?(n.to_s.downcase) }.uniq
+    if new_names.any?
+      now = Time.current
+      Vendor.insert_all(
+        new_names.map { |name| { budget_id: budget.id, name: name, created_at: now, updated_at: now } }
+      )
+      budget.vendors.where(name: new_names).pluck(:name, :id).each do |name, id|
+        vendor_ids[name.to_s.downcase] = id
+      end
+    end
+
+    # Subcategories: one query for this budget; support "Category - Subcategory" and "Subcategory"
+    rows = budget.subcategories.joins(:category).pluck("categories.name", "subcategories.name", "subcategories.id")
+    subcategory_composite = {}
+    subcategory_direct = {}
+    rows.each do |cat_name, sub_name, id|
+      cat_key = cat_name.to_s.downcase
+      sub_key = sub_name.to_s.downcase
+      subcategory_composite["#{cat_key} - #{sub_key}"] = id
+      subcategory_direct[sub_key] = id unless subcategory_direct.key?(sub_key)
+    end
+
+    ImportLookups.new(
+      account_ids: account_ids,
+      vendor_ids: vendor_ids,
+      subcategory_composite: subcategory_composite,
+      subcategory_direct: subcategory_direct
+    )
   end
 
   def self.validate_transaction!(trx, total_amount)

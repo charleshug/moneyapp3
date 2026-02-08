@@ -19,7 +19,7 @@ class ImportTrxesController < ApplicationController
     begin
       Rails.logger.info "Parsing file: #{preview_import_trxes_params[:file].original_filename}"
       result = TrxImportService.parse(preview_import_trxes_params[:file], @current_budget)
-      Rails.logger.info "Parse result: #{result.inspect}"
+      Rails.logger.info "Parse result: #{result[:trxes].size} transactions, #{result[:warnings].size} warnings"
 
       if result[:trxes].any?
         ImportBatch.cleanup_old_batches
