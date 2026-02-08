@@ -96,8 +96,9 @@ Rails.application.routes.draw do
 
   root "trxes#index"
 
-  # Bill splitter - standalone route, no authentication required
-  get "billsplit", to: "bill_splitter#index", as: :bill_splitter
+  # Bill splitter - static app in public/bill-splitter/
+  get "billsplit", to: redirect("/bill-splitter/"), as: :bill_splitter
+  get "billsplitter", to: redirect("/bill-splitter/")
 
   resources :scheduled_trxes do
     collection do
