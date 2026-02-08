@@ -1,10 +1,9 @@
 # See https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
+# Disabled auto-deploy on push; run "fly deploy" locally or trigger this workflow manually in GitHub Actions.
 
 name: Fly Deploy
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:   # manual only; no longer runs on push to main
 jobs:
   deploy:
     name: Deploy app
