@@ -4,22 +4,16 @@ class ImportTrxesController < ApplicationController
       redirect_to import_trxes_path and return
     end
 
-    Rails.logger.info "=== Starting Import Preview ==="
-    Rails.logger.info "Params: #{preview_import_trxes_params.inspect}"
-
-    @current_budget = Budget.includes(:accounts, :vendors, :categories, :subcategories)
+    @current_budget = Budget.includes(:accounts, :vendors, categories: :subcategories)
                            .find(@current_budget.id)
 
     unless preview_import_trxes_params[:file]
-      Rails.logger.info "No file provided"
       flash[:alert] = "Please select a file to import"
       redirect_to import_trxes_path and return
     end
 
     begin
-      Rails.logger.info "Parsing file: #{preview_import_trxes_params[:file].original_filename}"
       result = TrxImportService.parse(preview_import_trxes_params[:file], @current_budget)
-      Rails.logger.info "Parse result: #{result[:trxes].size} transactions, #{result[:warnings].size} warnings"
 
       if result[:trxes].any?
         ImportBatch.cleanup_old_batches
@@ -27,20 +21,19 @@ class ImportTrxesController < ApplicationController
           budget: @current_budget,
           parsed_trxes: result[:trxes]
         )
-        Rails.logger.info "Created ImportBatch ID: #{@import_batch.id}"
 
         session[:import_batch_id] = @import_batch.id
         @trxes = result[:trxes]
+        # Use preloaded collections so the view does not trigger extra Vendor/Category/Subcategory queries
+        @preview_vendors = @current_budget.vendors.sort_by { |v| v.name.downcase }
+        @preview_categories_with_subs = @current_budget.categories.map { |c| [ c.name, c.subcategories.map { |s| [ s.name, s.id ] } ] }
 
         if result[:warnings].any?
-          Rails.logger.info "Import warnings: #{result[:warnings]}"
           flash.now[:warning] = truncate_warnings(result[:warnings])
         end
 
-        Rails.logger.info "Rendering preview template"
         render template: "import_trxes/preview", layout: "application"
       else
-        Rails.logger.info "No valid transactions found"
         flash[:alert] = "No valid transactions found in file. #{truncate_warnings(result[:warnings])}"
         redirect_to import_trxes_path
       end
@@ -52,8 +45,6 @@ class ImportTrxesController < ApplicationController
       Rails.logger.error "Unexpected error during import: #{e.message}\n#{e.backtrace.join("\n")}"
       flash[:alert] = "An unexpected error occurred during import. Please check your file format and try again."
       redirect_to import_trxes_path
-    ensure
-      Rails.logger.info "=== End Import Preview ==="
     end
   end
 

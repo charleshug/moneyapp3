@@ -63,7 +63,7 @@
                 </td>
                 <td class="px-4 py-2 whitespace-nowrap">
                   <%= f.select "trx[#{index}][vendor_id]",
-                      options_from_collection_for_select(@current_budget.vendors.order('LOWER(name)'), :id, :name, trx['vendor_id']),
+                      options_from_collection_for_select(@preview_vendors, :id, :name, trx['vendor_id']),
                       {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
                 </td>
                 <td class="px-4 py-2 whitespace-nowrap">
@@ -89,12 +89,7 @@
                     </span>
                   <% else %>
                     <%= f.select "trx[#{index}][lines_attributes][0][subcategory_id]",
-                        grouped_options_for_select(
-                          @current_budget.categories.includes(:subcategories).map { |c|
-                            [c.name, c.subcategories.map { |s| [s.name, s.id] }]
-                          },
-                          trx['lines_attributes']['0']['subcategory_id']
-                        ),
+                        grouped_options_for_select(@preview_categories_with_subs, trx['lines_attributes']['0']['subcategory_id']),
                         {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
                   <% end %>
                 </td>
@@ -117,12 +112,7 @@
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap">
                       <%= f.select "trx[#{index}][lines_attributes][#{key}][subcategory_id]",
-                          grouped_options_for_select(
-                            @current_budget.categories.includes(:subcategories).map { |c|
-                              [c.name, c.subcategories.map { |s| [s.name, s.id] }]
-                            },
-                            line['subcategory_id']
-                          ),
+                          grouped_options_for_select(@preview_categories_with_subs, line['subcategory_id']),
                           {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" } %>
                     </td>
                     <td class="px-4 py-2"></td>
