@@ -6,7 +6,10 @@ class TrxImportService
   OPTIONAL_HEADERS = [ "Memo", "Cleared", "Group" ].freeze
   DATE_FORMATS = [ "%m/%d/%Y", "%Y-%m-%d", "%d/%m/%Y" ].freeze
 
-  def self.parse(file, budget)
+  # Stay under Rack's default request parameter limit (~4096). Each transaction adds several params on submit.
+  MAX_TRANSACTIONS_FOR_PREVIEW = 400
+
+  def self.parse(file, budget, max_transactions: MAX_TRANSACTIONS_FOR_PREVIEW)
     raise ImportError, "No file provided" unless file
     raise ImportError, "Invalid file type" unless valid_file_type?(file)
 
@@ -29,6 +32,12 @@ class TrxImportService
     else
       # Each row becomes its own group unless it's a split transaction
       csv.group_by { |row| [ row["Date"], row["Vendor"], row.object_id ] }
+    end
+
+    if max_transactions && grouped_rows.size > max_transactions
+      raise ImportError,
+        "This file has too many transactions (#{grouped_rows.size}) to preview and import in one go. " \
+        "Please split your file and import #{max_transactions} transactions or fewer per file."
     end
 
     Rails.logger.debug "Grouped into #{grouped_rows.size} transaction groups (Group field: #{has_group_field})"

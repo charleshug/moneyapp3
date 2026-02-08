@@ -6,7 +6,18 @@ class ApplicationController < ActionController::Base
   before_action :detect_variant
   before_action :load_accounts_for_sidebar
 
+  rescue_from ActionController::BadRequest, with: :handle_bad_request
+
   private
+
+  def handle_bad_request(exception)
+    if exception.message.to_s.include?("exceeds limit") || exception.cause.is_a?(Rack::QueryParser::QueryLimitError)
+      redirect_to import_trxes_path,
+        alert: "This import has too many transactions to submit at once. Please split your file and import 400 transactions or fewer per file."
+    else
+      raise exception
+    end
+  end
 
   def detect_variant
     browser = Browser.new(request.user_agent) # from `browser` gem
