@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 gem "groupdate"
-gem "pagy"
+gem "pagy", "~> 6.0"
 gem "devise"
 gem "ransack"
 gem "tailwindcss-rails"
