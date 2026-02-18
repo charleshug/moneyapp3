@@ -112,7 +112,9 @@ class Ledger < ApplicationRecord
   end
 
   def self.get_budget_sum_current_month(date)
-    Ledger.where(date: date.end_of_month)
+    Ledger.joins(subcategory: :category)
+          .where(date: date.end_of_month)
+          .where(categories: { normal_balance: "EXPENSE" })
           .sum(:budget)
   end
 
