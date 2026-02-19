@@ -2,17 +2,26 @@ class BudgetService
   def self.get_budget_available(current_budget, date)
     date = date.end_of_month
 
-    overspent_prev = current_budget.ledgers.get_overspent_before_month(date.prev_month.end_of_month)
-    income_prev = current_budget.lines.income.joins(:trx).where("trxes.date < ?", date).sum(:amount)
+    overspent = current_budget.ledgers
+      .joins(subcategory: :category)
+      .where("ledgers.date < ?", date.beginning_of_month)
+      .where(categories: { normal_balance: "EXPENSE" })
+      .where(carry_forward_negative_balance: false)
+      .sum(:balance)
 
-    budget_prev = current_budget.ledgers.get_budget_sum_before_month(date)
-    budget_available_previously = overspent_prev + income_prev - budget_prev
+    income = current_budget.ledgers
+      .joins(subcategory: :category)
+      .where("ledgers.date <= ?", date)
+      .where(categories: { normal_balance: "INCOME" })
+      .sum(:actual)
 
-    overspent_current = current_budget.ledgers.get_overspent_in_date_range(date.prev_month.beginning_of_month, date.prev_month.end_of_month)
-    income_ledgers = current_budget.ledgers.where(date: date.end_of_month, subcategory: Subcategory.find_by(category: Category.find_by(name: "Income Parent")))
-    income_current = income_ledgers.sum(:actual)
-    budget_current = current_budget.ledgers.get_budget_sum_current_month(date)
-    budget_available_previously + overspent_current + income_current - budget_current
+    budgeted = current_budget.ledgers
+      .joins(subcategory: :category)
+      .where("ledgers.date <= ?", date)
+      .where(categories: { normal_balance: "EXPENSE" })
+      .sum(:budget)
+
+    overspent + income - budgeted
   end
 
 
@@ -44,10 +53,6 @@ class BudgetService
                     balance = previous_ledger.rolling_balance
                     carry_forward = previous_ledger.carry_forward_negative_balance
         end
-
-        Rails.logger.debug "Subcategory: #{subcategory.name}"
-        Rails.logger.debug "Current ledger: #{current_ledger.inspect}"
-        Rails.logger.debug "Previous ledger: #{previous_ledger.inspect}"
 
         {
           id: subcategory.id,
