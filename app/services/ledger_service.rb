@@ -169,8 +169,9 @@ class LedgerService
     if ledger.update(update_params)
       # Only update carry_forward if it was included in the params and changed
       if carry_forward_changed
+        cf_value = ActiveModel::Type::Boolean.new.cast(params["carry_forward_negative_balance"])
         ledger.update_columns(
-          carry_forward_negative_balance: params["carry_forward_negative_balance"],
+          carry_forward_negative_balance: cf_value,
           user_changed: true
         )
 

@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   resources :accounts, except: [ :index, :show ]
   resources :ledgers do
     member do
+      get :overspending_settings
       post :toggle_carry_forward
       patch :update_budget
     end
