@@ -17,9 +17,11 @@ export default class extends Controller {
     event.preventDefault()
     
     // Create input element (use originalValue so re-opening the form shows last saved value)
+    // type="text" so user can enter relative expressions like "+ 0.5" or "- 5"
     const input = document.createElement("input")
-    input.type = "number"
-    input.step = "0.01"
+    input.type = "text"
+    input.inputMode = "decimal"
+    input.placeholder = "e.g. 10 or + 0.5"
     input.value = this.originalValue
     input.className = "w-full text-right border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
     
@@ -27,9 +29,9 @@ export default class extends Controller {
     this.cellTarget.innerHTML = ""
     this.cellTarget.appendChild(input)
     
-    // Focus and select the input
+    // Focus and select the input (setTimeout so select runs after focus; then typing replaces content)
     input.focus()
-    input.select()
+    setTimeout(() => input.select(), 0)
     
     // Add event listeners
     input.addEventListener("blur", this.finishEdit.bind(this))
@@ -48,8 +50,8 @@ export default class extends Controller {
 
   finishEdit(event) {
     const input = event.target
-    const newValue = parseFloat(input.value) || 0
-    
+    const newValue = this.parseBudgetInput(input.value.trim(), this.originalValue)
+
     // Don't update if value hasn't changed
     if (newValue === this.originalValue) {
       this.cancelEdit()
@@ -57,6 +59,47 @@ export default class extends Controller {
     }
 
     this.updateBudget(newValue)
+  }
+
+  // Parses user input: supports relative ("+ 0.5"), expressions ("10 + 0.5"), or plain number
+  parseBudgetInput(raw, baseValue) {
+    if (raw === "") return baseValue
+    const round = (n) => Math.round(n * 100) / 100
+
+    // Relative only: "+ 0.5", "- 5" → apply to current value (works when user replaced content)
+    const relativeMatch = raw.match(/^\s*([+\-*\/])\s*([\d.]+)\s*$/)
+    if (relativeMatch) {
+      const op = relativeMatch[1]
+      const num = parseFloat(relativeMatch[2])
+      if (Number.isNaN(num)) return baseValue
+      switch (op) {
+        case "+": return round(baseValue + num)
+        case "-": return round(baseValue - num)
+        case "*": return round(baseValue * num)
+        case "/": return num !== 0 ? round(baseValue / num) : baseValue
+        default: return baseValue
+      }
+    }
+
+    // Expression: "10 + 0.5", "10+0.5" → compute (handles when user appended to existing value)
+    const exprMatch = raw.match(/^\s*([\d.]+)\s*([+\-*\/])\s*([\d.]+)\s*$/)
+    if (exprMatch) {
+      const a = parseFloat(exprMatch[1])
+      const op = exprMatch[2]
+      const b = parseFloat(exprMatch[3])
+      if (Number.isNaN(a) || Number.isNaN(b)) return baseValue
+      switch (op) {
+        case "+": return round(a + b)
+        case "-": return round(a - b)
+        case "*": return round(a * b)
+        case "/": return b !== 0 ? round(a / b) : baseValue
+        default: return baseValue
+      }
+    }
+
+    // Plain number: "10", "0.5" → absolute value
+    const absolute = parseFloat(raw)
+    return Number.isNaN(absolute) ? baseValue : round(absolute)
   }
 
   cancelEdit() {
