@@ -11,14 +11,14 @@
         <tr>
           <th rowspan="2" class="px-4 py-2 text-left align-top w-48">Category</th>
           <% @display_months.each_with_index do |month, i| %>
-            <th colspan="3" class="px-2 py-1 text-center text-sm <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><%= month.strftime("%b %Y") %></th>
+            <th colspan="3" class="px-2 py-1 text-center text-sm <%= budget_month_col_visible(i) %>"><%= month.strftime("%b %Y") %></th>
           <% end %>
         </tr>
         <tr>
           <% @display_months.each_with_index do |month, i| %>
-            <th class="px-2 py-1 text-right w-32 min-w-[7rem] border-l-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Budget</th>
-            <th class="px-2 py-1 text-right w-32 min-w-[7rem] <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Actual</th>
-            <th class="px-2 py-1 text-right w-32 min-w-[7rem] border-r-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Balance</th>
+            <th class="px-2 py-1 text-right w-32 min-w-[7rem] border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>">Budget</th>
+            <th class="px-2 py-1 text-right w-32 min-w-[7rem] <%= budget_month_col_visible(i) %>">Actual</th>
+            <th class="px-2 py-1 text-right w-32 min-w-[7rem] border-r-2 border-gray-400 <%= budget_month_col_visible(i) %>">Balance</th>
           <% end %>
         </tr>
       </thead>
@@ -36,7 +36,7 @@
                   "Budgeted in Current",
                   s[:budget_available_current] < 0 ? "Overbudgeted" : "Available to budget in Current"
                 ] %>
-            <td colspan="3" class="px-2 py-1 border-l-2 border-r-2 border-gray-400 align-top min-w-[21rem] <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">
+            <td colspan="3" class="px-2 py-1 border-l-2 border-r-2 border-gray-400 align-top min-w-[21rem] <%= budget_month_col_visible(i) %>">
               <div class="text-sm whitespace-nowrap" style="line-height: 1.35;">
                 <% labels.each_with_index do |label, row_idx| %>
                   <div class="flex justify-between gap-2">
@@ -55,9 +55,9 @@
         <tr class="bg-gray-100 text-gray-600">
           <td class="px-4 py-0.5"></td>
           <% @display_months.each_with_index do |_month, i| %>
-            <td class="px-2 py-0.5 text-right border-l-2 border-gray-400 font-medium <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Budget</td>
-            <td class="px-2 py-0.5 text-right font-medium <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Actual</td>
-            <td class="px-2 py-0.5 text-right border-r-2 border-gray-400 font-medium <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">Balance</td>
+            <td class="px-2 py-0.5 text-right border-l-2 border-gray-400 font-medium <%= budget_month_col_visible(i) %>">Budget</td>
+            <td class="px-2 py-0.5 text-right font-medium <%= budget_month_col_visible(i) %>">Actual</td>
+            <td class="px-2 py-0.5 text-right border-r-2 border-gray-400 font-medium <%= budget_month_col_visible(i) %>">Balance</td>
           <% end %>
         </tr>
         <!-- Totals row -->
@@ -65,10 +65,10 @@
           <td class="px-4 py-2"></td>
           <% @display_months.each_with_index do |_month, i| %>
             <% data = @budget_table_data_by_month[i] %>
-            <td id="<%= i == @selected_month_index ? 'budget-table-total-budget' : '' %>" class="px-2 py-1 text-right border-l-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong><%= number_to_currency(data.sum { |p| p[:budget] } / 100.0) %></strong></td>
-            <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong><%= number_to_currency(data.sum { |p| p[:actual] } / 100.0) %></strong></td>
+            <td id="<%= i == @selected_month_index ? 'budget-table-total-budget' : '' %>" class="px-2 py-1 text-right border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>"><strong><%= number_to_currency(data.sum { |p| p[:budget] } / 100.0) %></strong></td>
+            <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %>"><strong><%= number_to_currency(data.sum { |p| p[:actual] } / 100.0) %></strong></td>
             <% tot_bal = data.sum { |p| p[:balance] } %>
-            <td id="<%= i == @selected_month_index ? 'budget-table-total-balance' : '' %>" class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong class="<%= tot_bal < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(tot_bal / 100.0) %></strong></td>
+            <td id="<%= i == @selected_month_index ? 'budget-table-total-balance' : '' %>" class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %>"><strong class="<%= tot_bal < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(tot_bal / 100.0) %></strong></td>
           <% end %>
         </tr>
         <tr class="border-t border-b border-gray-200">
@@ -79,9 +79,9 @@
             <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
             <% @display_months.each_with_index do |month, i| %>
               <% p = @budget_table_data_by_month[i][cat_idx] %>
-              <td id="<%= i == @selected_month_index ? "budget-category-#{parent[:id]}-budget" : '' %>" class="px-2 py-1 text-right border-l-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong><%= number_to_currency(p[:budget] / 100.0) %></strong></td>
-              <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong><%= link_to number_to_currency(p[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: month.beginning_of_month, date_lteq: month.end_of_month }) %></strong></td>
-              <td class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><strong class="<%= p[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(p[:balance] / 100.0) %></strong></td>
+              <td id="<%= i == @selected_month_index ? "budget-category-#{parent[:id]}-budget" : '' %>" class="px-2 py-1 text-right border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>"><strong><%= number_to_currency(p[:budget] / 100.0) %></strong></td>
+              <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %>"><strong><%= link_to number_to_currency(p[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: month.beginning_of_month, date_lteq: month.end_of_month }) %></strong></td>
+              <td class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %>"><strong class="<%= p[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(p[:balance] / 100.0) %></strong></td>
             <% end %>
           </tr>
           <% parent[:subcategories].each_with_index do |subcategory, sub_idx| %>
@@ -90,7 +90,7 @@
               <% @display_months.each_with_index do |month, i| %>
                 <% s = @budget_table_data_by_month[i][cat_idx][:subcategories][sub_idx] %>
                 <% if s[:ledger] %>
-                  <td class="px-2 py-1 text-right cursor-pointer hover:bg-blue-50 border-l-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"
+                  <td class="px-2 py-1 text-right cursor-pointer hover:bg-blue-50 border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>"
                       data-controller="inline-budget"
                       data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
                       data-inline-budget-ledger-id-value="<%= s[:ledger].id %>"
@@ -100,9 +100,9 @@
                       data-inline-budget-target="cell">
                     <%= number_to_currency(s[:budget] / 100.0) %>
                   </td>
-                  <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><%= link_to number_to_currency(s[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: month.beginning_of_month, date_lteq: month.end_of_month }) %></td>
+                  <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %>"><%= link_to number_to_currency(s[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: month.beginning_of_month, date_lteq: month.end_of_month }) %></td>
                 <% else %>
-                  <td class="px-2 py-1 text-right cursor-pointer hover:bg-blue-50 border-l-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"
+                  <td class="px-2 py-1 text-right cursor-pointer hover:bg-blue-50 border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>"
                       data-controller="inline-budget"
                       data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
                       data-inline-budget-ledger-id-value=""
@@ -112,9 +112,9 @@
                       data-inline-budget-target="cell">
                     <%= number_to_currency(0 / 100.0) %>
                   </td>
-                  <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>"><%= number_to_currency(0 / 100.0) %></td>
+                  <td class="px-2 py-1 text-right <%= budget_month_col_visible(i) %>"><%= number_to_currency(0 / 100.0) %></td>
                 <% end %>
-                <td class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %> <%= 'bg-blue-50' if i == @selected_month_index %>">
+                <td class="px-2 py-1 text-right border-r-2 border-gray-400 <%= budget_month_col_visible(i) %>">
                   <% if s[:ledger] %>
                     <%= link_to overspending_settings_ledger_path(s[:ledger]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "cursor-pointer hover:bg-blue-100 rounded px-1 -mx-1 #{s[:balance] < 0 ? 'text-red-600' : ''}" do %>
                       <%= number_to_currency(s[:balance] / 100.0) %>
