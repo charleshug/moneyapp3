@@ -27,7 +27,7 @@
         <table class="w-full">
           <tr>
             <td class="text-right px-3 py-1 w-1/2 <%= budget_available_previously < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_previously / 100.0)) %></td>
-            <td class="px-3 py-1 w-1/2 truncate">Not budgeted in Prev</td>
+            <td class="px-3 py-1 w-1/2 truncate"><%= budget_available_previously < 0 ? 'Overbudgeted in Prev' : 'Not budgeted in Prev' %></td>
           </tr>
           <tr>
             <td class="text-right px-3 py-1 <%= overspent_prev < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((overspent_prev / 100.0)) %></td>
@@ -43,7 +43,7 @@
           </tr>
           <tr class="rounded-b-lg">
             <td id="budget-summary-available" class="text-right px-3 py-1 w-1/2 <%= budget_available_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_current / 100.0)) %></td>
-            <td class="px-3 py-1 w-1/2 truncate">Available to budget in Current</td>
+            <td class="px-3 py-1 w-1/2 truncate"><%= budget_available_current < 0 ? 'Overbudgeted' : 'Available to budget in Current' %></td>
           </tr>
         </table>
       </div>
