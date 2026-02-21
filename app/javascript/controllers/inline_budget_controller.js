@@ -16,11 +16,11 @@ export default class extends Controller {
   startEdit(event) {
     event.preventDefault()
     
-    // Create input element
+    // Create input element (use originalValue so re-opening the form shows last saved value)
     const input = document.createElement("input")
     input.type = "number"
     input.step = "0.01"
-    input.value = this.currentBudgetValue
+    input.value = this.originalValue
     input.className = "w-full text-right border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
     
     // Replace cell content with input
