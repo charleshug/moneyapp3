@@ -39,10 +39,17 @@
             <td colspan="3" class="px-2 py-1 border-l-2 border-r-2 border-gray-400 align-top min-w-[21rem] <%= budget_month_col_visible(i) %>">
               <div class="text-sm whitespace-nowrap" style="line-height: 1.35;">
                 <% labels.each_with_index do |label, row_idx| %>
-                  <div class="flex">
-                    <span class="w-1/2 text-right pr-1 <%= vals[row_idx] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(vals[row_idx] / 100.0) %></span>
-                    <span class="w-1/2 text-left pl-1 text-gray-600"><%= label %></span>
-                  </div>
+                  <% if row_idx == 4 %>
+                    <div class="mt-1 text-center">
+                      <div class="text-3xl font-bold <%= vals[row_idx] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(vals[row_idx] / 100.0) %></div>
+                      <div class="text-base text-gray-600"><%= label %></div>
+                    </div>
+                  <% else %>
+                    <div class="flex">
+                      <span class="w-1/2 text-right pr-1 <%= vals[row_idx] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(vals[row_idx] / 100.0) %></span>
+                      <span class="w-1/2 text-left pl-1 text-gray-600"><%= label %></span>
+                    </div>
+                  <% end %>
                 <% end %>
               </div>
             </td>
