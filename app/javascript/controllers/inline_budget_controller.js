@@ -112,6 +112,11 @@ export default class extends Controller {
         if (data.ledger_id) {
           this.ledgerIdValue = data.ledger_id
         }
+
+        // Refresh all visible month columns (summaries, balances, totals) via Turbo Stream
+        if (data.turbo_stream) {
+          Turbo.renderStreamMessage(data.turbo_stream)
+        }
       } else {
         // Show error and revert
         this.showError(data.errors?.join(", ") || "Failed to update budget")
