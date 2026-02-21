@@ -26,32 +26,41 @@ class BudgetService
 
 
   def self.generate_budget_table_data(current_budget, selected_month)
-    # Eager load all related data in a single query
     categories = current_budget.categories.expense
       .includes(:subcategories)
-      .includes(subcategories: :ledgers)
-      .order(:name)  # Order categories alphabetically
+      .order(:name)
 
     end_of_month = selected_month.end_of_month.to_date
+    subcategory_ids = categories.flat_map { |c| c.subcategories.map(&:id) }
+
+    # Batch load current-month ledgers with prev to avoid N+1
+    current_ledgers_by_sub = Ledger
+      .where(subcategory_id: subcategory_ids, date: end_of_month)
+      .includes(:prev)
+      .index_by(&:subcategory_id)
+
+    # Batch load latest ledger before end_of_month per subcategory (for rows with no current ledger)
+    previous_ledgers_by_sub = Ledger
+      .where(subcategory_id: subcategory_ids)
+      .where("date < ?", end_of_month)
+      .order(:subcategory_id, date: :desc)
+      .to_a
+      .group_by(&:subcategory_id)
+      .transform_values(&:first)
 
     categories.map do |category|
-      # Order subcategories alphabetically within each category
       subcategories_data = category.subcategories.order(:name).map do |subcategory|
-        current_ledger = subcategory.ledgers.find_by(date: end_of_month)
-        previous_ledger = current_ledger&.prev
-        if previous_ledger.nil?
-          previous_ledger = subcategory.ledgers.where("date < ?", end_of_month).order(date: :desc).first
-        end
+        current_ledger = current_ledgers_by_sub[subcategory.id]
+        previous_ledger = current_ledger&.prev || previous_ledgers_by_sub[subcategory.id]
 
-        # Determine balance based on ledger availability
         balance = 0
         carry_forward = false
         if current_ledger
-                    balance = current_ledger.balance
-                    carry_forward = current_ledger.carry_forward_negative_balance
+          balance = current_ledger.balance
+          carry_forward = current_ledger.carry_forward_negative_balance
         elsif previous_ledger
-                    balance = previous_ledger.rolling_balance
-                    carry_forward = previous_ledger.carry_forward_negative_balance
+          balance = previous_ledger.rolling_balance
+          carry_forward = previous_ledger.carry_forward_negative_balance
         end
 
         {
@@ -61,12 +70,11 @@ class BudgetService
           actual: current_ledger&.actual || 0,
           balance: balance,
           carry_forward: carry_forward,
-          previous_amount: previous_ledger&.budget || 0, # previous_ledger is nil if it's the first ledger
+          previous_amount: previous_ledger&.budget || 0,
           ledger: current_ledger
         }
       end
 
-      # Calculate category totals
       category_budget = subcategories_data.sum { |s| s[:budget] }
       category_actual = subcategories_data.sum { |s| s[:actual] }
 
