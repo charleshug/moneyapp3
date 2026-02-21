@@ -1,5 +1,6 @@
 class LedgersController < ApplicationController
   include Pagy::Backend
+  include ActionView::Helpers::NumberHelper
 
   before_action :set_ledger, only: %i[ edit update ]
 
