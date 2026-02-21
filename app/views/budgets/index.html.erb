@@ -26,13 +26,13 @@
         <!-- Summary row at the top -->
         <tr class="bg-gray-100">
           <td class="px-4 py-2"></td>
-          <td class="px-4 py-2 text-right">
+          <td id="budget-table-total-budget" class="px-4 py-2 text-right">
             <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right">
+          <td id="budget-table-total-actual" class="px-4 py-2 text-right">
             <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right">
+          <td id="budget-table-total-balance" class="px-4 py-2 text-right">
             <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
             <strong class="<%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
           </td>
@@ -44,11 +44,11 @@
         </tr>
         
         <% @budget_table_data.each do |parent| %>
-          <tr class="bg-gray-100">
+          <tr class="bg-gray-100" data-category-id="<%= parent[:id] %>">
             <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
-            <td class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
+            <td id="budget-category-<%= parent[:id] %>-budget" class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
             <td class="px-4 py-2 text-right"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
-            <td class="px-4 py-2 text-right">
+            <td id="budget-category-<%= parent[:id] %>-balance" class="px-4 py-2 text-right">
               <strong class="<%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
             </td>
           </tr>

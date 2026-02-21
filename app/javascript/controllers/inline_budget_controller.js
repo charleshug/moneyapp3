@@ -98,6 +98,10 @@ export default class extends Controller {
         if (data.summary) {
           this.updateBudgetSummary(data.summary)
         }
+        // Update category row and table totals (budgets index page)
+        if (data.category || data.totals) {
+          this.updateBudgetTable(data.category, data.totals)
+        }
         
         // Update the original value
         this.originalValue = amount
@@ -137,6 +141,31 @@ export default class extends Controller {
     if (availableEl) {
       availableEl.textContent = summary.budget_available_current
       availableEl.classList.toggle("text-red-600", summary.budget_available_negative)
+    }
+  }
+
+  updateBudgetTable(category, totals) {
+    if (category) {
+      const budgetEl = document.getElementById(`budget-category-${category.id}-budget`)
+      const balanceEl = document.getElementById(`budget-category-${category.id}-balance`)
+      if (budgetEl) {
+        budgetEl.innerHTML = `<strong>${category.budget}</strong>`
+      }
+      if (balanceEl) {
+        const balanceClass = category.balance_negative ? "text-red-600" : ""
+        balanceEl.innerHTML = `<strong class="${balanceClass}">${category.balance}</strong>`
+      }
+    }
+    if (totals) {
+      const budgetEl = document.getElementById("budget-table-total-budget")
+      const actualEl = document.getElementById("budget-table-total-actual")
+      const balanceEl = document.getElementById("budget-table-total-balance")
+      if (budgetEl) budgetEl.innerHTML = `<strong>${totals.budget}</strong>`
+      if (actualEl) actualEl.innerHTML = `<strong>${totals.actual}</strong>`
+      if (balanceEl) {
+        balanceEl.innerHTML = `<strong>${totals.balance}</strong>`
+        balanceEl.classList.toggle("text-red-600", totals.balance_negative)
+      }
     }
   }
 

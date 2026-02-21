@@ -178,6 +178,12 @@ class LedgersController < ApplicationController
   def budget_response_with_summary(budget_amount, ledger, selected_month)
     budget_current = @current_budget.ledgers.get_budget_sum_current_month(selected_month)
     budget_available_current = BudgetService.get_budget_available(@current_budget, selected_month)
+    table_data = BudgetService.generate_budget_table_data(@current_budget, selected_month)
+    category_id = ledger.subcategory.category_id
+    category_row = table_data.find { |p| p[:id] == category_id }
+    total_budget = table_data.sum { |p| p[:budget] }
+    total_actual = table_data.sum { |p| p[:actual] }
+    total_balance = table_data.sum { |p| p[:balance] }
     {
       success: true,
       budget: number_to_currency(budget_amount),
@@ -187,6 +193,18 @@ class LedgersController < ApplicationController
         budget_current_negative: -budget_current < 0,
         budget_available_current: number_to_currency(budget_available_current / 100.0),
         budget_available_negative: budget_available_current < 0
+      },
+      category: category_row ? {
+        id: category_id,
+        budget: number_to_currency(category_row[:budget] / 100.0),
+        balance: number_to_currency(category_row[:balance] / 100.0),
+        balance_negative: category_row[:balance] < 0
+      } : nil,
+      totals: {
+        budget: number_to_currency(total_budget / 100.0),
+        actual: number_to_currency(total_actual / 100.0),
+        balance: number_to_currency(total_balance / 100.0),
+        balance_negative: total_balance < 0
       }
     }
   end
