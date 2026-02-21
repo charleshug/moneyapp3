@@ -6,7 +6,8 @@ export default class extends Controller {
     subcategoryId: Number,
     ledgerId: Number,
     date: String,
-    currentBudget: Number
+    currentBudget: Number,
+    monthIndex: Number
   }
 
   connect() {
@@ -103,9 +104,10 @@ export default class extends Controller {
           this.updateBudgetTable(data.category, data.totals)
         }
         
-        // Update the original value
+        // Update the original value and the value used when re-opening the editor
         this.originalValue = amount
-        
+        this.currentBudgetValue = amount
+
         // Update ledger ID if this was a new ledger
         if (data.ledger_id) {
           this.ledgerIdValue = data.ledger_id
@@ -123,48 +125,66 @@ export default class extends Controller {
   }
 
   updateBalanceCell(balance) {
-    // Find the balance cell in the same row
     const row = this.cellTarget.closest("tr")
-    const balanceCell = row.querySelector("td:last-child")
+    const monthIndex = String(this.monthIndexValue ?? 0)
+    const monthCells = row.querySelectorAll(`td[data-month-index="${monthIndex}"]`)
+    const balanceCell = monthCells.length >= 1 ? monthCells[monthCells.length - 1] : null
     if (balanceCell) {
       balanceCell.innerHTML = balance
     }
   }
 
   updateBudgetSummary(summary) {
-    const budgetedEl = document.getElementById("budget-summary-budgeted")
-    const availableEl = document.getElementById("budget-summary-available")
-    if (budgetedEl) {
-      budgetedEl.textContent = summary.budget_current
-      budgetedEl.classList.toggle("text-red-600", summary.budget_current_negative)
+    const monthIndex = String(this.monthIndexValue ?? 0)
+    const table = this.cellTarget.closest("table")
+    const summaryTd = table?.querySelector(`td[data-month-index="${monthIndex}"][colspan="3"]`) ?? null
+    if (!summaryTd) return
+    const budgetedLine = summaryTd.querySelector('[data-summary-line="budgeted"]')
+    const availableLine = summaryTd.querySelector('[data-summary-line="available"]')
+    if (budgetedLine) {
+      const amountSpan = budgetedLine.querySelector("span:first-child")
+      if (amountSpan) {
+        amountSpan.textContent = summary.budget_current
+        amountSpan.classList.toggle("text-red-600", summary.budget_current_negative)
+      }
     }
-    if (availableEl) {
-      availableEl.textContent = summary.budget_available_current
-      availableEl.classList.toggle("text-red-600", summary.budget_available_negative)
+    if (availableLine) {
+      const amountDiv = availableLine.querySelector("div:first-child")
+      if (amountDiv) {
+        amountDiv.textContent = summary.budget_available_current
+        amountDiv.classList.toggle("text-red-600", summary.budget_available_negative)
+      }
     }
   }
 
   updateBudgetTable(category, totals) {
+    const monthIndex = String(this.monthIndexValue ?? 0)
+    const table = this.cellTarget.closest("table")
+    if (!table) return
     if (category) {
-      const budgetEl = document.getElementById(`budget-category-${category.id}-budget`)
-      const balanceEl = document.getElementById(`budget-category-${category.id}-balance`)
-      if (budgetEl) {
-        budgetEl.innerHTML = `<strong>${category.budget}</strong>`
-      }
-      if (balanceEl) {
-        const balanceClass = category.balance_negative ? "text-red-600" : ""
-        balanceEl.innerHTML = `<strong class="${balanceClass}">${category.balance}</strong>`
+      const categoryRow = table.querySelector(`tr[data-category-id="${category.id}"]`)
+      if (categoryRow) {
+        const budgetCell = categoryRow.querySelector(`td[data-month-index="${monthIndex}"][data-category-type="budget"]`)
+        const balanceCell = categoryRow.querySelector(`td[data-month-index="${monthIndex}"][data-category-type="balance"]`)
+        if (budgetCell) budgetCell.innerHTML = `<strong>${category.budget}</strong>`
+        if (balanceCell) {
+          const balanceClass = category.balance_negative ? "text-red-600" : ""
+          balanceCell.innerHTML = `<strong class="${balanceClass}">${category.balance}</strong>`
+        }
       }
     }
     if (totals) {
-      const budgetEl = document.getElementById("budget-table-total-budget")
-      const actualEl = document.getElementById("budget-table-total-actual")
-      const balanceEl = document.getElementById("budget-table-total-balance")
-      if (budgetEl) budgetEl.innerHTML = `<strong>${totals.budget}</strong>`
-      if (actualEl) actualEl.innerHTML = `<strong>${totals.actual}</strong>`
-      if (balanceEl) {
-        balanceEl.innerHTML = `<strong>${totals.balance}</strong>`
-        balanceEl.classList.toggle("text-red-600", totals.balance_negative)
+      const totalsRow = table.querySelector("tr[data-budget-totals-row]")
+      if (totalsRow) {
+        const budgetEl = totalsRow.querySelector(`td[data-month-index="${monthIndex}"][data-total-type="budget"]`)
+        const actualEl = totalsRow.querySelector(`td[data-month-index="${monthIndex}"][data-total-type="actual"]`)
+        const balanceEl = totalsRow.querySelector(`td[data-month-index="${monthIndex}"][data-total-type="balance"]`)
+        if (budgetEl) budgetEl.innerHTML = `<strong>${totals.budget}</strong>`
+        if (actualEl) actualEl.innerHTML = `<strong>${totals.actual}</strong>`
+        if (balanceEl) {
+          balanceEl.innerHTML = `<strong>${totals.balance}</strong>`
+          balanceEl.classList.toggle("text-red-600", totals.balance_negative)
+        }
       }
     }
   }
