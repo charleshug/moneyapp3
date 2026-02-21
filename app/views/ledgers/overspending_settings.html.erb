@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "modal" do %>
+  <%= render "shared/modal", title: "Overspending Settings", model: @ledger, partial_name: "ledgers/overspending_form", partial_locals: { ledger: @ledger } %>
+<% end %>

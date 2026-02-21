@@ -1,0 +1,20 @@
+<%= form_with model: ledger, url: ledger_path(ledger), method: :patch, data: { turbo_frame: "modal" }, class: "space-y-4" do |f| %>
+  <%= f.hidden_field :budget, value: (ledger.budget / 100.0) %>
+  <p class="text-gray-600 text-sm">How do you want to handle overspending for this category?</p>
+  <div class="space-y-2">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <%= f.radio_button :carry_forward_negative_balance, "false", class: "rounded-full border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <span>Subtract it from next month's "Available to Budget"</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <%= f.radio_button :carry_forward_negative_balance, "true", class: "rounded-full border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <span>Subtract it from next month's category balance (→)</span>
+    </label>
+  </div>
+  <div class="flex justify-end gap-2 pt-2">
+    <button type="button" data-action="modal#close" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+      Cancel
+    </button>
+    <%= f.submit "Save", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors cursor-pointer" %>
+  </div>
+<% end %>

@@ -2,7 +2,7 @@ class LedgersController < ApplicationController
   include Pagy::Backend
   include ActionView::Helpers::NumberHelper
 
-  before_action :set_ledger, only: %i[ edit update ]
+  before_action :set_ledger, only: %i[ edit update overspending_settings ]
 
   def index
     @current_budget = Budget.includes(:categories, subcategories: :category)
@@ -74,9 +74,21 @@ class LedgersController < ApplicationController
     end
   end
 
+  def overspending_settings
+    if @ledger.subcategory.budget != @current_budget
+      redirect_to budgets_path, alert: "You are not authorized to edit this ledger."
+      return
+    end
+    render layout: false
+  end
+
   def update
     if LedgerService.update(@ledger, ledger_params)
-      redirect_to budgets_path(year: @ledger.date.year, month: @ledger.date.month), notice: "Ledger was successfully created."
+      if request.headers["Turbo-Frame"].present?
+        render formats: :turbo_stream, layout: false, status: :ok
+      else
+        redirect_to budgets_path(year: @ledger.date.year, month: @ledger.date.month), notice: "Ledger was successfully updated."
+      end
     else
       render :edit, status: :unprocessable_entity
     end

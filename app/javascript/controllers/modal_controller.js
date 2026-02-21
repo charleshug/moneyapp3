@@ -52,13 +52,46 @@ export default class extends Controller {
 
   open() {
     this.element.classList.remove("hidden")
-    this.element.classList.add("flex")
+    this.positionContainer()
+  }
+
+  positionContainer() {
+    if (!this.hasContainerTarget) return
+    const stored = sessionStorage.getItem("modalOpenPosition")
+    // Don't clear here — turbo:frame-load calls open() again after 10ms; clear on close
+    const container = this.containerTarget
+    container.style.position = "fixed"
+    if (stored) {
+      const [x, y] = stored.split(",").map(Number)
+      const padding = 16
+      const gapAboveMouse = 8
+      // Initial placement: horizontally centered, bottom edge at mouse (refined in rAF)
+      container.style.left = `${x}px`
+      container.style.top = `${y}px`
+      container.style.transform = "translate(-50%, 100%)"
+      requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect()
+        // Horizontally centered over mouse; bottom edge just above mouse
+        let left = x - rect.width / 2
+        let top = y - rect.height - gapAboveMouse
+        left = Math.max(padding, Math.min(left, window.innerWidth - rect.width - padding))
+        top = Math.max(padding, Math.min(top, window.innerHeight - rect.height - padding))
+        container.style.left = `${left}px`
+        container.style.top = `${top}px`
+        container.style.transform = "none"
+      })
+    } else {
+      container.style.left = "50%"
+      container.style.top = "50%"
+      container.style.transform = "translate(-50%, -50%)"
+    }
   }
 
   close() {
     this.element.classList.add("hidden")
     this.element.classList.remove("flex")
-    
+    sessionStorage.removeItem("modalOpenPosition")
+
     // ➡️ NEW: Clear the content when the modal is closed
     this.clearContent()
     

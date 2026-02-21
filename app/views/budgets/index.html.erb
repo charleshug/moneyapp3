@@ -81,12 +81,21 @@
                 <td class="px-4 py-2 text-right"><%= number_to_currency(0 / 100.0) %></td>
               <% end %>
                 <td class="px-4 py-2 text-right">
-                  <span class="<%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
-                    <%= number_to_currency(subcategory[:balance] / 100.0) %>
-                    <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
-                      ->
+                  <% if subcategory[:ledger] %>
+                    <%= link_to overspending_settings_ledger_path(subcategory[:ledger]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1 #{subcategory[:balance] < 0 ? 'text-red-600' : ''}" do %>
+                      <%= number_to_currency(subcategory[:balance] / 100.0) %>
+                      <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
+                        ->
+                      <% end %>
                     <% end %>
-                  </span>
+                  <% else %>
+                    <span class="<%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
+                      <%= number_to_currency(subcategory[:balance] / 100.0) %>
+                      <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
+                        ->
+                      <% end %>
+                    </span>
+                  <% end %>
                 </td>
             </tr>
           <% end %>
