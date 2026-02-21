@@ -65,13 +65,12 @@ export default class extends Controller {
       const [x, y] = stored.split(",").map(Number)
       const padding = 16
       const gapAboveMouse = 8
-      // Initial placement: horizontally centered, bottom edge at mouse (refined in rAF)
+      container.style.opacity = "0"
       container.style.left = `${x}px`
       container.style.top = `${y}px`
       container.style.transform = "translate(-50%, 100%)"
       requestAnimationFrame(() => {
         const rect = container.getBoundingClientRect()
-        // Horizontally centered over mouse; bottom edge just above mouse
         let left = x - rect.width / 2
         let top = y - rect.height - gapAboveMouse
         left = Math.max(padding, Math.min(left, window.innerWidth - rect.width - padding))
@@ -79,6 +78,7 @@ export default class extends Controller {
         container.style.left = `${left}px`
         container.style.top = `${top}px`
         container.style.transform = "none"
+        container.style.opacity = "1"
       })
     } else {
       container.style.left = "50%"
