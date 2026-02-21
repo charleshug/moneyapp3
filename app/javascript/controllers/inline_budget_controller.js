@@ -94,6 +94,11 @@ export default class extends Controller {
         // Update the balance cell if it exists
         this.updateBalanceCell(data.balance)
         
+        // Update budget summary section if present (budgets index page)
+        if (data.summary) {
+          this.updateBudgetSummary(data.summary)
+        }
+        
         // Update the original value
         this.originalValue = amount
         
@@ -119,6 +124,19 @@ export default class extends Controller {
     const balanceCell = row.querySelector("td:last-child")
     if (balanceCell) {
       balanceCell.innerHTML = balance
+    }
+  }
+
+  updateBudgetSummary(summary) {
+    const budgetedEl = document.getElementById("budget-summary-budgeted")
+    const availableEl = document.getElementById("budget-summary-available")
+    if (budgetedEl) {
+      budgetedEl.textContent = summary.budget_current
+      budgetedEl.classList.toggle("text-red-600", summary.budget_current_negative)
+    }
+    if (availableEl) {
+      availableEl.textContent = summary.budget_available_current
+      availableEl.classList.toggle("text-red-600", summary.budget_available_negative)
     }
   }
 

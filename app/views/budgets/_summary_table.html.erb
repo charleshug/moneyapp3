@@ -38,12 +38,12 @@
             <td class="px-3 py-1 truncate">Income for Current</td>
           </tr>
           <tr>
-            <td class="text-right px-3 py-1 <%= -budget_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(-(budget_current / 100.0)) %></td>
-            <td class="px-3 py-1 truncate">Budgeted in Current</td>
+            <td id="budget-summary-budgeted" class="text-right px-3 py-1 w-1/2 <%= -budget_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(-(budget_current / 100.0)) %></td>
+            <td class="px-3 py-1 w-1/2 truncate">Budgeted in Current</td>
           </tr>
           <tr class="rounded-b-lg">
-            <td class="text-right px-3 py-1 <%= budget_available_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_current / 100.0)) %></td>
-            <td class="px-3 py-1 truncate">Available to budget in Current</td>
+            <td id="budget-summary-available" class="text-right px-3 py-1 w-1/2 <%= budget_available_current < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((budget_available_current / 100.0)) %></td>
+            <td class="px-3 py-1 w-1/2 truncate">Available to budget in Current</td>
           </tr>
         </table>
       </div>

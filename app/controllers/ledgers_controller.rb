@@ -111,11 +111,7 @@ class LedgersController < ApplicationController
     budget_amount = params[:budget].to_f
 
     if LedgerService.update(@ledger, budget: budget_amount)
-      render json: {
-        success: true,
-        budget: number_to_currency(budget_amount),
-        balance: number_to_currency(@ledger.rolling_balance / 100.0)
-      }
+      render json: budget_response_with_summary(budget_amount, @ledger, @ledger.date)
     else
       render json: {
         success: false,
@@ -145,12 +141,7 @@ class LedgersController < ApplicationController
     @ledger = LedgerService.new.create_ledger(ledger_params)
 
     if @ledger.valid?
-      render json: {
-        success: true,
-        ledger_id: @ledger.id,
-        budget: number_to_currency(budget_amount),
-        balance: number_to_currency(@ledger.rolling_balance / 100.0)
-      }
+      render json: budget_response_with_summary(budget_amount, @ledger, date).merge(ledger_id: @ledger.id)
     else
       render json: {
         success: false,
@@ -182,5 +173,21 @@ class LedgersController < ApplicationController
       subcategory_category_id_in: params[:q][:subcategory_category_id_in],
       subcategory_id_in: params[:q][:subcategory_id_in]
     }.compact_blank
+  end
+
+  def budget_response_with_summary(budget_amount, ledger, selected_month)
+    budget_current = @current_budget.ledgers.get_budget_sum_current_month(selected_month)
+    budget_available_current = BudgetService.get_budget_available(@current_budget, selected_month)
+    {
+      success: true,
+      budget: number_to_currency(budget_amount),
+      balance: number_to_currency(ledger.rolling_balance / 100.0),
+      summary: {
+        budget_current: number_to_currency(-(budget_current / 100.0)),
+        budget_current_negative: -budget_current < 0,
+        budget_available_current: number_to_currency(budget_available_current / 100.0),
+        budget_available_negative: budget_available_current < 0
+      }
+    }
   end
 end
