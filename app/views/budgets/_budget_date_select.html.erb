@@ -1,5 +1,5 @@
 <div class="flex justify-center mb-6">
-  <div id="budget-header" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+  <div id="budget-header" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap bg-white rounded-lg shadow px-4 py-3">
     <%= link_to "<", budgets_path(date: { month: selected_month.prev_month.month, year: selected_month.prev_month.year }), method: :get, class: "px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300" %>
     <%= form_tag budgets_path, method: :get, class: "flex items-center space-x-2" do %>
       <%= select_month(selected_month, {}, class: "form-control") %>
