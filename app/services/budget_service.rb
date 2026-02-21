@@ -1,25 +1,24 @@
 class BudgetService
   def self.get_budget_available(current_budget, date)
     date = date.end_of_month
-
     overspent = current_budget.ledgers
-      .joins(subcategory: :category)
-      .where("ledgers.date < ?", date.beginning_of_month)
-      .where(categories: { normal_balance: "EXPENSE" })
-      .where(carry_forward_negative_balance: false)
-      .sum(:balance)
+    .joins(subcategory: :category)
+    .where("ledgers.date < ?", date.beginning_of_month)
+    .where(categories: { normal_balance: "EXPENSE" })
+    .where(carry_forward_negative_balance: false)
+    .sum(:balance)
 
     income = current_budget.ledgers
-      .joins(subcategory: :category)
-      .where("ledgers.date <= ?", date)
-      .where(categories: { normal_balance: "INCOME" })
-      .sum(:actual)
+    .joins(subcategory: :category)
+    .where("ledgers.date <= ?", date)
+    .where(categories: { normal_balance: "INCOME" })
+    .sum(:actual)
 
     budgeted = current_budget.ledgers
-      .joins(subcategory: :category)
-      .where("ledgers.date <= ?", date)
-      .where(categories: { normal_balance: "EXPENSE" })
-      .sum(:budget)
+    .joins(subcategory: :category)
+    .where("ledgers.date <= ?", date)
+    .where(categories: { normal_balance: "EXPENSE" })
+    .sum(:budget)
 
     overspent + income - budgeted
   end

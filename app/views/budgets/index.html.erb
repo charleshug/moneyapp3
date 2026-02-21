@@ -1,105 +1,27 @@
 <% provide(:title, "Budgets") %>
 
-<div class="container mx-auto max-w-6xl px-4">
-  <!-- begin budget summary table -->
-  <%= render "summary_table",
-          budget_available_previously: @budget_available_previously,
-          overspent_prev: @overspent_prev,
-          income_current: @income_current,
-          budget_current: @budget_current,
-          budget_available_current: @budget_available_current,
-          current_budget: @current_budget,
-          selected_month: @selected_month %>
+<div class="w-full max-w-full px-4">
+  <!-- date select: centered, separate from summary -->
+  <%= render "budget_date_select", selected_month: @selected_month %>
 
-  <!-- begin budget table -->
-  <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
-    <table class="w-full">
+  <!-- begin budget table: @container so column visibility follows available width -->
+  <div class="@container bg-white rounded-lg shadow mb-6 overflow-x-auto min-w-0">
+    <table class="w-full min-w-max">
       <thead class="bg-gray-100">
         <tr>
-          <th class="px-4 py-2 text-left">Category</th>
-          <th class="px-4 py-2 text-right w-1/6">Budget</th>
-          <th class="px-4 py-2 text-right w-1/6">Actual</th>
-          <th class="px-4 py-2 text-right w-1/6">Balance</th>
+          <th rowspan="2" class="px-4 py-2 text-left align-top w-48 min-w-48">Category</th>
+          <% @display_months.each_with_index do |month, i| %>
+            <th colspan="3" class="px-2 py-1 text-center text-sm <%= budget_month_col_visible(i) %>"><%= month.strftime("%b %Y") %></th>
+          <% end %>
+        </tr>
+        <tr>
+          <% @display_months.each_with_index do |month, i| %>
+            <th class="px-2 py-1 text-right w-32 <%= budget_month_cell_min %> border-l-2 border-gray-400 <%= budget_month_col_visible(i) %>">Budget</th>
+            <th class="px-2 py-1 text-right w-32 <%= budget_month_cell_min %> <%= budget_month_col_visible(i) %>">Actual</th>
+            <th class="px-2 py-1 text-right w-32 <%= budget_month_cell_min %> border-r-2 border-gray-400 <%= budget_month_col_visible(i) %>">Balance</th>
+          <% end %>
         </tr>
       </thead>
-      <tbody>
-        <!-- Summary row at the top -->
-        <tr class="bg-gray-100">
-          <td class="px-4 py-2"></td>
-          <td id="budget-table-total-budget" class="px-4 py-2 text-right">
-            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
-          </td>
-          <td id="budget-table-total-actual" class="px-4 py-2 text-right">
-            <strong><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
-          </td>
-          <td id="budget-table-total-balance" class="px-4 py-2 text-right">
-            <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
-            <strong class="<%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
-          </td>
-        </tr>
-        
-        <!-- Separator row -->
-        <tr class="border-t border-b border-gray-200">
-          <td colspan="4" class="py-1"></td>
-        </tr>
-        
-        <% @budget_table_data.each do |parent| %>
-          <tr class="bg-gray-100" data-category-id="<%= parent[:id] %>">
-            <td class="px-4 py-2"><strong><%= parent[:name] %></strong></td>
-            <td id="budget-category-<%= parent[:id] %>-budget" class="px-4 py-2 text-right"><strong><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
-            <td class="px-4 py-2 text-right"><strong><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
-            <td id="budget-category-<%= parent[:id] %>-balance" class="px-4 py-2 text-right">
-              <strong class="<%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
-            </td>
-          </tr>
-          <% parent[:subcategories].each do |subcategory| %>
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-2 pl-8"><%= subcategory[:name] %></td>
-              <% if subcategory[:ledger] %>
-                <td class="px-4 py-2 text-right cursor-pointer hover:bg-blue-50" 
-                    data-controller="inline-budget"
-                    data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
-                    data-inline-budget-ledger-id-value="<%= subcategory[:ledger].id %>"
-                    data-inline-budget-date-value="<%= @selected_month %>"
-                    data-inline-budget-current-budget-value="<%= subcategory[:budget] / 100.0 %>"
-                    data-action="click->inline-budget#startEdit"
-                    data-inline-budget-target="cell">
-                  <%= number_to_currency(subcategory[:budget] / 100.0) %>
-                </td>
-                <td class="px-4 py-2 text-right"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></td>
-              <% else %>
-                <td class="px-4 py-2 text-right cursor-pointer hover:bg-blue-50" 
-                    data-controller="inline-budget"
-                    data-inline-budget-subcategory-id-value="<%= subcategory[:id] %>"
-                    data-inline-budget-ledger-id-value=""
-                    data-inline-budget-date-value="<%= @selected_month %>"
-                    data-inline-budget-current-budget-value="0"
-                    data-action="click->inline-budget#startEdit"
-                    data-inline-budget-target="cell">
-                  <%= number_to_currency(0 / 100.0) %>
-                </td>
-                <td class="px-4 py-2 text-right"><%= number_to_currency(0 / 100.0) %></td>
-              <% end %>
-                <td class="px-4 py-2 text-right">
-                  <% if subcategory[:ledger] %>
-                    <%= link_to overspending_settings_ledger_path(subcategory[:ledger]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1 #{subcategory[:balance] < 0 ? 'text-red-600' : ''}" do %>
-                      <%= number_to_currency(subcategory[:balance] / 100.0) %>
-                      <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
-                        ->
-                      <% end %>
-                    <% end %>
-                  <% else %>
-                    <span class="<%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
-                      <%= number_to_currency(subcategory[:balance] / 100.0) %>
-                      <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
-                        ->
-                      <% end %>
-                    </span>
-                  <% end %>
-                </td>
-            </tr>
-          <% end %>
-        <% end %>
-      </tbody>
+      <%= render "budget_table_body" %>
     </table>
   </div>

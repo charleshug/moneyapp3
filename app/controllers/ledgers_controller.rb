@@ -1,6 +1,8 @@
 class LedgersController < ApplicationController
   include Pagy::Backend
+  include BudgetIndexData
   include ActionView::Helpers::NumberHelper
+  helper BudgetsHelper
 
   before_action :set_ledger, only: %i[ edit update overspending_settings ]
 
@@ -123,7 +125,9 @@ class LedgersController < ApplicationController
     budget_amount = params[:budget].to_f
 
     if LedgerService.update(@ledger, budget: budget_amount)
-      render json: budget_response_with_summary(budget_amount, @ledger, @ledger.date)
+      response = budget_response_with_summary(budget_amount, @ledger, @ledger.date)
+      response[:turbo_stream] = render_budget_table_turbo_stream
+      render json: response
     else
       render json: {
         success: false,
@@ -153,7 +157,9 @@ class LedgersController < ApplicationController
     @ledger = LedgerService.new.create_ledger(ledger_params)
 
     if @ledger.valid?
-      render json: budget_response_with_summary(budget_amount, @ledger, date).merge(ledger_id: @ledger.id)
+      response = budget_response_with_summary(budget_amount, @ledger, date).merge(ledger_id: @ledger.id)
+      response[:turbo_stream] = render_budget_table_turbo_stream
+      render json: response
     else
       render json: {
         success: false,
@@ -163,6 +169,13 @@ class LedgersController < ApplicationController
   end
 
   private
+
+  def render_budget_table_turbo_stream
+    selected = session[:selected_month].present? ? Date.parse(session[:selected_month].to_s) : (@ledger&.date || Date.current.end_of_month)
+    set_budget_index_data(selected)
+    render_to_string(partial: "ledgers/refresh_budget_table", formats: :turbo_stream, layout: false)
+  end
+
   def set_ledger
     @ledger = Ledger.find(params[:id])
   end
