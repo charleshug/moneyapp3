@@ -4,13 +4,13 @@ class TrxesController < ApplicationController
   before_action :check_transfer_child, only: %i[ update destroy ]
 
   def index
-    @current_budget = Budget.includes(:accounts, :vendors, :categories, subcategories: :category)
+    @current_budget = Budget.includes(:accounts, :vendors, categories: :subcategories, subcategories: :category)
                            .find(@current_budget.id)
 
-    # Load collections for filter dropdowns
+    # Load collections for filter dropdowns (include subcategories to avoid N+1 in filter bar)
     @accounts = @current_budget.accounts.order(:name)
     @vendors = @current_budget.vendors.order("LOWER(name)")
-    @categories = @current_budget.categories
+    @categories = @current_budget.categories.includes(:subcategories)
     @subcategories = @current_budget.subcategories
 
     base_query = @current_budget.trxes
@@ -171,7 +171,7 @@ class TrxesController < ApplicationController
 
   def balance_info
     # Use the exact same filtering logic as the index action
-    @current_budget = Budget.includes(:accounts, :vendors, :categories, subcategories: :category)
+    @current_budget = Budget.includes(:accounts, :vendors, categories: :subcategories, subcategories: :category)
                            .find(@current_budget.id)
 
     base_query = @current_budget.trxes
