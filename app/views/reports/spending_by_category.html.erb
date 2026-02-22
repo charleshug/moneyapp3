@@ -17,7 +17,7 @@
       <canvas data-controller="category-spending-chart"
               data-chart-data="<%= @output.map { |parent_id, data| 
                 { 
-                  label: Category.find_by(id: parent_id)&.name || 'N/A', 
+                  label: @categories_by_id[parent_id]&.name || 'N/A', 
                   value: data[:total] / 100.0,
                   subcategories: data[:subcategories]
                 } 
@@ -43,10 +43,10 @@
         <tbody class="bg-white">
           <% total_amount = 0 %>
           <% @output.each do |parent_id, data| %>
-            <% category = Category.find_by(id: parent_id) %>
+            <% category = @categories_by_id[parent_id] %>
             <% total_amount += data[:total] %>
             <tr class="bg-gray-50 font-bold">
-              <td class="px-4 py-2"><%= category.name %></td>
+              <td class="px-4 py-2"><%= category&.name %></td>
               <td class="px-4 py-2 text-right">
                 <%= link_to number_to_currency((data[:total] / 100.0), precision: 2), 
                     trxes_path(
@@ -60,10 +60,10 @@
               </td>
             </tr>
             <% data[:subcategories].each do |subcategory_id, sub_amount| %>
-              <% subcategory = Subcategory.find_by(id: subcategory_id) %>
+              <% subcategory = @subcategories_by_id[subcategory_id] %>
               <tr class="hover:bg-gray-50 border-t border-gray-100">
                 <td class="px-4 py-2 pl-8" data-subcategory-id="<%= subcategory_id %>">
-                  <%= subcategory.name %>
+                  <%= subcategory&.name %>
                 </td>
                 <td class="px-4 py-2 text-right">
                   <%= link_to number_to_currency((sub_amount / 100.0), precision: 2), 
