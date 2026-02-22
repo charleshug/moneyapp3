@@ -10,6 +10,10 @@ class ReportsController < ApplicationController
     #  .order("trxes.date DESC")
 
     @output = SpendingByCategoryReportService.get_hash_line_by_category_1(@lines)
+    category_ids = @output.keys
+    subcategory_ids = @output.flat_map { |_, data| data[:subcategories].keys }.uniq
+    @categories_by_id = category_ids.any? ? Category.where(id: category_ids).index_by(&:id) : {}
+    @subcategories_by_id = subcategory_ids.any? ? Subcategory.where(id: subcategory_ids).index_by(&:id) : {}
   end
 
   def net_worth
@@ -34,15 +38,7 @@ class ReportsController < ApplicationController
     .where(categories: { normal_balance: "EXPENSE" })  # Filter for expense categories
     # .order(date: :desc)  # Order transactions by date
     @output = SpendingByVendorReportService.get_hash_trx_by_vendor_cat(@trxes)
-    Rails.logger.debug "[Vendor Amount table] rows=#{@output.size}"
-    @output.each_with_index do |((vendor_id, vendor_name), amount), i|
-      Rails.logger.debug "  [#{i}] vendor_id=#{vendor_id} vendor=#{vendor_name.inspect} amount_cents=#{amount} amount=$#{amount / 100.0}"
-    end
     @chart_data = SpendingByVendorReportService.chart_data_top9_plus_others(@output)
-    Rails.logger.debug "[Vendor pie chart] slices=#{@chart_data.size}"
-    @chart_data.each_with_index do |slice, i|
-      Rails.logger.debug "  [#{i}] vendor=#{slice[:label].inspect} amount=$#{slice[:value]}"
-    end
   end
 
 
