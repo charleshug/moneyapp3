@@ -73,14 +73,29 @@ class BudgetsController < ApplicationController
 
   def reorder_subcategory
     subcategory = @current_budget.subcategories.find(params[:subcategory_id])
+    target_category = @current_budget.categories.find(params[:category_id])
     position = params[:position].to_i
-    position = [[position, 1].max, subcategory.category.subcategories.count].min
-
-    ordered = subcategory.category.subcategories.to_a
-    ordered.delete(subcategory)
-    ordered.insert(position - 1, subcategory)
 
     Subcategory.transaction do
+      if subcategory.category_id != target_category.id
+        # Move to another category: renumber old category, move subcategory with temp order to avoid unique violation
+        old_ordered = subcategory.category.subcategories.to_a
+        old_ordered.delete(subcategory)
+        old_ordered.each_with_index do |s, i|
+          s.update_column(:order, 1000 + i)
+        end
+        old_ordered.each_with_index do |s, i|
+          s.update_column(:order, i + 1)
+        end
+        subcategory.update_column(:order, 9999) # temp order so (category_id, order) is unique when we change category
+        subcategory.update_column(:category_id, target_category.id)
+      end
+
+      ordered = target_category.subcategories.reload.to_a
+      ordered.delete(subcategory)
+      position = [[position, 1].max, ordered.size].min
+      ordered.insert(position - 1, subcategory)
+
       ordered.each_with_index do |s, i|
         s.update_column(:order, 1000 + i)
       end

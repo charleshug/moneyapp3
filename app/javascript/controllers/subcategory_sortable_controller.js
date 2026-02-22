@@ -17,7 +17,7 @@ export default class extends Controller {
     if (!handle) return
 
     handle.draggable = true
-    handle.setAttribute("aria-label", "Drag to reorder subcategory")
+    handle.setAttribute("aria-label", "Drag to reorder or move subcategory between categories")
     handle.addEventListener("dragstart", this.dragstart.bind(this))
     row.addEventListener("dragover", this.dragover.bind(this))
     row.addEventListener("drop", this.drop.bind(this))
@@ -41,7 +41,7 @@ export default class extends Controller {
 
   dragover(e) {
     const row = e.target.closest("tr")
-    if (!row || !row.dataset.subcategoryId || row.dataset.categoryId !== this.draggedCategoryId) return
+    if (!row || !row.dataset.subcategoryId || !row.dataset.categoryId) return
     if (row === this.draggedRow) return
     e.preventDefault()
     e.dataTransfer.dropEffect = "move"
@@ -57,15 +57,16 @@ export default class extends Controller {
   drop(e) {
     e.preventDefault()
     const row = e.target.closest("tr")
-    if (!row || !row.dataset.subcategoryId || row.dataset.categoryId !== this.draggedCategoryId) return
+    if (!row || !row.dataset.subcategoryId || !row.dataset.categoryId) return
     if (row === this.draggedRow) return
     this.clearDropIndicator()
 
-    const categoryRows = Array.from(this.element.querySelectorAll(`tr[data-category-id="${this.draggedCategoryId}"][data-subcategory-id]`))
+    const targetCategoryId = row.dataset.categoryId
+    const categoryRows = Array.from(this.element.querySelectorAll(`tr[data-category-id="${targetCategoryId}"][data-subcategory-id]`))
     const targetIndex = categoryRows.indexOf(row)
     const position = targetIndex + 1
 
-    this.reorder(this.draggedRow.dataset.subcategoryId, position)
+    this.reorder(this.draggedRow.dataset.subcategoryId, targetCategoryId, position)
   }
 
   dragend(e) {
@@ -80,10 +81,11 @@ export default class extends Controller {
     this.element.querySelectorAll(".subcategory-drop-indicator").forEach((el) => el.classList.remove("subcategory-drop-indicator"))
   }
 
-  async reorder(subcategoryId, position) {
+  async reorder(subcategoryId, categoryId, position) {
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
     const formData = new FormData()
     formData.append("subcategory_id", subcategoryId)
+    formData.append("category_id", categoryId)
     formData.append("position", position)
     formData.append("authenticity_token", csrfToken)
 
