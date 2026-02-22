@@ -67,6 +67,9 @@ Rails.application.routes.draw do
     member do
       post "set_current"
     end
+    collection do
+      post "reorder_subcategory"
+    end
   end
 
   post "update_budget_values", to: "budgets#update_budgets"

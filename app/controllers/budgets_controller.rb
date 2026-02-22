@@ -71,6 +71,29 @@ class BudgetsController < ApplicationController
     end
   end
 
+  def reorder_subcategory
+    subcategory = @current_budget.subcategories.find(params[:subcategory_id])
+    position = params[:position].to_i
+    position = [[position, 1].max, subcategory.category.subcategories.count].min
+
+    ordered = subcategory.category.subcategories.to_a
+    ordered.delete(subcategory)
+    ordered.insert(position - 1, subcategory)
+
+    Subcategory.transaction do
+      ordered.each_with_index do |s, i|
+        s.update_column(:order, 1000 + i)
+      end
+      ordered.each_with_index do |s, i|
+        s.update_column(:order, i + 1)
+      end
+    end
+
+    set_selected_month_from_params
+    set_budget_index_data(@selected_month)
+    render partial: "ledgers/refresh_budget_table", formats: :turbo_stream, layout: false
+  end
+
   def update_budgets
     date = Date.parse(params[:date])
 

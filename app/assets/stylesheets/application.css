@@ -133,3 +133,8 @@
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Budget subcategory drag-and-drop: thick bottom border for drop position */
+tr.subcategory-drop-indicator td {
+  border-bottom: 3px solid #3b82f6;
+}

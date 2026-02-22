@@ -48,7 +48,7 @@ class BudgetService
       .transform_values(&:first)
 
     categories.map do |category|
-      subcategories_data = category.subcategories.sort_by(&:name).map do |subcategory|
+      subcategories_data = category.subcategories.map do |subcategory|
         current_ledger = current_ledgers_by_sub[subcategory.id]
         previous_ledger = current_ledger&.prev || previous_ledgers_by_sub[subcategory.id]
 

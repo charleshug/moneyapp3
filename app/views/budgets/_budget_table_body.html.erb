@@ -1,4 +1,6 @@
-<tbody id="budget-table-tbody">
+<tbody id="budget-table-tbody"
+        data-controller="subcategory-sortable"
+        data-subcategory-sortable-reorder-url-value="<%= reorder_subcategory_budgets_path %>">
   <!-- Per-month budget summary: one cell per month with label+value lines, text shrinks -->
   <tr class="bg-gray-50">
     <td class="px-4 py-2 w-48 min-w-48"></td>
@@ -73,8 +75,15 @@
       <% end %>
     </tr>
     <% parent[:subcategories].each_with_index do |subcategory, sub_idx| %>
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-2 pl-8 min-w-48"><%= subcategory[:name] %></td>
+      <tr class="hover:bg-gray-50" data-subcategory-id="<%= subcategory[:id] %>" data-category-id="<%= parent[:id] %>">
+        <td class="px-4 py-2 pl-8 min-w-48">
+          <span class="inline-flex items-center gap-1.5">
+            <span data-subcategory-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none" title="Drag to reorder" aria-hidden="true">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
+            </span>
+            <%= subcategory[:name] %>
+          </span>
+        </td>
         <% @display_months.each_with_index do |month, i| %>
           <% s = @budget_table_data_by_month[i][cat_idx][:subcategories][sub_idx] %>
           <% if s[:ledger] %>
