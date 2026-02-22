@@ -64,8 +64,8 @@ class IncomeExpenseReportService
     all_categories.order(:name).each do |category|
       report_data[:expenses][category.name] ||= {}
 
-      # Sort subcategories alphabetically
-      category.subcategories.order(:name).each do |subcategory|
+      # Sort subcategories alphabetically (in-memory to avoid N+1; subcategories already loaded via includes)
+      category.subcategories.sort_by(&:name).each do |subcategory|
         report_data[:expenses][category.name][subcategory.name] ||= {}
 
         # Initialize months to zero for this subcategory
