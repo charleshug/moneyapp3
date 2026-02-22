@@ -23,6 +23,45 @@ class BudgetService
     overspent + income - budgeted
   end
 
+  # Returns Hash[Date => Numeric] for many dates in 3 queries instead of 3*N.
+  def self.get_budget_available_for_dates(current_budget, dates)
+    dates = dates.map { |d| d.respond_to?(:end_of_month) ? d.end_of_month : d }.uniq
+    return {} if dates.empty?
+
+    max_date = dates.max
+    # Use Ledger + category scope to avoid Subcategory default_scope (ORDER BY subcategories.order) which conflicts with GROUP BY
+    base = Ledger.joins(subcategory: :category).where(categories: { budget_id: current_budget.id })
+
+    # Overspent as of beginning of each month: balance where date < month start, expense, no carry forward
+    expense_balance_by_date = base
+      .where(categories: { normal_balance: "EXPENSE" })
+      .where(carry_forward_negative_balance: false)
+      .where("ledgers.date < ?", max_date.beginning_of_month)
+      .group(:date)
+      .sum(:balance)
+
+    # Income and budgeted cumulative to each month
+    income_by_date = base
+      .where(categories: { normal_balance: "INCOME" })
+      .where("ledgers.date <= ?", max_date)
+      .group(:date)
+      .sum(:actual)
+
+    budgeted_by_date = base
+      .where(categories: { normal_balance: "EXPENSE" })
+      .where("ledgers.date <= ?", max_date)
+      .group(:date)
+      .sum(:budget)
+
+    dates.index_with do |date|
+      month_start = date.beginning_of_month
+      overspent = expense_balance_by_date.select { |ledger_date, _| ledger_date < month_start }.sum { |_, v| v }
+      income = income_by_date.select { |ledger_date, _| ledger_date <= date }.sum { |_, v| v }
+      budgeted = budgeted_by_date.select { |ledger_date, _| ledger_date <= date }.sum { |_, v| v }
+      overspent + income - budgeted
+    end
+  end
+
 
   def self.generate_budget_table_data(current_budget, selected_month)
     categories = current_budget.categories.expense

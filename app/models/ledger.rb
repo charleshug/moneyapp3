@@ -87,6 +87,20 @@ class Ledger < ApplicationRecord
           .sum(:balance)
   end
 
+  # Batched version: returns Hash[Date => Numeric] for many month-end dates in one query.
+  # Pass the budget's ledgers relation so scope is applied (e.g. current_budget.ledgers).
+  def self.get_overspent_by_dates(ledgers_relation, dates)
+    return {} if dates.empty?
+    month_ends = dates.map { |d| d.respond_to?(:end_of_month) ? d.end_of_month : d }.uniq
+    ledgers_relation
+      .where(carry_forward_negative_balance: false)
+      .where("balance < ?", 0)
+      .where(date: month_ends)
+      .reorder(nil)
+      .group(:date)
+      .sum(:balance)
+  end
+
   def self.get_overspent_before_month(date)
     date = date.prev_month.end_of_month
     Ledger.where(date: ..date)
@@ -116,6 +130,19 @@ class Ledger < ApplicationRecord
           .where(date: date.end_of_month)
           .where(categories: { normal_balance: "EXPENSE" })
           .sum(:budget)
+  end
+
+  # Batched version: returns Hash[Date => Numeric] for many month-end dates in one query.
+  def self.get_budget_sum_by_dates(ledgers_relation, dates)
+    return {} if dates.empty?
+    month_ends = dates.map { |d| d.respond_to?(:end_of_month) ? d.end_of_month : d }.uniq
+    ledgers_relation
+      .joins(subcategory: :category)
+      .where(categories: { normal_balance: "EXPENSE" })
+      .where(date: month_ends)
+      .reorder(nil)
+      .group(:date)
+      .sum(:budget)
   end
 
   def self.rebuild_chain_for_subcategory(subcategory_id)

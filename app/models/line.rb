@@ -26,6 +26,21 @@ class Line < ApplicationRecord
       .merge(Category.expense)
   }
 
+  # Returns Hash[Date => Numeric] (keys are end-of-month dates) in one query.
+  def self.income_sum_by_month_end_dates(lines_relation, month_end_dates)
+    return {} if month_end_dates.blank?
+    month_ends = month_end_dates.map { |d| d.respond_to?(:end_of_month) ? d.end_of_month : d }.uniq
+    range = month_ends.min.beginning_of_month..month_ends.max.end_of_month
+    result = lines_relation.income
+      .joins(:trx)
+      .where(trxes: { date: range })
+      .reorder(nil)
+      .group("DATE_TRUNC('month', trxes.date)::date")
+      .sum(:amount)
+    # Keys are first-of-month; convert to end_of_month for lookup
+    result.transform_keys { |k| (k.respond_to?(:to_date) ? k.to_date : Date.parse(k.to_s)).end_of_month }
+  end
+
   # This ensures empty parameters generate 0 instead of nil
   def amount=(value)
     if value.present?
