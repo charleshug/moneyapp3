@@ -1,4 +1,18 @@
+require "csv"
+
 class ImportTrxesController < ApplicationController
+  def sample
+    csv = CSV.generate do |csv_out|
+      csv_out << [ "Date", "Account", "Vendor", "Subcategory", "Amount", "Memo", "Cleared" ]
+      csv_out << [ "01/15/2026", "Checking", "Grocery Store", "Groceries", "-85.50", "Weekly groceries", "" ]
+      csv_out << [ "01/16/2026", "Checking", "Gas Station", "Auto Fuel", "-45.00", "", "true" ]
+    end
+    send_data csv,
+              filename: "transaction_import_sample.csv",
+              type: "text/csv",
+              disposition: "attachment"
+  end
+
   def import_preview
     if request.get?
       redirect_to import_trxes_path and return

@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   resources :import_trxes, only: [] do
     collection do
+      get "sample"
       get "import_preview"   # Redirect to import form
       post "import_preview"  # Handles the file upload and shows preview
       post "submit_import"   # Processes the final import
