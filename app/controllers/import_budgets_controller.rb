@@ -123,6 +123,18 @@ class ImportBudgetsController < ApplicationController
     render template: "import_budgets/import", layout: "application"
   end
 
+  def sample
+    csv = CSV.generate do |csv_out|
+      csv_out << [ "Date", "Subcategory", "Budget", "Carry Forward Negative Balance" ]
+      csv_out << [ "2026-01-31", "Groceries", "500.00", "false" ]
+      csv_out << [ "2026-01-31", "Dining", "150.00", "true" ]
+    end
+    send_data csv,
+              filename: "budget_import_sample.csv",
+              type: "text/csv",
+              disposition: "attachment"
+  end
+
   private
 
   def preview_import_budgets_params

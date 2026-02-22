@@ -115,6 +115,7 @@ Rails.application.routes.draw do
   resources :import_budgets, only: [] do
     collection do
       get :import
+      get :sample
       get :import_preview
       post :import_preview
       post :submit_import
