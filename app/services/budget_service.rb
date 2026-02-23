@@ -6,7 +6,7 @@ class BudgetService
     .where("ledgers.date < ?", date.beginning_of_month)
     .where(categories: { normal_balance: "EXPENSE" })
     .where(carry_forward_negative_balance: false)
-    .sum(:balance)
+    .sum(Arel.sql("LEAST(0, ledgers.balance)"))
 
     income = current_budget.ledgers
     .joins(subcategory: :category)
@@ -32,13 +32,13 @@ class BudgetService
     # Use Ledger + category scope to avoid Subcategory default_scope (ORDER BY subcategories.order) which conflicts with GROUP BY
     base = Ledger.joins(subcategory: :category).where(categories: { budget_id: current_budget.id })
 
-    # Overspent as of beginning of each month: balance where date < month start, expense, no carry forward
+    # Overspent as of beginning of each month: sum of negative balance (LEAST(0, balance)) where date < month start, expense, no carry forward
     expense_balance_by_date = base
       .where(categories: { normal_balance: "EXPENSE" })
       .where(carry_forward_negative_balance: false)
       .where("ledgers.date < ?", max_date.beginning_of_month)
       .group(:date)
-      .sum(:balance)
+      .sum(Arel.sql("LEAST(0, ledgers.balance)"))
 
     # Income and budgeted cumulative to each month
     income_by_date = base
