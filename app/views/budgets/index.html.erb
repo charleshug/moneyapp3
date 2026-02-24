@@ -10,18 +10,22 @@
       <thead class="bg-gray-100">
         <tr>
           <th rowspan="2" class="px-4 py-2 text-left align-top w-48 min-w-48">
-          <span class="inline-flex items-center gap-1.5">
-            Category
-            <button type="button" data-action="click->category-collapse-all#expandAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Expand all categories">
-              <i class="fa-solid fa-chevrons-down text-sm" aria-hidden="true"></i>
-            </button>
-            <button type="button" data-action="click->category-collapse-all#collapseAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse all categories">
-              <i class="fa-solid fa-chevrons-up text-sm" aria-hidden="true"></i>
-            </button>
-            <%= link_to new_category_path, data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1", title: "Create category" do %>
-              <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
-            <% end %>
-          </span>
+          <div class="flex items-center justify-between w-full gap-2">
+            <span class="inline-flex items-center gap-1.5">
+              Category
+              <%= link_to new_category_path, data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1", title: "Create category" do %>
+                <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
+              <% end %>
+            </span>
+            <span class="inline-flex items-center gap-0.5">
+              <button type="button" data-action="click->category-collapse-all#expandAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Expand all categories">
+                <i class="fa-solid fa-caret-down text-sm" aria-hidden="true"></i>
+              </button>
+              <button type="button" data-action="click->category-collapse-all#collapseAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse all categories">
+                <i class="fa-solid fa-caret-up text-sm" aria-hidden="true"></i>
+              </button>
+            </span>
+          </div>
         </th>
           <% @display_months.each_with_index do |month, i| %>
             <th colspan="3" class="px-2 py-1 text-center text-sm <%= budget_month_col_visible(i) %>"><%= month.strftime("%b %Y") %></th>
