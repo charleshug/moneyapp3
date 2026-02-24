@@ -1,4 +1,4 @@
-<%= form_with model: category, data: { turbo_frame: "modal" }, class: "space-y-4" do |f| %>
+<%= form_with model: category, data: { turbo_frame: "_top" }, class: "space-y-4" do |f| %>
   <% if category.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
       <div class="text-sm text-red-700">
