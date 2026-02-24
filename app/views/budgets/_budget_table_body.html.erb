@@ -66,10 +66,13 @@
     <td colspan="<%= 1 + @display_months.size * 3 %>" class="py-1"></td>
   </tr>
   <% @budget_table_data.each_with_index do |parent, cat_idx| %>
-    <tr class="bg-gray-100 group" data-category-id="<%= parent[:id] %>">
+    <tr class="bg-gray-100 group category-parent-row" data-category-id="<%= parent[:id] %>" data-controller="category-collapse">
       <td class="px-4 py-2 min-w-48">
         <div class="flex items-center justify-between w-full gap-2">
           <span class="inline-flex items-center gap-1.5 min-w-0">
+            <button type="button" data-action="click->category-collapse#toggle" data-category-collapse-target="toggleButton" class="inline-flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex-shrink-0" title="Collapse/expand subcategories" aria-expanded="true">
+              <i data-category-collapse-target="chevron" class="fa-solid fa-chevron-down text-xs transition-transform" aria-hidden="true"></i>
+            </button>
             <span data-category-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none inline-flex shrink-0" title="Drag to reorder categories" aria-hidden="true" draggable="true">
               <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
             </span>
@@ -88,7 +91,7 @@
       <% end %>
     </tr>
     <% parent[:subcategories].each_with_index do |subcategory, sub_idx| %>
-      <tr class="hover:bg-gray-50" data-subcategory-id="<%= subcategory[:id] %>" data-category-id="<%= parent[:id] %>">
+      <tr class="hover:bg-gray-50 category-subcategory-row" data-subcategory-id="<%= subcategory[:id] %>" data-category-id="<%= parent[:id] %>">
         <td class="px-4 py-2 pl-8 min-w-48">
           <span class="inline-flex items-center gap-1.5">
             <span data-subcategory-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none" title="Drag to reorder or move between categories" aria-hidden="true">
