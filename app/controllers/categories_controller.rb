@@ -46,7 +46,8 @@ class CategoriesController < ApplicationController
       return
     end
     if @category.update(category_params)
-      redirect_to categories_path, notice: "Category was successfully updated."
+      from_budgets = request.referer.to_s.include?(budgets_path)
+      redirect_to from_budgets ? budgets_path(params.permit(:month)) : categories_path, notice: "Category was successfully updated.", status: :see_other
     else
       render :edit, status: :unprocessable_entity
     end

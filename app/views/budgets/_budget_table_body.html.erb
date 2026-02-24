@@ -73,7 +73,7 @@
             <span data-category-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none inline-flex shrink-0" title="Drag to reorder categories" aria-hidden="true" draggable="true">
               <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
             </span>
-            <strong><%= parent[:name] %></strong>
+            <%= link_to parent[:name], edit_category_path(parent[:id]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded" %>
           </span>
           <%= link_to new_subcategory_path(category_id: parent[:id]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity", title: "Add subcategory" do %>
             <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
@@ -94,7 +94,7 @@
             <span data-subcategory-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none" title="Drag to reorder or move between categories" aria-hidden="true">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
             </span>
-            <%= subcategory[:name] %>
+            <%= link_to subcategory[:name], edit_subcategory_path(subcategory[:id]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded" %>
           </span>
         </td>
         <% @display_months.each_with_index do |month, i| %>
