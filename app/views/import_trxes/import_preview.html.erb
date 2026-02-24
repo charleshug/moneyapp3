@@ -1,6 +1,6 @@
 <% provide(:title, "Import Transactions") %>
 
-<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0 flex-1">
   <!-- Header row -->
   <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
     <div class="w-1/3">
@@ -11,7 +11,7 @@
   </div>
 
   <!-- Content section -->
-  <div class="p-4 overflow-y-auto flex-grow">
+  <div class="p-4 overflow-y-auto flex-1 min-h-0">
     <%= form_with url: submit_import_import_trxes_path, method: :post do %>
       <div class="overflow-x-auto bg-white rounded-lg shadow">
         <table class="min-w-full divide-y divide-gray-200">

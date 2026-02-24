@@ -1,6 +1,6 @@
 <% provide(:title, "Ledgers") %>
 
-<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col">
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0 flex-1">
   <!-- Header row -->
   <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
     <div class="w-1/3"></div>
@@ -16,7 +16,7 @@
   </div>
 
   <!-- Filter section -->
-  <div class="bg-white p-4 border-b border-gray-200">
+  <div class="bg-white p-4 border-b border-gray-200 flex-shrink-0">
     <%= search_form_for @q, class: 'space-y-4' do |f| %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -65,73 +65,72 @@
     <% end %>
   </div>
 
-  <!-- Table section -->
-  <div class="p-2 overflow-y-auto flex-grow flex flex-col">
-    <div class="overflow-x-auto flex-grow">
-      <table class="w-full bg-white rounded-lg overflow-hidden">
-        <thead class="bg-gray-50 sticky top-0 z-10">
-          <tr>
-            <th class="px-4 py-2 text-left"><%= sort_link(@q, :id, "ID") %></th>
-            <th class="px-4 py-2 text-left"><%= sort_link(@q, :date, "Date") %></th>
-            <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_category_name, "Category") %></th>
-            <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_name, "Subcategory") %></th>
-            <th class="px-4 py-2 text-right"><%= sort_link(@q, :budget, "Budget") %></th>
-            <th class="px-4 py-2 text-right"><%= sort_link(@q, :actual, "Actual") %></th>
-            <th class="px-4 py-2 text-right"><%= sort_link(@q, :balance, "Balance") %></th>
-            <th class="px-4 py-2 text-right"><%= sort_link(@q, :rolling_balance, "Rolling Balance") %></th>
-            <th class="px-4 py-2 text-center"><%= sort_link(@q, :carry_forward_negative_balance, "Carry Negative") %></th>
-            <th class="px-4 py-2 text-center"><%= sort_link(@q, :user_changed, "User Changed") %></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @ledgers.each do |ledger| %>
-            <tr class="border-t border-gray-100 hover:bg-gray-50">
-              <td class="px-4 py-2"><%= link_to ledger.id, edit_ledger_path(ledger), class: "text-blue-600 hover:text-blue-800" %></td>
-              <td class="px-4 py-2"><%= ledger.date %></td>
-              <td class="px-4 py-2"><%= ledger.subcategory.category.name %></td>
-              <td class="px-4 py-2"><%= ledger.subcategory.name %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.budget / 100.0) %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.actual / 100.0) %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.balance / 100.0) %></td>
-              <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.rolling_balance / 100.0) %></td>
-              <td class="px-4 py-2 text-center">
-                <%= button_to toggle_carry_forward_ledger_path(ledger, 
-                        q: {
-                          date_gteq: params.dig(:q, :date_gteq),
-                          date_lteq: params.dig(:q, :date_lteq),
-                          s: params.dig(:q, :s),
-                          subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
-                          subcategory_id_in: params.dig(:q, :subcategory_id_in)
-                        }.compact_blank,
-                        page: params[:page]),
-                      method: :post,
-                      class: "w-full h-full flex items-center justify-center hover:bg-gray-100 transition-colors",
-                      form: { class: "w-full h-full", data: { turbo_confirm: "Update carry forward setting for this and future ledgers?" } } do %>
-                  <span class="<%= ledger.carry_forward_negative_balance ? 'text-green-600' : 'text-red-600' %>">
-                    <%= ledger.carry_forward_negative_balance ? '✓' : '✗' %>
-                  </span>
-                <% end %>
-              </td>
-              <td class="px-4 py-2 text-center">
-                <span class="<%= ledger.user_changed ? 'text-green-600' : 'text-gray-400' %>">
-                  <%= ledger.user_changed ? '✓' : '✗' %>
+  <!-- Table section (scrollable middle) -->
+  <div class="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+    <table class="w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-gray-50 sticky top-0 z-10">
+        <tr>
+          <th class="px-4 py-2 text-left"><%= sort_link(@q, :id, "ID") %></th>
+          <th class="px-4 py-2 text-left"><%= sort_link(@q, :date, "Date") %></th>
+          <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_category_name, "Category") %></th>
+          <th class="px-4 py-2 text-left"><%= sort_link(@q, :subcategory_name, "Subcategory") %></th>
+          <th class="px-4 py-2 text-right"><%= sort_link(@q, :budget, "Budget") %></th>
+          <th class="px-4 py-2 text-right"><%= sort_link(@q, :actual, "Actual") %></th>
+          <th class="px-4 py-2 text-right"><%= sort_link(@q, :balance, "Balance") %></th>
+          <th class="px-4 py-2 text-right"><%= sort_link(@q, :rolling_balance, "Rolling Balance") %></th>
+          <th class="px-4 py-2 text-center"><%= sort_link(@q, :carry_forward_negative_balance, "Carry Negative") %></th>
+          <th class="px-4 py-2 text-center"><%= sort_link(@q, :user_changed, "User Changed") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @ledgers.each do |ledger| %>
+          <tr class="border-t border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-2"><%= link_to ledger.id, edit_ledger_path(ledger), class: "text-blue-600 hover:text-blue-800" %></td>
+            <td class="px-4 py-2"><%= ledger.date %></td>
+            <td class="px-4 py-2"><%= ledger.subcategory.category.name %></td>
+            <td class="px-4 py-2"><%= ledger.subcategory.name %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.budget / 100.0) %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.actual / 100.0) %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.balance / 100.0) %></td>
+            <td class="px-4 py-2 text-right"><%= number_to_currency(ledger.rolling_balance / 100.0) %></td>
+            <td class="px-4 py-2 text-center">
+              <%= button_to toggle_carry_forward_ledger_path(ledger, 
+                      q: {
+                        date_gteq: params.dig(:q, :date_gteq),
+                        date_lteq: params.dig(:q, :date_lteq),
+                        s: params.dig(:q, :s),
+                        subcategory_category_id_in: params.dig(:q, :subcategory_category_id_in),
+                        subcategory_id_in: params.dig(:q, :subcategory_id_in)
+                      }.compact_blank,
+                      page: params[:page]),
+                    method: :post,
+                    class: "w-full h-full flex items-center justify-center hover:bg-gray-100 transition-colors",
+                    form: { class: "w-full h-full", data: { turbo_confirm: "Update carry forward setting for this and future ledgers?" } } do %>
+                <span class="<%= ledger.carry_forward_negative_balance ? 'text-green-600' : 'text-red-600' %>">
+                  <%= ledger.carry_forward_negative_balance ? '✓' : '✗' %>
                 </span>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+              <% end %>
+            </td>
+            <td class="px-4 py-2 text-center">
+              <span class="<%= ledger.user_changed ? 'text-green-600' : 'text-gray-400' %>">
+                <%= ledger.user_changed ? '✓' : '✗' %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2 z-10">
-      <div class="text-sm text-gray-600">
-        <strong>Page:</strong> <%= pluralize(@ledgers.size, 'ledger') %>
-        <span class="mx-2">|</span>
-        <strong>Total:</strong> <%= pluralize(@filtered_count, 'ledger') %>
-      </div>
-      <div>
-        <%= custom_pagy_nav(@pagy) %>
-      </div>
+  <!-- Bottom section (pagination) -->
+  <div class="flex justify-between items-center flex-shrink-0 bg-gray-100 p-2 border-t border-gray-200">
+    <div class="text-sm text-gray-600">
+      <strong>Page:</strong> <%= pluralize(@ledgers.size, 'ledger') %>
+      <span class="mx-2">|</span>
+      <strong>Total:</strong> <%= pluralize(@filtered_count, 'ledger') %>
+    </div>
+    <div>
+      <%= custom_pagy_nav(@pagy) %>
     </div>
   </div>
 </div>

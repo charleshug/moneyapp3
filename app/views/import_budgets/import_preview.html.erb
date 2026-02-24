@@ -1,6 +1,6 @@
 <% provide(:title, "Import Budget") %>
 
-<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0 flex-1">
   <!-- Header row -->
   <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
     <div class="w-1/3">
@@ -11,7 +11,7 @@
   </div>
 
   <!-- Content section -->
-  <div class="p-4 overflow-y-auto flex-grow">
+  <div class="p-4 overflow-y-auto flex-1 min-h-0">
     <div class="bg-white rounded-lg p-6 shadow-sm">
       <% if @csv_data.nil? %>
         <div class="mb-6">
