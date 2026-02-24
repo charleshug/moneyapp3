@@ -110,6 +110,32 @@ class BudgetsController < ApplicationController
     render partial: "ledgers/refresh_budget_table", formats: :turbo_stream, layout: false
   end
 
+  def reorder_category
+    category = @current_budget.categories.expense.find(params[:category_id])
+    position = params[:position].to_i
+
+    ordered = @current_budget.categories.expense.to_a
+    ordered.delete(category)
+    position = [[position, 1].max, ordered.size + 1].min
+    ordered.insert(position - 1, category)
+
+    # Preserve order value slots used by expense categories so we don't overwrite income category orders
+    order_slots = @current_budget.categories.expense.order(:order).pluck(:order)
+
+    Category.transaction do
+      ordered.each_with_index do |c, i|
+        c.update_column(:order, 1000 + i)
+      end
+      ordered.each_with_index do |c, i|
+        c.update_column(:order, order_slots[i])
+      end
+    end
+
+    set_selected_month_from_params
+    set_budget_index_data(@selected_month)
+    render partial: "ledgers/refresh_budget_table", formats: :turbo_stream, layout: false
+  end
+
   def update_budgets
     date = Date.parse(params[:date])
 

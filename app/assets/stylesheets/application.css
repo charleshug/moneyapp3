@@ -138,3 +138,8 @@
 tr.subcategory-drop-indicator td {
   border-bottom: 3px solid #3b82f6;
 }
+
+/* Budget parent category drag-and-drop: thick bottom border for drop position */
+tr.category-drop-indicator td {
+  border-bottom: 3px solid #3b82f6;
+}

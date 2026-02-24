@@ -70,6 +70,7 @@ Rails.application.routes.draw do
     end
     collection do
       post "reorder_subcategory"
+      post "reorder_category"
     end
   end
 

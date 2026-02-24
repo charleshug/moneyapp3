@@ -1,6 +1,7 @@
 <tbody id="budget-table-tbody"
-        data-controller="subcategory-sortable"
-        data-subcategory-sortable-reorder-url-value="<%= reorder_subcategory_budgets_path %>">
+        data-controller="subcategory-sortable category-sortable"
+        data-subcategory-sortable-reorder-url-value="<%= reorder_subcategory_budgets_path %>"
+        data-category-sortable-reorder-url-value="<%= reorder_category_budgets_path %>">
   <!-- Per-month budget summary: one cell per month with label+value lines, text shrinks -->
   <tr class="bg-gray-50">
     <td class="px-4 py-2 w-48 min-w-48"></td>
@@ -66,7 +67,14 @@
   </tr>
   <% @budget_table_data.each_with_index do |parent, cat_idx| %>
     <tr class="bg-gray-100" data-category-id="<%= parent[:id] %>">
-      <td class="px-4 py-2 min-w-48"><strong><%= parent[:name] %></strong></td>
+      <td class="px-4 py-2 min-w-48">
+        <span class="inline-flex items-center gap-1.5">
+          <span data-category-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none inline-flex shrink-0" title="Drag to reorder categories" aria-hidden="true" draggable="true">
+            <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
+          </span>
+          <strong><%= parent[:name] %></strong>
+        </span>
+      </td>
       <% @display_months.each_with_index do |month, i| %>
         <% p = @budget_table_data_by_month[i][cat_idx] %>
         <td class="px-2 py-1 text-right border-l-2 border-gray-400 <%= budget_month_cell_min %> <%= budget_month_col_visible(i) %>" data-month-index="<%= i %>" data-category-type="budget"><strong><%= number_to_currency(p[:budget] / 100.0) %></strong></td>

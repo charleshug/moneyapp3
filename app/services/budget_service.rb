@@ -66,7 +66,7 @@ class BudgetService
   def self.generate_budget_table_data(current_budget, selected_month)
     categories = current_budget.categories.expense
       .includes(:subcategories)
-      .order(:name)
+      .reorder("categories.order")
 
     end_of_month = selected_month.end_of_month.to_date
     subcategory_ids = categories.flat_map { |c| c.subcategories.map(&:id) }
