@@ -6,12 +6,18 @@
 
   <!-- begin budget table: @container so column visibility follows available width -->
   <div class="@container bg-white rounded-lg shadow mb-6 overflow-x-auto min-w-0">
-    <table class="w-full min-w-max">
+    <table class="w-full min-w-max" data-controller="category-collapse-all">
       <thead class="bg-gray-100">
         <tr>
           <th rowspan="2" class="px-4 py-2 text-left align-top w-48 min-w-48">
           <span class="inline-flex items-center gap-1.5">
             Category
+            <button type="button" data-action="click->category-collapse-all#expandAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Expand all categories">
+              <i class="fa-solid fa-chevrons-down text-sm" aria-hidden="true"></i>
+            </button>
+            <button type="button" data-action="click->category-collapse-all#collapseAll" class="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse all categories">
+              <i class="fa-solid fa-chevrons-up text-sm" aria-hidden="true"></i>
+            </button>
             <%= link_to new_category_path, data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1", title: "Create category" do %>
               <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
             <% end %>
