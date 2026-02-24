@@ -12,7 +12,7 @@ class SubcategoriesController < ApplicationController
 
   # GET /subcategories/new
   def new
-    @subcategory = Subcategory.new
+    @subcategory = Subcategory.new(category_id: params[:category_id])
   end
 
   # GET /subcategories/1/edit
@@ -25,7 +25,9 @@ class SubcategoriesController < ApplicationController
 
     respond_to do |format|
       if @subcategory.save
-        format.html { redirect_to categories_path, notice: "Subcategory was successfully created." }
+        from_budgets = request.referer.to_s.include?(budgets_path)
+        redirect_url = from_budgets ? budgets_path(params.permit(:month)) : categories_path
+        format.html { redirect_to redirect_url, notice: "Subcategory was successfully created.", status: :see_other }
         format.json { render :show, status: :created, location: @subcategory }
       else
         format.html { render :new, status: :unprocessable_entity }

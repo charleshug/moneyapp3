@@ -1,19 +1,25 @@
 <% provide(:title, "New Subcategory") %>
 
-<div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
-  <!-- Header row -->
-  <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
-    <div class="w-1/3">
-      <%= link_to "Back", request.referer || categories_path, class: "text-white hover:text-blue-200" %>
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "modal" do %>
+    <%= render "shared/modal", title: "New Subcategory", model: @subcategory, partial_name: "subcategories/modal_form", partial_locals: { subcategory: @subcategory } %>
+  <% end %>
+<% else %>
+  <div class="bg-gray-100 rounded-lg shadow-md overflow-hidden flex flex-col h-[calc(100vh-120px)]">
+    <!-- Header row -->
+    <div class="bg-gray-800 py-3 px-4 flex justify-between items-center flex-shrink-0">
+      <div class="w-1/3">
+        <%= link_to "Back", request.referer || categories_path, class: "text-white hover:text-blue-200" %>
+      </div>
+      <h1 class="text-white text-xl font-bold w-1/3 text-center">New Subcategory</h1>
+      <div class="w-1/3 text-right"></div>
     </div>
-    <h1 class="text-white text-xl font-bold w-1/3 text-center">New Subcategory</h1>
-    <div class="w-1/3 text-right"></div>
-  </div>
-  
-  <!-- Form section -->
-  <div class="p-4 overflow-y-auto flex-grow">
-    <div class="bg-white rounded-lg p-4 shadow-sm">
-      <%= render "form", subcategory: @subcategory %>
+    
+    <!-- Form section -->
+    <div class="p-4 overflow-y-auto flex-grow">
+      <div class="bg-white rounded-lg p-4 shadow-sm">
+        <%= render "form", subcategory: @subcategory %>
+      </div>
     </div>
   </div>
-</div>
+<% end %>

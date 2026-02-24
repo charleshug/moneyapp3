@@ -66,14 +66,19 @@
     <td colspan="<%= 1 + @display_months.size * 3 %>" class="py-1"></td>
   </tr>
   <% @budget_table_data.each_with_index do |parent, cat_idx| %>
-    <tr class="bg-gray-100" data-category-id="<%= parent[:id] %>">
+    <tr class="bg-gray-100 group" data-category-id="<%= parent[:id] %>">
       <td class="px-4 py-2 min-w-48">
-        <span class="inline-flex items-center gap-1.5">
-          <span data-category-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none inline-flex shrink-0" title="Drag to reorder categories" aria-hidden="true" draggable="true">
-            <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
+        <div class="flex items-center justify-between w-full gap-2">
+          <span class="inline-flex items-center gap-1.5 min-w-0">
+            <span data-category-sortable-target="handle" class="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-600 select-none inline-flex shrink-0" title="Drag to reorder categories" aria-hidden="true" draggable="true">
+              <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/></svg>
+            </span>
+            <strong><%= parent[:name] %></strong>
           </span>
-          <strong><%= parent[:name] %></strong>
-        </span>
+          <%= link_to new_subcategory_path(category_id: parent[:id]), data: { turbo_frame: "modal", controller: "modal-opener", action: "click->modal-opener#storePosition" }, class: "inline-flex items-center justify-center w-7 h-7 rounded border border-gray-400 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity", title: "Add subcategory" do %>
+            <i class="fa-solid fa-plus text-sm" aria-hidden="true"></i>
+          <% end %>
+        </div>
       </td>
       <% @display_months.each_with_index do |month, i| %>
         <% p = @budget_table_data_by_month[i][cat_idx] %>
