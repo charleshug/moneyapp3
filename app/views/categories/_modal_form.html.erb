@@ -1,0 +1,30 @@
+<%= form_with model: category, data: { turbo_frame: "modal" }, class: "space-y-4" do |f| %>
+  <% if category.errors.any? %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+      <div class="text-sm text-red-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <% category.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :name, autofocus: true, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+  </div>
+
+  <div class="flex items-center">
+    <%= f.check_box :hidden, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+    <%= f.label :hidden, class: "ml-2 block text-sm text-gray-700" %>
+  </div>
+
+  <div class="flex justify-end gap-2 pt-2">
+    <button type="button" data-action="modal#close" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+      Cancel
+    </button>
+    <%= f.submit "Done", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors cursor-pointer" %>
+  </div>
+<% end %>

@@ -12,10 +12,18 @@ class CategoriesController < ApplicationController
 
   def create
     @category = @current_budget.categories.build(category_params)
+    # Place new category last
+    max_order = @current_budget.categories.maximum(:order) || 0
+    @category.order = max_order + 1
     if @category.save
-      redirect_to categories_path, notice: "Category was successfully created."
+      from_budgets = request.referer.to_s.include?(budgets_path)
+      if from_budgets
+        redirect_to budgets_path(params.permit(:month)), notice: "Category was successfully created.", status: :see_other
+      else
+        redirect_to categories_path, notice: "Category was successfully created.", status: :see_other
+      end
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
