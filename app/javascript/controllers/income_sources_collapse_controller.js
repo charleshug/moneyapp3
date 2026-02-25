@@ -1,9 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Toggles visibility of subcategory and total rows for an expense category on the income/expense report.
-// Attach to the category header <tr> with class "income-expense-category-header"; add a button
-// with data-action="click->income-expense-category-collapse#toggle" and
-// data-income-expense-category-collapse-target="chevron" for the icon.
+// Toggles visibility of income source (vendor) rows for "All Income Sources" on the income/expense report.
+// Stops at the row with class "expenses-section-header".
 export default class extends Controller {
   static targets = ["chevron", "toggleButton", "categoryTotal"]
 
@@ -15,11 +13,11 @@ export default class extends Controller {
   toggle(event) {
     event.preventDefault()
     event.stopPropagation()
-    const stopClasses = ["income-expense-category-header", "expenses-section-header"]
+    const stopClass = "expenses-section-header"
     let row = this.element.nextElementSibling
 
     while (row) {
-      if (stopClasses.some((c) => row.classList.contains(c))) break
+      if (row.classList.contains(stopClass)) break
       row.classList.toggle("hidden")
       row = row.nextElementSibling
     }
@@ -30,10 +28,10 @@ export default class extends Controller {
   }
 
   isCollapsed() {
-    const stopClasses = ["income-expense-category-header", "expenses-section-header"]
+    const stopClass = "expenses-section-header"
     let row = this.element.nextElementSibling
     while (row) {
-      if (stopClasses.some((c) => row.classList.contains(c))) break
+      if (row.classList.contains(stopClass)) break
       return row.classList.contains("hidden")
     }
     return true
@@ -51,6 +49,7 @@ export default class extends Controller {
   }
 
   updateCategoryTotalsVisibility() {
+    if (!this.hasCategoryTotalTarget) return
     const collapsed = this.isCollapsed()
     this.categoryTotalTargets.forEach((el) => {
       el.classList.toggle("hidden", !collapsed)

@@ -7,10 +7,10 @@ class IncomeExpenseReportService
 
   def call
     income_data = @current_budget.lines
-    .includes(trx: :vendor)
-    .joins(ledger: { subcategory: :category })
-    .where(trxes: { date: @start_date..@end_date })
-    .where(categories: { normal_balance: "INCOME" })
+      .includes(trx: :vendor)
+      .joins(:trx, ledger: { subcategory: :category })
+      .where(trxes: { date: @start_date..@end_date })
+      .where(categories: { normal_balance: "INCOME" })
 
     expense_data = @current_budget.lines
                                   .includes(trx: [ :account ])  # Preloads trx and its account
@@ -45,13 +45,13 @@ class IncomeExpenseReportService
   def populate_income_data(report_data, income_data)
     total_income = Hash.new(0)
 
-    income_data.group_by { |line| line.trx.vendor }.each do |vendor, lines|
-      report_data[:income][vendor.name] ||= {}
+    income_data.group_by { |line| line.trx.vendor&.name || "Other" }.each do |vendor_name, lines|
+      report_data[:income][vendor_name] ||= {}
 
       lines.each do |line|
         month_key = line.trx.date.strftime("%Y-%m")
-        report_data[:income][vendor.name][month_key] ||= 0
-        report_data[:income][vendor.name][month_key] += line.amount
+        report_data[:income][vendor_name][month_key] ||= 0
+        report_data[:income][vendor_name][month_key] += line.amount
         total_income[month_key] += line.amount
       end
     end

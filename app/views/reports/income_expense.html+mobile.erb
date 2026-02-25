@@ -28,18 +28,21 @@
               <td class="px-4 py-2 text-right"></td>
             <% end %>
           </tr>
-          <tr class="bg-gray-50 font-semibold income-sources-header category-collapsed" data-controller="income-expense-category-collapse">
-            <td class="px-4 py-2 sticky left-0 bg-gray-50 w-9">
-              <button type="button" data-action="click->income-expense-category-collapse#toggle" data-income-expense-category-collapse-target="toggleButton" class="inline-flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse/expand income sources" aria-expanded="false">
-                <i data-income-expense-category-collapse-target="chevron" class="fa-solid fa-chevron-right text-xs transition-transform" aria-hidden="true"></i>
-              </button>
+          <% income_has_sources = @report_data[:income].except("All Income Sources").any? %>
+          <tr class="bg-gray-50 font-semibold income-sources-header <%= 'category-collapsed cursor-pointer' if income_has_sources %>" <%= 'data-controller="income-sources-collapse" data-action="click->income-sources-collapse#toggle"'.html_safe if income_has_sources %>>
+            <td class="px-4 py-2 sticky left-0 bg-gray-50 w-9 <%= 'cursor-pointer' if income_has_sources %>">
+              <% if income_has_sources %>
+                <button type="button" data-action="click->income-sources-collapse#toggle" data-income-sources-collapse-target="toggleButton" class="inline-flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse/expand income sources" aria-expanded="false">
+                  <i data-income-sources-collapse-target="chevron" class="fa-solid fa-chevron-right text-xs transition-transform" aria-hidden="true"></i>
+                </button>
+              <% end %>
             </td>
-            <td class="px-4 py-2 sticky left-[57px] bg-gray-50">All Income Sources</td>
+            <td class="px-4 py-2 sticky left-[57px] bg-gray-50 <%= 'cursor-pointer' if income_has_sources %>">All Income Sources</td>
             <% all_income = @report_data[:income]["All Income Sources"] || {} %>
             <% @report_data[:months].each do |month| %>
               <% income_total = all_income[month] || 0 %>
               <td class="px-4 py-2 text-right">
-                <span class="category-total-on-header" data-income-expense-category-collapse-target="categoryTotal"><%= number_to_currency(income_total / 100.0) %></span>
+                <span class="category-total-on-header" <%= 'data-income-sources-collapse-target="categoryTotal"'.html_safe if income_has_sources %>><%= number_to_currency(income_total / 100.0) %></span>
               </td>
             <% end %>
           </tr>
