@@ -15,11 +15,11 @@ export default class extends Controller {
   toggle(event) {
     event.preventDefault()
     event.stopPropagation()
-    const headerClass = "income-expense-category-header"
+    const stopClasses = ["income-expense-category-header", "expenses-section-header"]
     let row = this.element.nextElementSibling
 
     while (row) {
-      if (row.classList.contains(headerClass)) break
+      if (stopClasses.some((c) => row.classList.contains(c))) break
       row.classList.toggle("hidden")
       row = row.nextElementSibling
     }
@@ -30,10 +30,10 @@ export default class extends Controller {
   }
 
   isCollapsed() {
-    const headerClass = "income-expense-category-header"
+    const stopClasses = ["income-expense-category-header", "expenses-section-header"]
     let row = this.element.nextElementSibling
     while (row) {
-      if (row.classList.contains(headerClass)) break
+      if (stopClasses.some((c) => row.classList.contains(c))) break
       return row.classList.contains("hidden")
     }
     return false

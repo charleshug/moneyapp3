@@ -31,16 +31,24 @@
               <td class="px-4 py-2 text-right"></td>
             <% end %>
           </tr>
-          <tr>
-            <td class="px-4 py-2 sticky left-0 bg-white"></td>
-            <td class="px-4 py-2 font-semibold sticky left-[57px] bg-white">All Income Sources</td>
+          <tr class="bg-gray-50 font-semibold income-sources-header" data-controller="income-expense-category-collapse">
+            <td class="px-4 py-2 sticky left-0 bg-gray-50 w-9">
+              <button type="button" data-action="click->income-expense-category-collapse#toggle" data-income-expense-category-collapse-target="toggleButton" class="inline-flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" title="Collapse/expand income sources" aria-expanded="true">
+                <i data-income-expense-category-collapse-target="chevron" class="fa-solid fa-chevron-down text-xs transition-transform" aria-hidden="true"></i>
+              </button>
+            </td>
+            <td class="px-4 py-2 sticky left-[57px] bg-gray-50">All Income Sources</td>
+            <% all_income = @report_data[:income]["All Income Sources"] || {} %>
             <% @report_data[:months].each do |month| %>
-              <td class="px-4 py-2 text-right"></td>
+              <% income_total = all_income[month] || 0 %>
+              <td class="px-4 py-2 text-right">
+                <span class="category-total-on-header hidden" data-income-expense-category-collapse-target="categoryTotal"><%= number_to_currency(income_total / 100.0) %></span>
+              </td>
             <% end %>
           </tr>
-          <% @report_data[:income].each do |vendor_name, transactions| %>
+          <% @report_data[:income].except("All Income Sources").each do |vendor_name, transactions| %>
             <tr class="hover:bg-gray-50 border-t border-gray-100">
-              <td class="px-4 py-2 sticky left-0 bg-white hover:bg-gray-50"></td>
+              <td class="px-4 py-2 sticky left-0 bg-white hover:bg-gray-50 w-9"></td>
               <td class="px-4 py-2 pl-8 sticky left-[57px] bg-white hover:bg-gray-50"><%= vendor_name %></td>
               <% @report_data[:months].each do |month| %>
                 <td class="px-4 py-2 text-right"><%= number_to_currency((transactions[month] || 0) / 100.0) %></td>
@@ -48,7 +56,7 @@
             </tr>
           <% end %>
           
-          <tr class="bg-gray-100 font-bold">
+          <tr class="bg-gray-100 font-bold expenses-section-header">
             <td class="px-4 py-2 sticky left-0 bg-gray-100" colspan="2">Expenses</td>
             <% @report_data[:months].each do |month| %>
               <td class="px-4 py-2 text-right"></td>
