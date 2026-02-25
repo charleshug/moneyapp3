@@ -5,10 +5,11 @@ import { Controller } from "@hotwired/stimulus"
 // with data-action="click->income-expense-category-collapse#toggle" and
 // data-income-expense-category-collapse-target="chevron" for the icon.
 export default class extends Controller {
-  static targets = ["chevron", "toggleButton"]
+  static targets = ["chevron", "toggleButton", "categoryTotal"]
 
   connect() {
     this.updateChevron()
+    this.updateCategoryTotalsVisibility()
   }
 
   toggle(event) {
@@ -25,6 +26,7 @@ export default class extends Controller {
 
     this.element.classList.toggle("category-collapsed", this.isCollapsed())
     this.updateChevron()
+    this.updateCategoryTotalsVisibility()
   }
 
   isCollapsed() {
@@ -46,5 +48,12 @@ export default class extends Controller {
     if (this.hasToggleButtonTarget) {
       this.toggleButtonTarget.setAttribute("aria-expanded", !collapsed)
     }
+  }
+
+  updateCategoryTotalsVisibility() {
+    const collapsed = this.isCollapsed()
+    this.categoryTotalTargets.forEach((el) => {
+      el.classList.toggle("hidden", !collapsed)
+    })
   }
 }

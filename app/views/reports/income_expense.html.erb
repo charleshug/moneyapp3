@@ -64,7 +64,10 @@
               </td>
               <td class="px-4 py-2 sticky left-[57px] bg-gray-50"><%= parent_name %></td>
               <% @report_data[:months].each do |month| %>
-                <td class="px-4 py-2 text-right"></td>
+                <% category_total = subcategories.values.sum { |transactions| transactions[month] || 0 } %>
+                <td class="px-4 py-2 text-right">
+                  <span class="category-total-on-header hidden" data-income-expense-category-collapse-target="categoryTotal"><%= number_to_currency(category_total / 100.0) %></span>
+                </td>
               <% end %>
             </tr>
             <% subcategories.each do |subcategory_name, transactions| %>
