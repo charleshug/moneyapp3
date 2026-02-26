@@ -1,9 +1,9 @@
 <% provide(:title, "Budgets") %>
 
-<div class="container mx-auto max-w-6xl px-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <div class="md:col-start-2 bg-white rounded-lg shadow p-4">
-      <div id="budget-header" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-4">
+<div class="container mx-auto max-w-6xl">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="md:col-start-2 bg-white">
+      <div id="budget-header" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pb-2">
         <div>
           <%= link_to "<", budgets_path(date: { month: @selected_month.prev_month.month, year: @selected_month.prev_month.year }), method: :get, class: "px-2 py-1 sm:px-3 bg-gray-200 rounded-md text-lg sm:text-2xl hover:bg-gray-300" %>
         </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
       
-      <div class="bg-gray-100 rounded-lg p-3 mx-auto max-w-md">
+      <div class="bg-gray-100 rounded-lgmx-auto max-w-md">
         <table class="w-full">
           <tr>
             <td class="text-right px-3 py-1 w-1/2 <%= @budget_available_previously < 0 ? 'text-red-600' : '' %>"><%= number_to_currency((@budget_available_previously / 100.0)) %></td>
@@ -52,31 +52,31 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+  <div class="bg-white overflow-hidden pt-2">
     <table class="w-full">
       <thead class="bg-gray-100">
         <tr>
-          <th class="px-4 py-2 text-left w-1/3">Category</th>
-          <th class="px-4 py-2 text-right w-1/4">Budget</th>
-          <th class="px-4 py-2 text-right w-1/4 hidden sm:table-cell">Actual</th>
-          <th class="px-4 py-2 text-right w-1/4">Balance</th>
+          <th class="px-2 text-left w-1/3">Category</th>
+          <th class="px-2 text-right w-1/4">Budget</th>
+          <th class="px-2 text-right w-1/4 hidden sm:table-cell">Actual</th>
+          <th class="px-2 text-right w-1/4">Balance</th>
         </tr>
-      </thead>
-      <tbody>
         <!-- Summary row at the top -->
         <tr class="bg-gray-100">
-          <td class="px-4 py-2 w-1/3"></td>
-          <td class="px-4 py-2 text-right w-1/4">
+          <td class="px-4 w-1/3"></td>
+          <td class="px-4 text-right w-1/4">
             <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4">
+          <td class="px-4 text-right hidden sm:table-cell w-1/4">
             <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
           </td>
-          <td class="px-4 py-2 text-right w-1/4">
+          <td class="px-4 text-right w-1/4">
             <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
             <strong class="text-xs <%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
           </td>
         </tr>
+      </thead>
+      <tbody>
         
         <!-- Separator row -->
         <tr class="border-t border-b border-gray-200">
@@ -85,24 +85,24 @@
         
         <% @budget_table_data.each do |parent| %>
           <tr class="bg-gray-100">
-            <td class="px-4 py-2 w-1/3"><strong class="block truncate text-xs"><%= parent[:name] %></strong></td>
-            <td class="px-4 py-2 text-right w-1/4"><strong class="text-xs"><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
-            <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><strong class="text-xs"><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
-            <td class="px-4 py-2 text-right w-1/4">
+            <td class="px-2 w-1/3"><strong class="block truncate text-xs"><%= parent[:name] %></strong></td>
+            <td class="px-2 text-right w-1/4"><strong class="text-xs"><%= number_to_currency(parent[:budget] / 100.0) %></strong></td>
+            <td class="px-2 text-right hidden sm:table-cell w-1/4"><strong class="text-xs"><%= link_to number_to_currency(parent[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_category_id_in: parent[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }) %></strong></td>
+            <td class="px-2 text-right w-1/4">
               <strong class="text-xs <%= parent[:balance] < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(parent[:balance] / 100.0) %></strong>
             </td>
           </tr>
           <% parent[:subcategories].each do |subcategory| %>
             <tr class="hover:bg-gray-50">
-              <td class="px-4 py-2 pl-8 w-1/3"><span class="block truncate text-xs"><%= subcategory[:name] %></span></td>
+              <td class="px-3 w-1/3"><span class="block truncate text-xs"><%= subcategory[:name] %></span></td>
               <% if subcategory[:ledger] %>
-                <td class="px-4 py-2 text-right w-1/4"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]), class: "text-xs" %></td>
-                <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }), class: "text-xs" %></td>
+                <td class="px-3 text-right w-1/4"><%= link_to number_to_currency(subcategory[:budget] / 100.0), edit_ledger_path(subcategory[:ledger]), class: "text-xs" %></td>
+                <td class="px-3 text-right hidden sm:table-cell w-1/4"><%= link_to number_to_currency(subcategory[:actual] / 100.0), trxes_path(q: { lines_ledger_subcategory_id_in: subcategory[:id], date_gteq: @selected_month.beginning_of_month, date_lteq: @selected_month.end_of_month }), class: "text-xs" %></td>
               <% else %>
-                <td class="px-4 py-2 text-right w-1/4"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }), class: "text-xs" %></td>
-                <td class="px-4 py-2 text-right hidden sm:table-cell w-1/4"><span class="text-xs"><%= number_to_currency(0 / 100.0) %></span></td>
+                <td class="px-3 text-right w-1/4"><%= link_to number_to_currency(0 / 100.0), new_ledger_path(ledger: { date: @selected_month, subcategory_id: subcategory[:id] }), class: "text-xs" %></td>
+                <td class="px-3 text-right hidden sm:table-cell w-1/4"><span class="text-xs"><%= number_to_currency(0 / 100.0) %></span></td>
               <% end %>
-                <td class="px-4 py-2 text-right w-1/4">
+                <td class="px-3 text-right w-1/4">
                   <span class="text-xs <%= subcategory[:balance] < 0 ? 'text-red-600' : '' %>">
                     <%= number_to_currency(subcategory[:balance] / 100.0) %>
                     <% if subcategory[:balance] < 0 && subcategory[:carry_forward] %>
