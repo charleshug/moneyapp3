@@ -33,10 +33,10 @@
     </div>
 
     <!-- Footer -->
-    <div class="mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 p-2 border-t border-gray-200">
-      <div class="text-sm text-gray-600">
+    <div class="mt-1 sm:mt-4 flex justify-between items-center sticky bottom-0 bg-gray-100 px-1.5 py-1 sm:p-2 border-t border-gray-200 min-h-0">
+      <div class="text-xs sm:text-sm text-gray-600">
         <strong>Page:</strong> <%= pluralize(trxes.size, 'transaction') %>
-        <span class="mx-2">|</span>
+        <span class="mx-1 sm:mx-2">|</span>
         <strong>Total:</strong> <%= pluralize(filtered_count, 'transaction') %>
       </div>
       <div>
