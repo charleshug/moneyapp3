@@ -56,24 +56,26 @@
     <table class="w-full">
       <thead class="bg-gray-100">
         <tr>
-          <th class="px-2 text-left w-1/3">Category</th>
-          <th class="px-2 text-right w-1/4">Budget</th>
-          <th class="px-2 text-right w-1/4 hidden sm:table-cell">Actual</th>
-          <th class="px-2 text-right w-1/4">Balance</th>
-        </tr>
-        <!-- Summary row at the top -->
-        <tr class="bg-gray-100">
-          <td class="px-4 w-1/3"></td>
-          <td class="px-4 text-right w-1/4">
-            <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
-          </td>
-          <td class="px-4 text-right hidden sm:table-cell w-1/4">
-            <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
-          </td>
-          <td class="px-4 text-right w-1/4">
-            <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
-            <strong class="text-xs <%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
-          </td>
+          <th class="px-2 text-left w-1/3 align-bottom pb-1">Category</th>
+          <th class="px-2 text-right w-1/4">
+            <div class="flex flex-col items-end">
+              <span class="strong">Budget</span>
+              <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:budget] } / 100.0) %></strong>
+            </div>
+          </th>
+          <th class="px-2 text-right w-1/4 hidden sm:table-cell">
+            <div class="flex flex-col items-end">
+              <span class="strong">Actual</span>
+              <strong class="text-xs"><%= number_to_currency(@budget_table_data.sum { |parent| parent[:actual] } / 100.0) %></strong>
+            </div>
+          </th>
+          <th class="px-2 text-right w-1/4">
+            <div class="flex flex-col items-end">
+              <span class="strong">Balance</span>
+              <% total_balance = @budget_table_data.sum { |parent| parent[:balance] } %>
+              <strong class="text-xs <%= total_balance < 0 ? 'text-red-600' : '' %>"><%= number_to_currency(total_balance / 100.0) %></strong>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody>
